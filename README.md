@@ -32,14 +32,14 @@ Licensed under the GNU General Public License v3.0. In building the multi-object
 ## Running the model
 ### Set-up
 * Clone the model and install dependencies. 
-  * Synthetic generation and all plotting is set up to run on my Windows laptop, using a linux bash terminal (e.g., Cygwin), and Python 3.6.1, plus the Python libraries below. If using a different setup, you may have to make alterations to the bash scripts.
+  * Synthetic generation and all plotting is set up to run on my Windows laptop, using a linux bash shell (e.g., Cygwin), and Python 3.6.1, plus the Python libraries below. If using a different setup, you may have to make alterations to the bash scripts.
     * Python libraries: numpy, pandas, matplotlib, seaborn, importlib, datetime, statsmodels, math, scipy
   * Optimization set up to run on [THECUBE](https://www.cac.cornell.edu/wiki/index.php?title=THECUBE_Cluster), a cluster housed at Cornell University. THECUBE uses the slurm scheduler. Submission scripts and makefiles may need to be altered to accomodate different setups.
 * Additional software
   * Download the [Borg MOEA](http://borgmoea.org/) source code
-    *Create a new directory called `borg` within the `code/misc/` directory and place the source code here.
+    * Create a new directory called `borg` within the `code/misc/` directory and place the source code here.
   * Download the "Compiled Binaries" from the [MOEAFramework](http://www.moeaframework.org/) website.
-     * Copy the `moeaframework.c` &amp `moeaframework.h` files (from the `MOEAFramework-*/examples` directory of the packag) to `code/misc/borg` 
+    * Copy the `moeaframework.c` &amp `moeaframework.h` files (from the `MOEAFramework-*/examples` directory of the packag) to `code/misc/borg` 
   * Download the "Demo Application" from the [MOEAFramework](http://www.moeaframework.org/) website.
     * Move `MOEAFramework-*-Demo.jar` to `code/misc'
   * Download `pareto.py` from [Github](https://github.com/matthewjwoodruff/pareto.py) 
@@ -49,11 +49,23 @@ Licensed under the GNU General Public License v3.0. In building the multi-object
   * Now run LHC sample script (`sh get_sample_LHC.sh`)
   * Output (`data/generated_inputs/param_LHC_sample.txt`) will have five columns (one for each uncertain factor) and 151 rows. The first 150 are from the LHC sample, and the last is the baseline parameter values.
 * Create synthetic time series and related plots
-  * Run `make_synthetic_data_plots.py`, either in an IDE such as Pycharm, or in a bash terminal (`python make_synthetic_data_plots.py` from `code/synthetic_data_and_moea_plots` directory)
-  * This will take a while - about 12 minutes on my laptop.
-  * Outputs
-    * `data/generated_inputs/synthetic_data.csv` - Synthetic time series of SWE, revenue, and CFD contract payouts (using baseline market price of risk (lambda) parameter value). Needed for MOO.
-    * `data/generated_inputs/param_LHC_sample_withLambdaShift.txt` - Parameter sample file with a newly-calculated contract for differences (CFD) pricing shift based on sampled market price of risk (lambda) value. Used in sensitivity analysis MOOs.
-    * Figures 2-6 from main text and S1-S3 from Supporting Information text
+  * Run `make_synthetic_data_plots.py`, either in an IDE such as Pycharm, or in a bash shell (`python make_synthetic_data_plots.py` from `code/synthetic_data_and_moea_plots` directory)
+    * This takes about 7 minutes on my laptop.
+    * Outputs
+      * `data/generated_inputs/synthetic_data.txt` - Synthetic time series of SWE, revenue, and CFD contract payouts (using baseline market price of risk (lambda) parameter value). Needed for MOO.
+      * `data/generated_inputs/param_LHC_sample_withLamPremShift.txt` - Parameter sample file with a newly-calculated contract for differences (CFD) pricing shift based on sampled market price of risk (lambda) value. Used in sensitivity analysis MOOs.
+      * Figures 2-6 from main text and S2-S3 from Supporting Information text
+  * Run `make_swe_copula_plot.py` 
+    * This function is slow, about ~~~ on my laptop. Skip this step if you don't care about this plot
+    * Output - Figure S1 from Supporting Information
 * Transfer new files from `data/generated_inputs/` to cluster (skip this step if performing all analysis on same machine)
-* 
+* Create baseline, sensitivity, & retest versions. Compile each C++ using MPI. 
+  * `sh remake.sh`
+* Run MOO for baseline & sensitivity analysis, from `code/optimization/` directory, in bash shell.
+  * `sbatch run_baseline_borgms.sh`
+  * `sbatch run_sensitivity_borgms.sh`
+  * Outputs
+    * `data/optimization_output/baseline/sets/param150_seedS1_seedB*.set`, for values of * in 1-50
+    * `data/optimization_output/baseline/runtime/param150_seedS1_seedB*.runtime`, for values of * in 1-50
+    * `data/optimization_output/sensitivity/sets/param@_seedS1_seedB*.set`, for values of * in 1-10, @ in 1-150
+    * `data/optimization_output/sensitivity/runtime/param@_seedS1_seedB*.runtime`, for values of * in 1-10, @ in 1-150
