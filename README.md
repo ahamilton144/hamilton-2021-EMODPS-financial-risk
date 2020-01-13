@@ -9,8 +9,6 @@ Licensed under the GNU General Public License v3.0. In building the multi-object
 * `code/` - directory with all code used to replicate paper
   * `synthetic_data_and_moea_plots/` - Python and bash scripts needed for (1) Generating all synthetic time series, (2) Plotting related to synthetic data, (3) Plotting related to MOO output
   * `optimization/` - C++ and bash scripts needed for MOO
-    * here
-    * here
   * `misc/` - directory for storing third-party software
     * `HypervolumeEval.class` - Class for calculating hypervolume with MOEAFramework, written by Dave Hadka, created following instructions [here](https://waterprogramming.wordpress.com/2015/08/26/moea-diagnostics-for-a-simple-test-case-part-23/)
     * `boostutil.h` - Utility functions for boost matrices/vectors, taken from [Lake Problem DPS](https://github.com/julianneq/Lake_Problem_DPS/blob/master/Optimization/boostutil.h) by Julianne Quinn.
@@ -56,16 +54,22 @@ Licensed under the GNU General Public License v3.0. In building the multi-object
       * `data/generated_inputs/param_LHC_sample_withLamPremShift.txt` - Parameter sample file with a newly-calculated contract for differences (CFD) pricing shift based on sampled market price of risk (lambda) value. Used in sensitivity analysis MOOs.
       * Figures 2-6 from main text and S2-S3 from Supporting Information text
   * Run `make_swe_copula_plot.py` 
-    * This function is slow, about ~~~ on my laptop. Skip this step if you don't care about this plot
     * Output - Figure S1 from Supporting Information
+    * This function takes ~2 hours on my laptop. Skip this step if you don't want to reproduce this plot.
 * Transfer new files from `data/generated_inputs/` to cluster (skip this step if performing all analysis on same machine)
 * Create baseline, sensitivity, & retest versions. Compile each C++ using MPI. 
   * `sh remake.sh`
+  * Note: you may need to alter compiler, library/module locations, etc., in `remake.sh` and `makefile` based on your machine.
 * Run MOO for baseline & sensitivity analysis, from `code/optimization/` directory, in bash shell.
-  * `sbatch run_baseline_borgms.sh`
-  * `sbatch run_sensitivity_borgms.sh`
+  * `sbatch run_baseline_borgms.sh` - This will launch 50 instances of the MOO, each with a different seed given to Borg MOEA.
+  * `sbatch run_sensitivity_borgms.sh` - This will launch 1500 instances of the MOO; 150 sets of parameters for the sensitivity analysis, with 10 Borg seeds each.
+  * Note: May want to change the number of nodes (`--nodes`), number of processors per node (`--ntasks-per-node`), and wall time (`-t`) to match your resources. The default is 1 node of 16 processors for the baseline set (on THECUBE, this ran for ~1 real minute, or 16 user minutes, per seed, or ~50 real minutes total), and 5 nodes of 16 processors each for the sensitivity analysis (which ran for a total of ~5.1 real hours total, or ~411 user hours).
   * Outputs
     * `data/optimization_output/baseline/sets/param150_seedS1_seedB*.set`, for values of * in 1-50
     * `data/optimization_output/baseline/runtime/param150_seedS1_seedB*.runtime`, for values of * in 1-50
     * `data/optimization_output/sensitivity/sets/param@_seedS1_seedB*.set`, for values of * in 1-10, @ in 1-150
     * `data/optimization_output/sensitivity/runtime/param@_seedS1_seedB*.runtime`, for values of * in 1-10, @ in 1-150
+* Run postprocessing script
+  * `sh postprocess_output.sh`  
+  * Outputs
+    * 
