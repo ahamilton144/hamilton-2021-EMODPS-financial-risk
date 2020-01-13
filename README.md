@@ -39,7 +39,7 @@ Licensed under the GNU General Public License v3.0. In building the multi-object
   * Download the "Compiled Binaries" from the [MOEAFramework](http://www.moeaframework.org/) website.
     * Copy the `moeaframework.c` &amp `moeaframework.h` files (from the `MOEAFramework-*/examples` directory of the packag) to `code/misc/borg` 
   * Download the "Demo Application" from the [MOEAFramework](http://www.moeaframework.org/) website.
-    * Move `MOEAFramework-*-Demo.jar` to `code/misc'
+    * Move `MOEAFramework-*-Demo.jar` to `code/misc`
   * Download `pareto.py` from [Github](https://github.com/matthewjwoodruff/pareto.py) 
     * Move to `code/misc`
 * Create Latin Hypercube Sample for sensitivity analysis. 
@@ -52,12 +52,12 @@ Licensed under the GNU General Public License v3.0. In building the multi-object
     * Outputs
       * `data/generated_inputs/synthetic_data.txt` - Synthetic time series of SWE, revenue, and CFD contract payouts (using baseline market price of risk (lambda) parameter value). Needed for MOO.
       * `data/generated_inputs/param_LHC_sample_withLamPremShift.txt` - Parameter sample file with a newly-calculated contract for differences (CFD) pricing shift based on sampled market price of risk (lambda) value. Used in sensitivity analysis MOOs.
-      * Figures 2-6 from main text and S2-S3 from Supporting Information text
+      * Figures 2-6 from main text and S2-S3 from Supporting Information, in `figures` directory
   * Run `make_swe_copula_plot.py` 
-    * Output - Figure S1 from Supporting Information
-    * This function takes ~2 hours on my laptop. Skip this step if you don't want to reproduce this plot.
+    * Output - Figure S1 from Supporting Information, in `figures` directory
+    * This takes ~2 hours on my laptop. Skip this step if you don't want to reproduce this plot.
 * Transfer new files from `data/generated_inputs/` to cluster (skip this step if performing all analysis on same machine)
-* Create baseline, sensitivity, & retest versions. Compile each C++ using MPI. 
+* Create baseline, sensitivity, & retest versions. Compile each C++ using MPI. All steps executed from directory `code/optimization`
   * `sh remake.sh`
   * Note: you may need to alter compiler, library/module locations, etc., in `remake.sh` and `makefile` based on your machine.
 * Run MOO for baseline & sensitivity analysis, from `code/optimization/` directory, in bash shell.
@@ -70,6 +70,27 @@ Licensed under the GNU General Public License v3.0. In building the multi-object
     * `data/optimization_output/sensitivity/sets/param@_seedS1_seedB*.set`, for values of * in 1-10, @ in 1-150
     * `data/optimization_output/sensitivity/runtime/param@_seedS1_seedB*.runtime`, for values of * in 1-10, @ in 1-150
 * Run postprocessing script
-  * `sh postprocess_output.sh`  
+  * `sh postprocess_output.sh`, from directory `code/optimization`
   * Outputs
-    * 
+    * `data/optimization_output/baseline/param150_borg.resultfile` - Reference set for baseline with 5 columns: 2 decision variables (max reserve size, cfd slope), 2 objectives (expected annualized cash flow, 95th percentile max fund), 1 constraint
+    * `data/optimization_output/baseline/param150_borg.reference` - Same as resultfile, but only 2 objective columns
+    * `data/optimization_output/baseline/param150_borg.hypervolume` - Hypervolume of reference set
+    * `data/optimization_output/baseline/param150_borg_retest.resultfile` - Results from rerunning reference set on a new stochastic sample of 50,000 simulations. Adds 3 columns to end of resultfile - objectives & constraint values on rerun.
+    * `data/optimization_output/baseline/metrics/param150_seedS1_seedB*.metrics`. - Indicators of performance throughout Borg MOEA run, for seed number * in 1-50. 50 rows give performance at function evaluations (200, 400, ..., 10000).
+    * `data/optimization_output/sensitivity/param@_borg.resultfile` - Reference set for sensitivity analysis parameter set @ (0-149)
+    * `data/optimization_output/sensitivity/param@_borg.reference` 
+    * `data/optimization_output/sensitivity/param@_borg.hypervolume` 
+    * `data/optimization_output/sensitivity/param@_borg_retest.resultfile`
+    * `data/optimization_output/sensitivity/metrics/param@_seedS1_seedB*.metrics`. - Indicators of performance throughout Borg MOEA run, for seed number * in 1-10, for sensitivity analysis parameter set @ in 0-149. Note some will be missing, indicating (@,*) combinations for which fewer than two feasible solutions are found, and thus some performance indicators are undefined. We find that 1310 out of 1500 total (@,\*) combinations have feasible metrics files.
+* Transfer important MOO outputs to appropriate directories on laptop for plotting (skip this step if performing the all analysis on a single machine)
+  * `data/optimization_output/baseline/param150_borg.hypervolume`
+  * `data/optimization_output/baseline/param150_borg_retest.resultfile`
+  * `data/optimization_output/baseline/metrics/param150_seedS1_seedB*.metrics`, for * in 1-50
+  * `data/optimization_output/sensitivity/param@_borg.hypervolume`, for @ in 0-149
+  * `data/optimization_output/sensitivity/param@_borg_retest.resultfile`, for @ in 0-149
+  * `data/optimization_output/sensitivity/metrics/param@_seedS1_seedB*.metrics`, for @ in 0-149, * in 1-10
+* Create plots related to MOO results
+  * Run `make_moea_output_plots.py`, from directory `code/synthetic_data_and_moea_plots.py`
+  * This takes about 3 minutes on my laptop
+  * Outputs
+    * Figures 7-11 from main text and S4-S9 from Supporting Information, in `figures` directory
