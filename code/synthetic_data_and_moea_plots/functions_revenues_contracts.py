@@ -1,3 +1,8 @@
+##############################################################################################################
+### functions_revenues_contracts.py - python functions used in creating simulated synthetic revenues and
+###     index contract payouts, plus related plots
+### Project started May 2017, last update Jan 2020
+##############################################################################################################
 
 import numpy as np
 import pandas as pd
@@ -158,7 +163,7 @@ def plot_SweFebApr_SweGen_SweRev(dir_figs, swe, gen, revHist, sweSynth, genSynth
   if (histRev):
     ax.scatter(sweWtHist.loc[1988:], revHistWyr, alpha=0.6, color=col[0], marker='^', s=40)
   ax.legend([p1,p2], ['Synthetic', 'Historic'], loc='lower right')
-  plt.savefig(dir_figs + 'sweFebApr_SweGen_SweRev.png', bbox_inches='tight', dpi=1200)
+  plt.savefig(dir_figs + 'fig2.jpg', bbox_inches='tight', dpi=1200)
 
 
 
@@ -281,8 +286,7 @@ def plot_contract(dir_figs, sweWtSynth, payoutPutSim, payoutShortCallSim, payout
   strike = sweWtSynth.quantile(0.5)
   prob = 1 / sweWtSynth.shape[0]
   # first get prem for base case
-  prem_base = wang(pd.DataFrame({'asset': sweWtSynth, 'prob': prob}), contractType='put',
-                   lam=0.25, k=strike, premOnly=True)
+  prem_base = wang(pd.DataFrame({'asset': sweWtSynth, 'prob': prob}), contractType='put', lam=0.25, k=strike, premOnly=True)
   for i in range(len(lambda_shifts)):
     lambda_shifts[i] = prem_base - wang(pd.DataFrame({'asset': sweWtSynth, 'prob': prob}), contractType='put',
                                         lam=lambda_shifts[i], k=strike, premOnly=True)
@@ -315,8 +319,8 @@ def plot_contract(dir_figs, sweWtSynth, payoutPutSim, payoutShortCallSim, payout
     line4, = ax.plot([0, kinkX, 60], [kinkX + kinkY + lambda_shifts[0], kinkY + lambda_shifts[0], kinkY + lambda_shifts[0]], color=col[0], ls='--', linewidth=2)
     line5, = ax.plot([0, kinkX, 60], [kinkX + kinkY + lambda_shifts[1], kinkY + lambda_shifts[1], kinkY + lambda_shifts[1]], color=col[0], ls=':', linewidth=2)
     plt.legend([line4,line3,line5],['No loading', 'Baseline loading', 'High loading'],loc='upper right')
-    plot_name = dir_figs + 'contract_lambda.png'
-
+    plot_name = dir_figs + 'fig4.jpg'
+    print(kinkX, kinkY)
   elif (plot_type=='composite'):
     # plot put
     kinkY = np.min(payoutPutSim)
@@ -329,10 +333,11 @@ def plot_contract(dir_figs, sweWtSynth, payoutPutSim, payoutShortCallSim, payout
     kinkCapX = np.min(sweWtSynth.loc[payoutShortCallSim < kinkCapY + eps])
     line2, = ax.plot([0, kinkStrikeX, kinkCapX, 60], [kinkStrikeY, kinkStrikeY, kinkCapY, kinkCapY], color=col[2], lw=2, ls='--')
     plt.legend([line1,line2,line3],['Long put','Short capped call','Capped contract for differences'],loc='lower left')
-    plot_name = dir_figs + 'contract_composite.png'
+    plot_name = dir_figs + 'figS3.jpg'
 
   plt.savefig(plot_name, dpi=1200)
 
+  return
 
 
 ##########################################################################
@@ -427,7 +432,7 @@ def plot_swe_hedged_revenue(dir_figs, sweWtSynth, revSimWyr, payoutCfdSim, meanR
   leg = plt.legend((eb1, eb3), ('Unhedged', 'Hedged'),
                    loc='upper left', borderaxespad=0.)
 
-  plot_name = dir_figs + 'swe_hedged_revenue.png'
+  plot_name = dir_figs + 'fig6.jpg'
 
   plt.savefig(plot_name, bbox_extra_artists=([leg]), bbox_inches='tight', dpi=1200)
 
@@ -465,7 +470,7 @@ def plot_cfd_slope_effect(dir_figs, sweWtSynth, revSimWyr, payoutCfdSim, meanRev
   cbar = plt.colorbar(cmapScalar)
   cbar.ax.set_ylabel('Contract slope ($\$$M/inch)')
 
-  plot_name = dir_figs + 'cfd_slope_effect.png'
+  plot_name = dir_figs + 'fig5.jpg'
   plt.savefig(plot_name, dpi=1200)
 
   return

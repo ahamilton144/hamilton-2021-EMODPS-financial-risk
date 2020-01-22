@@ -1,3 +1,7 @@
+##############################################################################################################
+### make_synthetic_data_plots.py - python script to create synthetic data and related plots
+### Project started May 2017, last update Jan 2020
+##############################################################################################################
 
 import numpy as np
 import pandas as pd

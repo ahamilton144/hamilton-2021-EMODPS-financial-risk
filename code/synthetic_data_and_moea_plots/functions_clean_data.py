@@ -1,3 +1,7 @@
+##############################################################################################################
+### functions_clean_data.py - python functions used in getting and cleaning raw data
+### Project started May 2017, last update Jan 2020
+##############################################################################################################
 
 import numpy as np
 import pandas as pd

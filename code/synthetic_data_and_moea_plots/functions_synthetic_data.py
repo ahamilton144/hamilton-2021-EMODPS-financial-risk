@@ -1,16 +1,24 @@
+##############################################################################################################
+### functions_synthetic_data.py - python functions used in creating synthetic SWE, hydropower generation,
+###     and power price, plus related plots
+### Project started May 2017, last update Jan 2020
+##############################################################################################################
+
 import numpy as np
 import pandas as pd
 import math
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import cm
 import statsmodels.formula.api as sm
+from statsmodels.stats.diagnostic import acorr_ljungbox
+from statsmodels.tsa.statespace.sarimax import SARIMAX
 import seaborn as sbn
 import scipy as sp
 from scipy import stats as st
 from scipy.stats import gamma, lognorm, multivariate_normal, norm, t
-from statsmodels.tsa.statespace.sarimax import SARIMAX
 from datetime import datetime
 import sys
+import itertools
 
 sbn.set_style('white')
 sbn.set_context('paper', font_scale=1.55)
@@ -52,8 +60,8 @@ def synthetic_swe(dir_generated_inputs, swe, redo = False, save = False):
   # print(sp.stats.kstest(swe.danFeb, 'gamma', args=(shp_g_danFeb, 0, scl_g_danFeb)))
   # print(sp.stats.kstest(swe.danApr, 'gamma', args=(shp_g_danApr, 0, scl_g_danApr)))
   # # ljung-box and box-pierce tests for autocorr in original swe data (if any of p in 2nd array (L-B) or 4th array (B-P) < 0.05, reject no-autocorr)
-  # print(stm.stats.acorr_ljungbox(swe.danFeb, lags=15, boxpierce=True))
-  # print(stm.stats.acorr_ljungbox(swe.danApr, lags=15, boxpierce=True))
+  # print(acorr_ljungbox(swe.danFeb, lags=15, boxpierce=True))
+  # print(acorr_ljungbox(swe.danApr, lags=15, boxpierce=True))
   # # test for trend in time in original swe data
   # lmSWEwTIME = sm.ols(formula='swe ~ time', data=pd.DataFrame({'swe': swe.danFeb, 'time': np.arange(1953,2017)}))
   # lmSWEwTIME = lmSWEwTIME.fit()
@@ -181,7 +189,7 @@ def plot_empirical_synthetic_copula_swe(dir_figs, swe, startTime):
   plt.legend((l1, p1), ('Fitted copula', 'Observed data'))
   plt.xlabel('Theoretical order statistic')
   plt.ylabel('Observed order statistic')
-  plot_name = dir_figs + 'copulaTest.png'
+  plot_name = dir_figs + 'figS1.jpg'
   plt.savefig(plot_name, dpi=1200)
 
 
@@ -353,7 +361,7 @@ def synthetic_generation(dir_generated_inputs, dir_figs, gen, sweSynth, redo = F
         if (x1 < max_x):
           plt.plot([x1, max_x], [y1, y1], c=col[0])
         plt.annotate(wmnths[wmnth-1], xy=(38,3))
-    plot_name = dir_figs + 'hydropower_monthly_models.png'
+    plot_name = dir_figs + 'figS2.jpg'
     plt.savefig(plot_name, dpi=1200)
 
 
@@ -611,14 +619,14 @@ def synthetic_power(dir_generated_inputs, power, redo = False, save = False):
     # plt.plot(power.logMean)
     # plt.plot(power.logDe)
 
-    # # # check for linear trend -> small significant negative trend
+    # # # check for linear trend -> small significant negative trend. ignore since only 7 years of data.
     # lmPowDeLin = sm.ols(formula='dat ~ ind ',
     #                   data=pd.DataFrame({'dat': power.logDe, 'ind': range(0, power.shape[0])}))
     # lmPowDeLin = lmPowDeLin.fit()
     # print(lmPowDeLin.summary())
 
-    ### SARIMAX model: iterate over parameters and choose lowest AIC
-    # # (mod from https://stats.stackexchange.com/questions/328524/choose-seasonal-parameters-for-sarimax-model)
+    # ### SARIMAX model: iterate over parameters and choose lowest BIC
+    # # # (mod from https://stats.stackexchange.com/questions/328524/choose-seasonal-parameters-for-sarimax-model)
     # p = d = q = P = D = Q = range(0,2)
     # pdq = list(itertools.product(p,d,q))
     # PDQ12 = [(x[0], x[1], x[2], 12) for x in list(itertools.product(P,D,Q))]
@@ -637,9 +645,33 @@ def synthetic_power(dir_generated_inputs, power, redo = False, save = False):
     #         except Exception as e:
     #             # print(e)
     #             continue
-    sarimaxPower = SARIMAX(power.logDe, order=(1,0,0), seasonal_order=(0,0,1,12))
+    # sarimaxPower = SARIMAX(power.logDe, order=(1,0,0), seasonal_order=(0,0,1,12))
+    # sarimaxPower = sarimaxPower.fit(disp=0)
+    # # print(sarimaxPower.summary())
+
+    # p = q = P = Q = range(0, 2)
+    # pdq = [(x[0], 0, x[1]) for x in list(itertools.product(p, q))]
+    # PDQ12 = [(x[0], 0, x[1], 12) for x in list(itertools.product(P, Q))]
+    # BIC = 1000
+    # for param in pdq:
+    #   for paramSeas in PDQ12:
+    #     try:
+    #       sarimaxPower = SARIMAX(power.logDe, order=param, seasonal_order=paramSeas)
+    #       sarimaxPower = sarimaxPower.fit(disp=0)
+    #       # if ((sarimaxPower.pvalues > 0.05).sum() == 0):
+    #         # if sarimaxPower.bic < 115:
+    #       print('ARIMA{}x{} - BIC:{}'.format(param, paramSeas, sarimaxPower.bic))
+    #       if sarimaxPower.bic < BIC:
+    #         BIC = sarimaxPower.bic
+    #         best_param = param
+    #         best_paramSeas = paramSeas
+    #     except Exception as e:
+    #       # print(e)
+    #       continue
+    sarimaxPower = SARIMAX(power.logDe, order=(1, 0, 0), seasonal_order=(0, 0, 1, 12))
     sarimaxPower = sarimaxPower.fit(disp=0)
-    # print(sarimaxPower.summary())
+    print(sarimaxPower.summary())
+
 
 
     # # try with sweApr as exogenous factor -> not sig
@@ -665,7 +697,7 @@ def synthetic_power(dir_generated_inputs, power, redo = False, save = False):
     # plt.hist(sarimaxPower.resid.iloc[12:])
     # pd.plotting.autocorrelation_plot(sarimaxPower.resid.iloc[12:])
     # plot_pacf(sarimaxPower.resid.iloc[12:])
-    # stm.stats.acorr_ljungbox(sarimaxPower.resid.iloc[12:], boxpierce=True, lags=36)
+    # acorr_ljungbox(sarimaxPower.resid.iloc[12:], boxpierce=True, lags=36)
     # sp.stats.shapiro(sarimaxPower.resid.iloc[12:])
     # stt.durbin_watson(sarimaxPower.resid.iloc[12:])
     # plt.plot(sarimaxPower.predict().iloc[12:])
@@ -915,16 +947,16 @@ def plot_historical_synthetic_generation_power(dir_figs, gen, genSynth, power, p
       leg2 = ax.legend((eb1, eb2), ('Historic', 'Synthetic'), loc='upper right', borderaxespad=0.)
 
   if ((powerOnly==False) & (genOnly==False)):
-    plot_name = dir_figs + 'historical_synthetic_generation_power.png'
+    plot_name = dir_figs + 'fig3.jpg'
     plt.savefig(plot_name, bbox_extra_artists=([leg1, leg2]), bbox_inches='tight', dpi=1200)
   elif (powerOnly == False):
-    plot_name = dir_figs + 'historical_synthetic_generation.png'
+    plot_name = dir_figs + 'historical_synthetic_generation.jpg'
     plt.savefig(plot_name, bbox_extra_artists=([leg1]), bbox_inches='tight', dpi=1200)
   elif (genOnly == False):
-    plot_name = dir_figs + 'historical_synthetic_power.png'
+    plot_name = dir_figs + 'historical_synthetic_power.jpg'
     plt.savefig(plot_name, bbox_extra_artists=([leg2]), bbox_inches='tight', dpi=1200)
 
-
+  return
 
 
 
