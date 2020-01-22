@@ -1,3 +1,8 @@
+##############################################################################################################
+### make_moea_output_plots.py - python script to create plots for multi-objective optimization outputs
+### Project started May 2017, last update Jan 2020
+##############################################################################################################
+
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -47,7 +52,7 @@ moea_solns_unfiltered = functions_moea_output_plots.get_moea_output(dir_generate
                                                                     debt_filter=False)
 
 ### choose 3 example policies for plotting from sfpuc baseline params
-cases_sfpuc_index = [1508,1509,1512]
+cases_sfpuc_index = [1585,1590,1597]
 params_sfpuc = moea_solns_filtered.loc[moea_solns_filtered.p==p_sfpuc].iloc[0,:].loc[['Delta_debt','Delta_fund','c','delta','lam_prem_shift','expected_net_revenue']]
 
 
@@ -127,5 +132,9 @@ importlib.reload(functions_moea_output_plots)
 functions_moea_output_plots.plot_epsilon_indicator(dir_figs, metrics_seedsBase, metrics_seedsSensitivity, p_successes, nSeedsBase, nSeedsSensitivity, nfe)
 
 print('Finished, ', datetime.now() - startTime)
+
+
+
+
 
 

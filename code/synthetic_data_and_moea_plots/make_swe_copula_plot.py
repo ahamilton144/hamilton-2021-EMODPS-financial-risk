@@ -1,3 +1,7 @@
+##############################################################################################################
+### make_sswe_copula_plot.py - python script to create copula goodness of fit plot for SWE data
+### Project started May 2017, last update Jan 2020
+##############################################################################################################
 
 import seaborn as sbn
 import importlib

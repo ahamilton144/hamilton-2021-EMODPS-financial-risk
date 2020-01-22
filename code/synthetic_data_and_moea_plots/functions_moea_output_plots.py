@@ -1,3 +1,9 @@
+##############################################################################################################
+### functions_moea_output_plots.py - python functions used in analyzing and plotting outputs from multi-objective optimization
+###     multi-objective optimization
+### Project started May 2017, last update Jan 2020
+##############################################################################################################
+
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -11,7 +17,8 @@ sbn.set_context('paper', font_scale=1.55)
 eps = 1e-13
 
 cmap = cm.get_cmap('viridis')
-col = [cmap(0.1),cmap(0.3),cmap(0.6),cmap(0.8)]
+col = [cmap(0),cmap(0.15),cmap(0.6),cmap(0.85)]
+# col = [cmap(0.1),cmap(0.3),cmap(0.6),cmap(0.8)]
 
 palette = {'None':col[0], 'Fund':col[3], 'CFD':col[1], 'Fund+CFD':col[2]}
 marker = {'None':'<', 'Fund':'o', 'CFD':'*', 'Fund+CFD':'+', 'Infeasible':'$i$'}
@@ -118,13 +125,13 @@ def plot_pareto_baseline(dir_figs, moea_solns, p_sfpuc, cases_sfpuc_index):
                  marker=marker['Fund+CFD'], linewidth=0, markeredgewidth=2, markerfacecolor='none',
                  c=palette['Fund+CFD'], alpha=1, ms=10)
   plt.annotate('C', xy=(moea_solns.exp_ann_cashflow_retest.iloc[cases_sfpuc_index[2]]-0.02,
-                 moea_solns.q95_max_debt_retest.iloc[cases_sfpuc_index[2]]-2.75))
+                 moea_solns.q95_max_debt_retest.iloc[cases_sfpuc_index[2]]-2.5))
   plt.plot([11],[0.2],marker='*',ms=15,c='0.6')
   plt.annotate('Ideal', xy=(10.92,1.5),color='0.6')
   plt.legend([m2,m1], ['Fund','Fund+CFD'], loc='upper left')
   plt.ylabel(r"$\leftarrow$ Q95 Max Debt $\left(J^{debt}\right)$")
   plt.xlabel(r"Expected Annualized Cash Flow $\left(J^{cash}\right)\rightarrow$")
-  plt.savefig(dir_figs + 'revVsDebt.png', bbox_inches='tight', dpi=1200)
+  plt.savefig(dir_figs + 'fig7.jpg', bbox_inches='tight', dpi=1200)
 
 
 
@@ -152,7 +159,7 @@ def get_cashflow_post_withdrawal(fund_balance, cash_in, cashflow_target, maxFund
 ######### Run single random simulation with given cfd slope & max fund  ###########
 ############## Return set of objectives #########################################
 ##########################################################################
-def singleSimObjectives(revenue_sample, payoutCfd_sample, fixedCostFraction, meanRevenue, maxFund, slopeCfd, 
+def single_sim_objectives(revenue_sample, payoutCfd_sample, fixedCostFraction, meanRevenue, maxFund, slopeCfd, 
                         interestFund, interestDebt, lambdaCfdPremiumShift, discFactor, discNorm, nYears):
 
   net_revenue = revenue_sample - meanRevenue * fixedCostFraction
@@ -195,7 +202,7 @@ def singleSimObjectives(revenue_sample, payoutCfd_sample, fixedCostFraction, mea
 ######### Run nSamples simulations with given cfd slope & max fund ###########
 ############## Returns set of objectives #########################################
 ##########################################################################
-def monteCarloObjectives(synthetic_data, fixedCostFraction, meanRevenue, maxFund, slopeCfd, interestFund, interestDebt,
+def monte_carlo_objectives(synthetic_data, fixedCostFraction, meanRevenue, maxFund, slopeCfd, interestFund, interestDebt,
                          discountRate, lambdaCfdPremiumShift, nYears, nSamples, set_seed, full_output, sample_starts=[0]):
 
   objectives_1sim = np.array([])
@@ -208,7 +215,7 @@ def monteCarloObjectives(synthetic_data, fixedCostFraction, meanRevenue, maxFund
   discNorm = 1 / np.sum(discFactor)
   for s in range(0, len(sample_starts)):
     objectives_1sim = np.append(objectives_1sim,
-                                singleSimObjectives(
+                                single_sim_objectives(
                                   synthetic_data.revenue.iloc[sample_starts[s]:(sample_starts[s] + nYears)].values,
                                   synthetic_data.payoutCfd.iloc[sample_starts[s]:(sample_starts[s] + nYears)].values,
                                   fixedCostFraction, meanRevenue, maxFund, slopeCfd, interestFund, interestDebt,
@@ -237,18 +244,20 @@ def plot_distribution_objectives(dir_figs, synthetic_data, moea_solns, cases_sfp
 
   cases_sfpuc_max_fund = moea_solns.max_fund.values[cases_sfpuc_index]
   cases_sfpuc_slope_cfd = moea_solns.slope_cfd.values[cases_sfpuc_index]
+  cases_sfpuc_Jcash = moea_solns.exp_ann_cashflow_retest.values[cases_sfpuc_index]
+  cases_sfpuc_Jdebt = moea_solns.q95_max_debt_retest.values[cases_sfpuc_index]
 
   # Run nSamples of nYears each and calculate objectives & constraint
   sample_starts = [0]
-  objectivesA = monteCarloObjectives(synthetic_data, fixedCostFraction, meanRevenue,
+  objectivesA = monte_carlo_objectives(synthetic_data, fixedCostFraction, meanRevenue,
                                      cases_sfpuc_max_fund[0], cases_sfpuc_slope_cfd[0], interestFund, interestDebt,
                                      discountRate, lambdaCfdPremiumShift, nYears, 50000, set_seed=6, full_output=True,
                                      sample_starts=sample_starts)
-  objectivesB = monteCarloObjectives(synthetic_data, fixedCostFraction, meanRevenue,
+  objectivesB = monte_carlo_objectives(synthetic_data, fixedCostFraction, meanRevenue,
                                      cases_sfpuc_max_fund[1], cases_sfpuc_slope_cfd[1], interestFund, interestDebt,
                                      discountRate, lambdaCfdPremiumShift, nYears, 50000, set_seed=6, full_output=True,
                                      sample_starts=sample_starts)
-  objectivesC = monteCarloObjectives(synthetic_data, fixedCostFraction, meanRevenue,
+  objectivesC = monte_carlo_objectives(synthetic_data, fixedCostFraction, meanRevenue,
                                      cases_sfpuc_max_fund[2], cases_sfpuc_slope_cfd[2], interestFund, interestDebt,
                                      discountRate, lambdaCfdPremiumShift, nYears, 50000, set_seed=6, full_output=True,
                                      sample_starts=sample_starts)
@@ -275,32 +284,33 @@ def plot_distribution_objectives(dir_figs, synthetic_data, moea_solns, cases_sfp
   ax.set_xlabel('Annualized Cash Flow ($M/year)')
   ax.set_ylabel('Density')
   ax.tick_params(axis='y', which='both', labelleft=False, labelright=False)
+  ax.set_ylim([0, 0.28])
 
   plt.hist(objectivesA[::3], normed=True, alpha=0.6, color=col[0], bins=np.arange(0,44)/2)
   plt.hist(objectivesB[::3], normed=True, alpha=0.6, color=col[2], bins=np.arange(0,44)/2)
   plt.hist(objectivesC[::3], normed=True, alpha=0.6, color=col[3], bins=np.arange(0,44)/2)
 
-  plt.axvline(x=np.mean(objectivesA[::3]), color=col[0], linewidth=2, linestyle='--')
-  plt.axvline(x=np.mean(objectivesB[::3]), color=col[2], linewidth=2, linestyle='--')
-  plt.axvline(x=np.mean(objectivesC[::3]), color=col[3], linewidth=2, linestyle='--')
+  plt.axvline(x=cases_sfpuc_Jcash[0], color=col[0], linewidth=2, linestyle='--')
+  plt.axvline(x=cases_sfpuc_Jcash[1], color=col[2], linewidth=2, linestyle='--')
+  plt.axvline(x=cases_sfpuc_Jcash[2], color=col[3], linewidth=2, linestyle='--')
 
   ax = plt.subplot2grid((1,2), (0, 1))
   ax.set_xlabel('Max Debt ($M)')
   ax.set_ylabel('Density')
   ax.tick_params(axis='y', which='both', labelleft=False, labelright=False)
-  ax.set_ylim([0,0.07])
   ax.yaxis.set_label_position('right')
+  ax.set_ylim([0, 0.07])
 
   plt.hist(objectivesA[1::3], normed=True, alpha=0.6, color=col[0], bins=np.arange(0,46))
   plt.hist(objectivesB[1::3], normed=True, alpha=0.6, color=col[2], bins=np.arange(0,46))
   plt.hist(objectivesC[1::3], normed=True, alpha=0.6, color=col[3], bins=np.arange(0,46))
   plt.legend(['A','B','C'], loc='upper right')
 
-  plt.axvline(x=np.quantile(objectivesA[1::3],0.95), color=col[0], linewidth=2, linestyle='--')
-  plt.axvline(x=np.quantile(objectivesB[1::3],0.95), color=col[2], linewidth=2, linestyle='--')
-  plt.axvline(x=np.quantile(objectivesC[1::3],0.95), color=col[3], linewidth=2, linestyle='--')
+  plt.axvline(x=cases_sfpuc_Jdebt[0], color=col[0], linewidth=2, linestyle='--')
+  plt.axvline(x=cases_sfpuc_Jdebt[1], color=col[2], linewidth=2, linestyle='--')
+  plt.axvline(x=cases_sfpuc_Jdebt[2], color=col[3], linewidth=2, linestyle='--')
 
-  plt.savefig(dir_figs + 'histObjectives.png', dpi=1200)
+  plt.savefig(dir_figs + 'fig8.jpg', dpi=1200)
 
   return
 
@@ -352,10 +362,10 @@ def plot_tradeoff_cloud(dir_figs, moea_solns, meanRevenue, p_sfpuc, debt_filter)
   plt.xlabel(r"Normalized Expected Annualized Cash Flow $\left(\hat{J}^{cash}\right)\rightarrow$")
   if (debt_filter):
     plt.legend([m2, m3, m1], ['Fund', 'CFD', 'Fund+CFD'], loc='lower left')
-    plt.savefig(dir_figs + 'revVsDebt_cloud_filter.png', bbox_inches='tight', dpi=1200)
+    plt.savefig(dir_figs + 'fig9.jpg', bbox_inches='tight', dpi=1200)
   else:
-    plt.legend([m2, m3, m1], ['Fund', 'CFD', 'Fund+CFD'], loc='upper left')
-    plt.savefig(dir_figs + 'revVsDebt_cloud_noFilter.png', bbox_inches='tight', dpi=1200)
+    plt.legend([m2, m3, m1], ['Fund', 'CFD', 'Fund+CFD'], loc='lower left')
+    plt.savefig(dir_figs + 'figS7.jpg', bbox_inches='tight', dpi=1200)
 
   return
 
@@ -417,7 +427,7 @@ def plot_sensitivity_debt(dir_figs, moea_solns, p_sfpuc, debt_filter):
   ax = plt.subplot2grid((2,4),(0,2))
   ax.set_xlabel('$\delta$')
   ax.xaxis.set_label_position('top')
-  ax.set_xticks(np.arange(-2,6,7))
+  ax.set_xticks(np.arange(0,6,5))
   ax.tick_params(axis='y',which='both',labelleft=False)
   ax.tick_params(axis='x',which='both',labelbottom=False,labeltop=True)
   for xp, yp, colp, mp in zip(moea_solns.delta.loc[(moea_solns.Regime=='Fund')|(moea_solns.Regime=='Fund+CFD')],
@@ -479,7 +489,7 @@ def plot_sensitivity_debt(dir_figs, moea_solns, p_sfpuc, debt_filter):
   if (debt_filter):
     ax.set_yticks(np.arange(0, 6, 5))
   else:
-    ax.set_yticks(np.arange(0,36,35))
+    ax.set_yticks(np.arange(0,21,20))
   ax.tick_params(axis='y',which='both',labelleft=False,labelright=True)
   ax.tick_params(axis='x',which='both',labelbottom=True,labeltop=False)
   for xp, yp, colp, mp in zip(moea_solns.Delta_debt.loc[(moea_solns.Regime=='Fund')|(moea_solns.Regime=='Fund+CFD')],
@@ -514,7 +524,7 @@ def plot_sensitivity_debt(dir_figs, moea_solns, p_sfpuc, debt_filter):
   if (debt_filter):
     ax.set_yticks(np.arange(0, 6, 5))
   else:
-    ax.set_yticks(np.arange(0,36,35))
+    ax.set_yticks(np.arange(0,21,20))
   ax.tick_params(axis='y',which='both',labelleft=False,labelright=True)
   ax.tick_params(axis='x',which='both',labelbottom=False,labeltop=True)
   for xp, yp, colp, mp in zip(moea_solns.lam.loc[(moea_solns.Regime=='Fund')|(moea_solns.Regime=='Fund+CFD')],
@@ -541,9 +551,9 @@ def plot_sensitivity_debt(dir_figs, moea_solns, p_sfpuc, debt_filter):
                 c='k', alpha=0.7)
 
   if (debt_filter):
-    plt.savefig(dir_figs + 'regimeSensitivity_maxDebt_filter.png', bbox_inches='tight', dpi=1200)
+    plt.savefig(dir_figs + 'fig10.jpg', bbox_inches='tight', dpi=1200)
   else:
-    plt.savefig(dir_figs + 'regimeSensitivity_maxDebt_noFilter.png', bbox_inches='tight', dpi=1200)
+    plt.savefig(dir_figs + 'figS8.jpg', bbox_inches='tight', dpi=1200)
 
   return
 
@@ -566,8 +576,7 @@ def plot_sensitivity_cashflow(dir_figs, moea_solns, p_sfpuc, meanRevenue, debt_f
   ax.set_xticks(np.arange(0.85, 0.98, 0.04))
   if (debt_filter):
     ax.set_xlim([0.84, 0.98])
-  else:
-    ax.set_yticks(np.arange(0.5, 1.01, 0.1))
+  ax.set_yticks(np.arange(0.5, 1.01, 0.1))
   for xp, yp, colp, mp in zip(moea_solns.c.loc[(moea_solns.Regime == 'Fund') | (moea_solns.Regime == 'Fund+CFD')],
                               moea_solns.exp_ann_cashflow_retest.loc[
                                 (moea_solns.Regime == 'Fund') | (moea_solns.Regime == 'Fund+CFD')] /
@@ -615,7 +624,7 @@ def plot_sensitivity_cashflow(dir_figs, moea_solns, p_sfpuc, meanRevenue, debt_f
   ax = plt.subplot2grid((2, 4), (0, 2))
   ax.set_xlabel('$\delta$')
   ax.xaxis.set_label_position('top')
-  ax.set_xticks(np.arange(-2, 6, 7))
+  ax.set_xticks(np.arange(0, 6, 5))
   ax.tick_params(axis='y', which='both', labelleft=False)
   ax.tick_params(axis='x', which='both', labelbottom=False, labeltop=True)
   for xp, yp, colp, mp in zip(moea_solns.delta.loc[(moea_solns.Regime == 'Fund') | (moea_solns.Regime == 'Fund+CFD')],
@@ -692,10 +701,7 @@ def plot_sensitivity_cashflow(dir_figs, moea_solns, p_sfpuc, meanRevenue, debt_f
   ax.set_ylabel('$\leftarrow\hat{J}^{cash}$', rotation=270, labelpad=20)
   ax.yaxis.set_label_position('right')
   ax.set_xticks(np.arange(0, 6, 5))
-  if (debt_filter):
-    ax.set_yticks(np.arange(0.6, 1.1, 0.4))
-  else:
-    ax.set_yticks(np.arange(0.5,1.1, 0.5))
+  ax.set_yticks(np.arange(0.6, 1.1, 0.4))
   ax.tick_params(axis='y', which='both', labelleft=False, labelright=True)
   ax.tick_params(axis='x', which='both', labelbottom=True, labeltop=False)
   for xp, yp, colp, mp in zip(
@@ -736,10 +742,7 @@ def plot_sensitivity_cashflow(dir_figs, moea_solns, p_sfpuc, meanRevenue, debt_f
   ax.set_ylabel('$\leftarrow\hat{J}^{cash}$', rotation=270, labelpad=20)
   ax.yaxis.set_label_position('right')
   ax.set_xticks(np.arange(0, 0.6, 0.5))
-  if (debt_filter):
-    ax.set_yticks(np.arange(0.6, 1.1, 0.4))
-  else:
-    ax.set_yticks(np.arange(0.5, 1.1, 0.5))
+  ax.set_yticks(np.arange(0.6, 1.1, 0.4))
   ax.tick_params(axis='y', which='both', labelleft=False, labelright=True)
   ax.tick_params(axis='x', which='both', labelbottom=False, labeltop=True)
   for xp, yp, colp, mp in zip(moea_solns.lam.loc[(moea_solns.Regime == 'Fund') | (moea_solns.Regime == 'Fund+CFD')],
@@ -775,9 +778,9 @@ def plot_sensitivity_cashflow(dir_figs, moea_solns, p_sfpuc, meanRevenue, debt_f
            c='k', alpha=0.7)
 
   if (debt_filter):
-    plt.savefig(dir_figs + 'regimeSensitivity_annRev_filter.png', bbox_inches='tight', dpi=1200)
+    plt.savefig(dir_figs + 'fig11.jpg', bbox_inches='tight', dpi=1200)
   else:
-    plt.savefig(dir_figs + 'regimeSensitivity_annRev_noFilter.png', bbox_inches='tight', dpi=1200)
+    plt.savefig(dir_figs + 'figS9.jpg', bbox_inches='tight', dpi=1200)
 
   return
 
@@ -862,7 +865,7 @@ def plot_hypervolume(dir_figs, metrics_seedsBase, metrics_seedsSensitivity, p_su
   nsamp=12
   nrow=2
   ncol=4
-  np.random.seed(101)
+  np.random.seed(7)
   param_samps = np.random.choice(p_successes, size=nsamp, replace=False)
   col_scal = np.arange(1,(nSeedsSensitivity+1))/11
   for j,p in enumerate(param_samps):
@@ -883,7 +886,7 @@ def plot_hypervolume(dir_figs, metrics_seedsBase, metrics_seedsSensitivity, p_su
     elif (cj == ncol-1):
       ax.tick_params(axis='y', which='both', labelleft=False, labelright=True)
     for s in range(1, 11):
-      i = 10 * j + s - 1
+      i = nSeedsSensitivity * np.where(np.array(p_successes)==p)[0][0] + s - 1
       hv = metrics_seedsSensitivity[i]['Hypervolume']
       ax.plot(function_eval / 1000, hv, c=cmap_vir(col_scal[s - 1]), alpha=0.7)
     ax.set_ylim([-0.1, 1.15])
@@ -891,7 +894,7 @@ def plot_hypervolume(dir_figs, metrics_seedsBase, metrics_seedsSensitivity, p_su
       ax.set_xlabel('Thousands of Function Evaluations')
     if (rj == 2)&(cj == 0):
       ax.set_ylabel('Normalized Hypervolume')
-  plt.savefig(dir_figs + 'seedsCombined_hv.png', bbox_inches='tight', dpi=1200)
+  plt.savefig(dir_figs + 'figS4.jpg', bbox_inches='tight', dpi=1200)
 
   return
 
@@ -918,7 +921,7 @@ def plot_generational_distance(dir_figs, metrics_seedsBase, metrics_seedsSensiti
   nsamp=12
   nrow=2
   ncol=4
-  np.random.seed(101)
+  np.random.seed(7)
   param_samps = np.random.choice(p_successes, size=nsamp, replace=False)
   col_scal = np.arange(1,(nSeedsSensitivity+1))/(nSeedsSensitivity+1)
   for j,p in enumerate(param_samps):
@@ -939,7 +942,7 @@ def plot_generational_distance(dir_figs, metrics_seedsBase, metrics_seedsSensiti
     elif (cj == ncol-1):
       ax.tick_params(axis='y', which='both', labelleft=False, labelright=True)
     for s in range(1, (nSeedsSensitivity+1)):
-      i = 10 * j + s - 1
+      i = nSeedsSensitivity * np.where(np.array(p_successes)==p)[0][0] + s - 1
       hv = metrics_seedsSensitivity[i]['GenerationalDistance']
       ax.plot(function_eval / 1000, hv, c=cmap_vir(col_scal[s - 1]), alpha=0.7)
     ax.set_ylim([-0.01, 0.11])
@@ -947,7 +950,7 @@ def plot_generational_distance(dir_figs, metrics_seedsBase, metrics_seedsSensiti
       ax.set_xlabel('Thousands of Function Evaluations')
     if (rj == 2)&(cj == 0):
       ax.set_ylabel('Generational Distance')
-  plt.savefig(dir_figs + 'seedsCombined_gd.png', bbox_inches='tight', dpi=1200)
+  plt.savefig(dir_figs + 'figS5.jpg', bbox_inches='tight', dpi=1200)
 
   return
 
@@ -972,7 +975,7 @@ def plot_epsilon_indicator(dir_figs, metrics_seedsBase, metrics_seedsSensitivity
   nsamp=12
   nrow=2
   ncol=4
-  np.random.seed(101)
+  np.random.seed(7)
   param_samps = np.random.choice(p_successes, size=nsamp, replace=False)
   col_scal = np.arange(1,(nSeedsSensitivity+1))/(nSeedsSensitivity+1)
   for j,p in enumerate(param_samps):
@@ -993,7 +996,7 @@ def plot_epsilon_indicator(dir_figs, metrics_seedsBase, metrics_seedsSensitivity
     elif (cj == ncol-1):
       ax.tick_params(axis='y', which='both', labelleft=False, labelright=True)
     for s in range(1, (nSeedsSensitivity+1)):
-      i = 10 * j + s - 1
+      i = nSeedsSensitivity * np.where(np.array(p_successes)==p)[0][0] + s - 1
       hv = metrics_seedsSensitivity[i]['EpsilonIndicator']
       ax.plot(function_eval / 1000, hv, c=cmap_vir(col_scal[s - 1]), alpha=0.7)
     ax.set_ylim([-0.05, 0.55])
@@ -1001,7 +1004,7 @@ def plot_epsilon_indicator(dir_figs, metrics_seedsBase, metrics_seedsSensitivity
       ax.set_xlabel('Thousands of Function Evaluations')
     if (rj == 2)&(cj == 0):
       ax.set_ylabel('Epsilon Indicator')
-  plt.savefig(dir_figs + 'seedsCombined_ei.png', bbox_inches='tight', dpi=1200)
+  plt.savefig(dir_figs + 'figS6.jpg', bbox_inches='tight', dpi=1200)
 
   return
 
