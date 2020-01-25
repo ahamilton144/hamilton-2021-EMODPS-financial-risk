@@ -57,23 +57,23 @@ params_sfpuc = moea_solns_filtered.loc[moea_solns_filtered.p==p_sfpuc].iloc[0,:]
 
 
 
-### plot Pareto front for sfpuc baseline parameters (fig 7)
-print('Plotting Pareto set for baseline parameters... (fig 7), ', datetime.now() - startTime)
+### plot Pareto front for sfpuc baseline parameters (fig 8)
+print('Plotting Pareto set for baseline parameters... (fig 8), ', datetime.now() - startTime)
 # index of 3 cases to highlight in plot [A = high cash flow, B = compromise, C = low debt]
 functions_moea_output_plots.plot_pareto_baseline(dir_figs, moea_solns_filtered, p_sfpuc, cases_sfpuc_index)
 
 
 
-### plot histogram of objectives for 3 policies for sfpuc baseline parameters (fig 8). Will also compare python objectives (validate) to c++ version (borg, retest) to validate monte carlo model
-print('Plotting histogram of objectives for 3 policies, sfpuc baseline (fig 8)..., ', datetime.now() - startTime)
+### plot histogram of objectives for 3 policies for sfpuc baseline parameters (fig 9). Will also compare python objectives (validate) to c++ version (borg, retest) to validate monte carlo model
+print('Plotting histogram of objectives for 3 policies, sfpuc baseline (fig 9)..., ', datetime.now() - startTime)
 # index of 3 cases to highlight in plot [A = high cash flow, B = compromise, C = low debt]
 importlib.reload(functions_moea_output_plots)
 functions_moea_output_plots.plot_distribution_objectives(dir_figs, synthetic_data, moea_solns_filtered, cases_sfpuc_index, params_sfpuc, meanRevenue, nYears)
 
 
 
-### plot tradeoff cloud of pareto fronts, filtered (fig 9)
-print('Plotting plot tradeoff cloud of pareto fronts, filtered (fig 9)..., ', datetime.now() - startTime)
+### plot tradeoff cloud of pareto fronts, filtered (fig 10)
+print('Plotting plot tradeoff cloud of pareto fronts, filtered (fig 10)..., ', datetime.now() - startTime)
 importlib.reload(functions_moea_output_plots)
 functions_moea_output_plots.plot_tradeoff_cloud(dir_figs, moea_solns_filtered, meanRevenue, p_sfpuc, debt_filter=True)
 
@@ -83,8 +83,8 @@ functions_moea_output_plots.plot_tradeoff_cloud(dir_figs, moea_solns_unfiltered,
 
 
 
-### plot sensitivity analysis for debt objective, filtered (fig 10)
-print('Plotting sensitivity analysis for debt objective, filtered (fig 10)..., ', datetime.now() - startTime)
+### plot sensitivity analysis for debt objective, filtered (fig 11)
+print('Plotting sensitivity analysis for debt objective, filtered (fig 11)..., ', datetime.now() - startTime)
 importlib.reload(functions_moea_output_plots)
 functions_moea_output_plots.plot_sensitivity_debt(dir_figs, moea_solns_filtered, p_sfpuc, debt_filter=True)
 
@@ -94,8 +94,8 @@ functions_moea_output_plots.plot_sensitivity_debt(dir_figs, moea_solns_unfiltere
 
 
 
-### plot sensitivity analysis for cash flow objective, filtered (fig 11)
-print('Plotting sensitivity analysis for cash flow objective, filtered (fig 11)..., ', datetime.now() - startTime)
+### plot sensitivity analysis for cash flow objective, filtered (fig 12)
+print('Plotting sensitivity analysis for cash flow objective, filtered (fig 12)..., ', datetime.now() - startTime)
 importlib.reload(functions_moea_output_plots)
 functions_moea_output_plots.plot_sensitivity_cashflow(dir_figs, moea_solns_filtered, p_sfpuc, meanRevenue, debt_filter=True)
 

@@ -94,7 +94,7 @@ def get_moea_output(dir_generated_inputs, dir_moea_output, p_sfpuc, meanRevenue,
 
 
 #########################################################################
-######### plot pareto front for sfpuc baseline case (fig 7) ####
+######### plot pareto front for sfpuc baseline case (fig 8) ####
 ### outputs plot, no return. ####
 # ##########################################################################
 def plot_pareto_baseline(dir_figs, moea_solns, p_sfpuc, cases_sfpuc_index):
@@ -131,7 +131,7 @@ def plot_pareto_baseline(dir_figs, moea_solns, p_sfpuc, cases_sfpuc_index):
   plt.legend([m2,m1], ['Fund','Fund+CFD'], loc='upper left')
   plt.ylabel(r"$\leftarrow$ Q95 Max Debt $\left(J^{debt}\right)$")
   plt.xlabel(r"Expected Annualized Cash Flow $\left(J^{cash}\right)\rightarrow$")
-  plt.savefig(dir_figs + 'fig7.jpg', bbox_inches='tight', dpi=1200)
+  plt.savefig(dir_figs + 'fig8.jpg', bbox_inches='tight', dpi=1200)
 
 
 
@@ -231,7 +231,7 @@ def monte_carlo_objectives(synthetic_data, fixedCostFraction, meanRevenue, maxFu
 
 
 #########################################################################
-######### plot distribution of sub-objectives for 3 cases, baseline params (fig 8) ####
+######### plot distribution of sub-objectives for 3 cases, baseline params (fig 9) ####
 ### outputs plot, no return. ####
 # ##########################################################################
 def plot_distribution_objectives(dir_figs, synthetic_data, moea_solns, cases_sfpuc_index, params_sfpuc, meanRevenue, nYears):
@@ -310,14 +310,14 @@ def plot_distribution_objectives(dir_figs, synthetic_data, moea_solns, cases_sfp
   plt.axvline(x=cases_sfpuc_Jdebt[1], color=col[2], linewidth=2, linestyle='--')
   plt.axvline(x=cases_sfpuc_Jdebt[2], color=col[3], linewidth=2, linestyle='--')
 
-  plt.savefig(dir_figs + 'fig8.jpg', dpi=1200)
+  plt.savefig(dir_figs + 'fig9.jpg', dpi=1200)
 
   return
 
 
 
 #########################################################################
-######### plot tradeoff cloud of pareto fronts for sensitivity analysis (fig 9/S8) ####
+######### plot tradeoff cloud of pareto fronts for sensitivity analysis (fig 10/S8) ####
 ### outputs plot, no return. ####
 # ##########################################################################
 def plot_tradeoff_cloud(dir_figs, moea_solns, meanRevenue, p_sfpuc, debt_filter):
@@ -362,7 +362,7 @@ def plot_tradeoff_cloud(dir_figs, moea_solns, meanRevenue, p_sfpuc, debt_filter)
   plt.xlabel(r"Normalized Expected Annualized Cash Flow $\left(\hat{J}^{cash}\right)\rightarrow$")
   if (debt_filter):
     plt.legend([m2, m3, m1], ['Fund', 'CFD', 'Fund+CFD'], loc='lower left')
-    plt.savefig(dir_figs + 'fig9.jpg', bbox_inches='tight', dpi=1200)
+    plt.savefig(dir_figs + 'fig10.jpg', bbox_inches='tight', dpi=1200)
   else:
     plt.legend([m2, m3, m1], ['Fund', 'CFD', 'Fund+CFD'], loc='lower left')
     plt.savefig(dir_figs + 'figS7.jpg', bbox_inches='tight', dpi=1200)
@@ -374,7 +374,7 @@ def plot_tradeoff_cloud(dir_figs, moea_solns, meanRevenue, p_sfpuc, debt_filter)
 
 
 #########################################################################
-######### plot sensitivity analysis for debt objective (fig 10/S9) ####
+######### plot sensitivity analysis for debt objective (fig 11/S9) ####
 ### outputs plot, no return. ####
 # ##########################################################################
 def plot_sensitivity_debt(dir_figs, moea_solns, p_sfpuc, debt_filter):
@@ -551,7 +551,7 @@ def plot_sensitivity_debt(dir_figs, moea_solns, p_sfpuc, debt_filter):
                 c='k', alpha=0.7)
 
   if (debt_filter):
-    plt.savefig(dir_figs + 'fig10.jpg', bbox_inches='tight', dpi=1200)
+    plt.savefig(dir_figs + 'fig11.jpg', bbox_inches='tight', dpi=1200)
   else:
     plt.savefig(dir_figs + 'figS8.jpg', bbox_inches='tight', dpi=1200)
 
@@ -564,7 +564,7 @@ def plot_sensitivity_debt(dir_figs, moea_solns, p_sfpuc, debt_filter):
 
 
 #########################################################################
-######### plot sensitivity analysis for cash flow objective (fig 11/S10) ####
+######### plot sensitivity analysis for cash flow objective (fig 12/S10) ####
 ### outputs plot, no return. ####
 # ##########################################################################
 def plot_sensitivity_cashflow(dir_figs, moea_solns, p_sfpuc, meanRevenue, debt_filter):
@@ -778,7 +778,7 @@ def plot_sensitivity_cashflow(dir_figs, moea_solns, p_sfpuc, meanRevenue, debt_f
            c='k', alpha=0.7)
 
   if (debt_filter):
-    plt.savefig(dir_figs + 'fig11.jpg', bbox_inches='tight', dpi=1200)
+    plt.savefig(dir_figs + 'fig12.jpg', bbox_inches='tight', dpi=1200)
   else:
     plt.savefig(dir_figs + 'figS9.jpg', bbox_inches='tight', dpi=1200)
 
