@@ -108,7 +108,7 @@ def simulate_revenue(dir_generated_inputs, gen, hp_GWh, hp_dolPerKwh, genSynth, 
 
 
 ##########################################################################
-######### plot synthetic feb 1 vs apr 1 swe, sweWt vs gen, sweWt vs revenue ###########
+######### plot synthetic feb 1 vs apr 1 swe, sweWt vs gen, sweWt vs revenue (fig 3)###########
 ############## Returns figure #########################################
 ##########################################################################
 
@@ -163,7 +163,7 @@ def plot_SweFebApr_SweGen_SweRev(dir_figs, swe, gen, revHist, sweSynth, genSynth
   if (histRev):
     ax.scatter(sweWtHist.loc[1988:], revHistWyr, alpha=0.6, color=col[0], marker='^', s=40)
   ax.legend([p1,p2], ['Synthetic', 'Historic'], loc='lower right')
-  plt.savefig(dir_figs + 'fig2.jpg', bbox_inches='tight', dpi=1200)
+  plt.savefig(dir_figs + 'fig3.jpg', bbox_inches='tight', dpi=1200)
 
 
 
@@ -278,7 +278,7 @@ def snow_contract_payout_shift_lambda(sweWtSynth, lam_list, contractType, lambda
 
 
 ##########################################################################
-######### plot snow contract types ###########
+######### plot snow contract types (fig 5/S3) ###########
 ############## Returns figure #########################################
 ##########################################################################
 def plot_contract(dir_figs, sweWtSynth, payoutPutSim, payoutShortCallSim, payoutCfdSim, lambda_shifts, plot_type):
@@ -319,7 +319,7 @@ def plot_contract(dir_figs, sweWtSynth, payoutPutSim, payoutShortCallSim, payout
     line4, = ax.plot([0, kinkX, 60], [kinkX + kinkY + lambda_shifts[0], kinkY + lambda_shifts[0], kinkY + lambda_shifts[0]], color=col[0], ls='--', linewidth=2)
     line5, = ax.plot([0, kinkX, 60], [kinkX + kinkY + lambda_shifts[1], kinkY + lambda_shifts[1], kinkY + lambda_shifts[1]], color=col[0], ls=':', linewidth=2)
     plt.legend([line4,line3,line5],['No loading', 'Baseline loading', 'High loading'],loc='upper right')
-    plot_name = dir_figs + 'fig4.jpg'
+    plot_name = dir_figs + 'fig5.jpg'
     print(kinkX, kinkY)
   elif (plot_type=='composite'):
     # plot put
@@ -358,7 +358,7 @@ def get_max_hedge(revSimWyr, payoutCfdSim, riskQuantile = 0.05, nSamplesOptimiza
 
 
 ##########################################################################
-######### plot index-revenue distribution w/ & w/o cfd ###########
+######### plot index-revenue distribution w/ & w/o cfd (fig 7)###########
 ############## Returns figure #########################################
 ##########################################################################
 def plot_swe_hedged_revenue(dir_figs, sweWtSynth, revSimWyr, payoutCfdSim, meanRevenue, fixedCostFraction):
@@ -432,7 +432,7 @@ def plot_swe_hedged_revenue(dir_figs, sweWtSynth, revSimWyr, payoutCfdSim, meanR
   leg = plt.legend((eb1, eb3), ('Unhedged', 'Hedged'),
                    loc='upper left', borderaxespad=0.)
 
-  plot_name = dir_figs + 'fig6.jpg'
+  plot_name = dir_figs + 'fig7.jpg'
 
   plt.savefig(plot_name, bbox_extra_artists=([leg]), bbox_inches='tight', dpi=1200)
 
@@ -442,7 +442,7 @@ def plot_swe_hedged_revenue(dir_figs, sweWtSynth, revSimWyr, payoutCfdSim, meanR
 
 
 ##########################################################################
-######### calc min & avg adj rev given only contracts, no reserve, for different strikes/slopes ####
+######### calc min & avg adj rev given only contracts, no reserve, for different strikes/slopes (fig 6)####
 ### returns value ####
 # ##########################################################################
 def plot_cfd_slope_effect(dir_figs, sweWtSynth, revSimWyr, payoutCfdSim, meanRevenue, fixedCostFraction):
@@ -470,7 +470,7 @@ def plot_cfd_slope_effect(dir_figs, sweWtSynth, revSimWyr, payoutCfdSim, meanRev
   cbar = plt.colorbar(cmapScalar)
   cbar.ax.set_ylabel('Contract slope ($\$$M/inch)')
 
-  plot_name = dir_figs + 'fig5.jpg'
+  plot_name = dir_figs + 'fig6.jpg'
   plt.savefig(plot_name, dpi=1200)
 
   return

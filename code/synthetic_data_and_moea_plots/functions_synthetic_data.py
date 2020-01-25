@@ -777,7 +777,7 @@ def synthetic_power(dir_generated_inputs, power, redo = False, save = False):
 
 
 ##########################################################################
-######### plot historical vs synthetic hydro generation and power prices ###########
+######### plot historical vs synthetic hydro generation and power prices (fig 4)###########
 ############## Returns figure #########################################
 ##########################################################################
 def plot_historical_synthetic_generation_power(dir_figs, gen, genSynth, power, powSynth, genOnly, genCombined, powerOnly):
@@ -947,7 +947,7 @@ def plot_historical_synthetic_generation_power(dir_figs, gen, genSynth, power, p
       leg2 = ax.legend((eb1, eb2), ('Historic', 'Synthetic'), loc='upper right', borderaxespad=0.)
 
   if ((powerOnly==False) & (genOnly==False)):
-    plot_name = dir_figs + 'fig3.jpg'
+    plot_name = dir_figs + 'fig4.jpg'
     plt.savefig(plot_name, bbox_extra_artists=([leg1, leg2]), bbox_inches='tight', dpi=1200)
   elif (powerOnly == False):
     plot_name = dir_figs + 'historical_synthetic_generation.jpg'

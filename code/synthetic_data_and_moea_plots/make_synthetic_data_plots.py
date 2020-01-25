@@ -103,13 +103,13 @@ fixedCostFraction =  0.914
 
 
 ### plot comparing historical vs synthetic for hydro generation (as function of wetness) and for power prices
-print('Plotting validation for hydropower generation and power price (Fig 3)..., ', datetime.now() - startTime)
+print('Plotting validation for hydropower generation and power price (fig 4)..., ', datetime.now() - startTime)
 functions_synthetic_data.plot_historical_synthetic_generation_power(dir_figs, gen, genSynth, power, powSynth,
                                                                     genOnly=False, genCombined=False, powerOnly=False)
 
 ### plots for SWE Feb vs Apr, Swe index vs Generation, & Swe index vs revenues
 importlib.reload(functions_revenues_contracts)
-print('Plotting validation for SWE Feb vs Apr, Swe index vs Generation, & Swe index vs revenues (Fig 2)..., ', datetime.now() - startTime)
+print('Plotting validation for SWE Feb vs Apr, Swe index vs Generation, & Swe index vs revenues (fig 3)..., ', datetime.now() - startTime)
 functions_revenues_contracts.plot_SweFebApr_SweGen_SweRev(dir_figs, swe, gen, revHist, sweSynth, genSynth, revSim,
                                                  sweWtParams, meanRevenue, fixedCostFraction, histRev = True)
 
@@ -152,17 +152,17 @@ functions_revenues_contracts.plot_contract(dir_figs, sweWtSynth, payoutPutSim, p
                                        lambda_shifts=[0., 0.5], plot_type='composite')
 
 
-### plot CFD contract with different loadings (Fig 4)
-print('Plotting CFD contract with different loadings (Fig 4)..., ', datetime.now() - startTime)
+### plot CFD contract with different loadings (fig 5)
+print('Plotting CFD contract with different loadings (fig 5)..., ', datetime.now() - startTime)
 functions_revenues_contracts.plot_contract(dir_figs, sweWtSynth, payoutPutSim, payoutShortCallSim, payoutCfdSim,
                                        lambda_shifts=[0., 0.5], plot_type='lambda')
 
 
-### plot of hedged & unhedged revenues in swe bins (fig 6)
+### plot of hedged & unhedged revenues in swe bins (fig 7)
 functions_revenues_contracts.plot_swe_hedged_revenue(dir_figs, sweWtSynth, revSimWyr, payoutCfdSim, meanRevenue, fixedCostFraction)
 
 
-### get stats for contracts without reserve, as function of slope (fig 5)
+### get stats for contracts without reserve, as function of slope (fig 6)
 functions_revenues_contracts.plot_cfd_slope_effect(dir_figs, sweWtSynth, revSimWyr, payoutCfdSim, meanRevenue, fixedCostFraction)
 
 
