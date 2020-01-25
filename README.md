@@ -1,4 +1,6 @@
 # hamilton-2020-managing-financial-risk-tradeoffs-for-hydropower
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3627730.svg)](https://doi.org/10.5281/zenodo.3627730) 
+
 This repository contains all code and data (included data for figures) for the following paper:
 
 Hamilton, A.L., Characklis, G.W., &amp; Reed, P.M. (2020). Managing financial risk tradeoffs for hydropower generation using snowpack-based index contracts. (in prep).
