@@ -29,11 +29,13 @@ Licensed under the GNU General Public License v3.0. In building the multi-object
     * `sensitivity_analysis/` - results from MOO for sensitivity analysis
 * `figures/` - directory for storing figures
 
-## Running the model
-* Clone the model and install dependencies. 
-  * Synthetic generation and all plotting is set up to run on my Windows laptop, using a linux bash shell (e.g., Cygwin), and Python 3.6.1, plus the Python libraries below. If using a different setup, you may have to make alterations to the bash scripts.
-    * Python libraries: numpy, pandas, matplotlib, seaborn, importlib, datetime, statsmodels, math, scipy
-  * Optimization set up to run on [THECUBE](https://www.cac.cornell.edu/wiki/index.php?title=THECUBE_Cluster), a cluster housed at Cornell University. THECUBE uses the slurm scheduler. Submission scripts and makefiles may need to be altered to accomodate different setups.
+## Setup
+* Clone the model from this GitHub repository
+* Install Python dependencies in virtual environment. All synthetic data generation, data analysis, and figure production are set up to run on my Windows laptop, using a linux bash shell (WSL, Ubuntu 18.04 LTS), and Python 3.7.5. All Python dependencies can be installed with pip using the steps below. If using a different setup, you may have to make alterations to this workflow - If using a different package manager than pip (such as Anaconda), install the packages listed in `code/requirements.txt`.
+  * `python3 -m venv .venv` - This will create a virtual environment.
+  * `source .venv/bin/activate` - Activate virtual environment.
+  * `pip3 install -r requirements.txt`
+* Optimization set up to run on [THECUBE](https://www.cac.cornell.edu/wiki/index.php?title=THECUBE_Cluster), a cluster housed at Cornell University. THECUBE uses the slurm scheduler. Submission scripts and makefiles may need to be altered to accomodate different setups.
 * Additional software
   * Download the [Borg MOEA](http://borgmoea.org/) source code
     * Create a new directory called `borg` within the `code/misc/` directory and place the source code here.
@@ -43,21 +45,25 @@ Licensed under the GNU General Public License v3.0. In building the multi-object
     * Move `MOEAFramework-*-Demo.jar` to `code/misc`
   * Download `pareto.py` from [Github](https://github.com/matthewjwoodruff/pareto.py) 
     * Move to `code/misc`
+    
+## Generate synthetic data and figures
 * Create Latin Hypercube Sample for sensitivity analysis. 
   * From project home directory, navigate to the code directory for synthetic data generation (`cd code/synthetic_data_and_moea_plots`)
   * Now run LHC sample script (`sh get_sample_LHC.sh`)
   * Output (`data/generated_inputs/param_LHC_sample.txt`) will have five columns (one for each uncertain factor) and 151 rows. The first 150 are from the LHC sample, and the last is the baseline parameter values.
 * Create synthetic time series and related plots
-  * Run `make_synthetic_data_plots.py`, either in an IDE such as Pycharm, or in a bash shell (`python make_synthetic_data_plots.py` from `code/synthetic_data_and_moea_plots` directory)
+  * Run `code/synthetic_data_and_moea_plots/make_synthetic_data_plots.py`, from project directory, either in an IDE, or in a bash shell (`python3 code/synthetic_data_and_moea_plots/make_synthetic_data_plots.py`).
     * This takes about 7 minutes on my laptop.
     * Outputs
       * `data/generated_inputs/synthetic_data.txt` - Synthetic time series of SWE, revenue, and CFD contract payouts (using baseline market price of risk (lambda) parameter value). Needed for MOO.
       * `data/generated_inputs/synthetic_data_monthly.txt` - Synthetic time series of monthly hydropower generation and power prices. Not needed for the present study, but stored here for a future study.
       * `data/generated_inputs/param_LHC_sample_withLamPremShift.txt` - Parameter sample file with a newly-calculated contract for differences (CFD) pricing shift based on sampled market price of risk (lambda) value. Used in sensitivity analysis MOOs.
       * Figures 2-6 from main text and S2-S3 from Supporting Information, in `figures` directory
-  * Run `make_swe_copula_plot.py` 
+  * Run `code/synthetic_data_and_moea_plots/make_swe_copula_plot.py`, from project directory
     * Output - Figure S1 from Supporting Information, in `figures` directory
     * This takes ~2 hours on my laptop. Skip this step if you don't want to reproduce this plot.
+## Run the multi-objective optimization 
+* Note: If you don't want to repeat the MOO, you can skip to the next section and analyze my MOO output stored in `data/optimization_output`
 * Transfer new files from `data/generated_inputs/` to cluster (skip this step if performing all analysis on same machine)
 * Create baseline, sensitivity, & retest versions. Compile each C++ using MPI. All steps executed from directory `code/optimization`
   * `sh remake.sh`
@@ -84,6 +90,7 @@ Licensed under the GNU General Public License v3.0. In building the multi-object
     * `data/optimization_output/sensitivity/param@_borg.hypervolume` 
     * `data/optimization_output/sensitivity/param@_borg_retest.resultfile`
     * `data/optimization_output/sensitivity/metrics/param@_seedS1_seedB*.metrics`. - Indicators of performance throughout Borg MOEA run, for seed number * in 1-10, for sensitivity analysis parameter set @ in 0-149. Note some will be missing, indicating (@,*) combinations for which fewer than two feasible solutions are found, and thus some performance indicators are undefined. We find that 1310 out of 1500 total (@,\*) combinations have feasible metrics files.
+## Analyze MOO output data and create figures
 * Transfer important MOO outputs to appropriate directories on laptop for plotting (skip this step if performing the all analysis on a single machine)
   * `data/optimization_output/baseline/param150_borg.hypervolume`
   * `data/optimization_output/baseline/param150_borg_retest.resultfile`
@@ -92,7 +99,7 @@ Licensed under the GNU General Public License v3.0. In building the multi-object
   * `data/optimization_output/sensitivity/param@_borg_retest.resultfile`, for @ in 0-149
   * `data/optimization_output/sensitivity/metrics/param@_seedS1_seedB*.metrics`, for @ in 0-149, * in 1-10
 * Create plots related to MOO results
-  * Run `make_moea_output_plots.py`, from directory `code/synthetic_data_and_moea_plots.py`
+  * Run `code/synthetic_data_and_moea_plots/make_moea_output_plots.py`, from project directory
   * This takes about 3 minutes on my laptop
   * Outputs
     * Figures 7-11 from main text and S4-S9 from Supporting Information, in `figures` directory
