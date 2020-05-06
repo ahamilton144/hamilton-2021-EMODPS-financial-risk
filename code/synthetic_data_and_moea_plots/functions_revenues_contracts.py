@@ -163,7 +163,7 @@ def plot_SweFebApr_SweGen_SweRev(dir_figs, swe, gen, revHist, sweSynth, genSynth
   if (histRev):
     ax.scatter(sweWtHist.loc[1988:], revHistWyr, alpha=0.6, color=col[0], marker='^', s=40)
   ax.legend([p1,p2], ['Synthetic', 'Historic'], loc='lower right')
-  plt.savefig(dir_figs + 'fig3.jpg', bbox_inches='tight', dpi=1200)
+  plt.savefig(dir_figs + 'fig3.png', bbox_inches='tight', dpi=1200)
 
 
 
@@ -319,7 +319,7 @@ def plot_contract(dir_figs, sweWtSynth, payoutPutSim, payoutShortCallSim, payout
     line4, = ax.plot([0, kinkX, 60], [kinkX + kinkY + lambda_shifts[0], kinkY + lambda_shifts[0], kinkY + lambda_shifts[0]], color=col[0], ls='--', linewidth=2)
     line5, = ax.plot([0, kinkX, 60], [kinkX + kinkY + lambda_shifts[1], kinkY + lambda_shifts[1], kinkY + lambda_shifts[1]], color=col[0], ls=':', linewidth=2)
     plt.legend([line4,line3,line5],['No loading', 'Baseline loading', 'High loading'],loc='upper right')
-    plot_name = dir_figs + 'fig5.jpg'
+    plot_name = dir_figs + 'fig5.png'
     print(kinkX, kinkY)
   elif (plot_type=='composite'):
     # plot put
@@ -333,7 +333,7 @@ def plot_contract(dir_figs, sweWtSynth, payoutPutSim, payoutShortCallSim, payout
     kinkCapX = np.min(sweWtSynth.loc[payoutShortCallSim < kinkCapY + eps])
     line2, = ax.plot([0, kinkStrikeX, kinkCapX, 60], [kinkStrikeY, kinkStrikeY, kinkCapY, kinkCapY], color=col[2], lw=2, ls='--')
     plt.legend([line1,line2,line3],['Long put','Short capped call','Capped contract for differences'],loc='lower left')
-    plot_name = dir_figs + 'figS3.jpg'
+    plot_name = dir_figs + 'figS3.png'
 
   plt.savefig(plot_name, dpi=1200)
 
@@ -432,7 +432,7 @@ def plot_swe_hedged_revenue(dir_figs, sweWtSynth, revSimWyr, payoutCfdSim, meanR
   leg = plt.legend((eb1, eb3), ('Unhedged', 'Hedged'),
                    loc='upper left', borderaxespad=0.)
 
-  plot_name = dir_figs + 'fig7.jpg'
+  plot_name = dir_figs + 'fig7.png'
 
   plt.savefig(plot_name, bbox_extra_artists=([leg]), bbox_inches='tight', dpi=1200)
 
@@ -470,7 +470,7 @@ def plot_cfd_slope_effect(dir_figs, sweWtSynth, revSimWyr, payoutCfdSim, meanRev
   cbar = plt.colorbar(cmapScalar)
   cbar.ax.set_ylabel('Contract slope ($\$$M/inch)')
 
-  plot_name = dir_figs + 'fig6.jpg'
+  plot_name = dir_figs + 'fig6.png'
   plt.savefig(plot_name, dpi=1200)
 
   return
@@ -481,7 +481,7 @@ def plot_cfd_slope_effect(dir_figs, sweWtSynth, revSimWyr, payoutCfdSim, meanRev
 ######### save synthetic data needed for moea ###########
 ############## Saves csv, no return #########################################
 ##########################################################################
-def save_synthetic_data(dir_generated_inputs, sweWtSynth, revSimWyr, payoutCfdSim):
+def save_synthetic_data_moea(dir_generated_inputs, sweWtSynth, revSimWyr, payoutCfdSim):
   synthetic_data = pd.DataFrame({'swe': sweWtSynth.values, 'revenue': revSimWyr.values,
                        'payoutCfd': payoutCfdSim.values}).iloc[1:, :].reset_index(drop=True)[['swe', 'revenue', 'payoutCfd']]
   synthetic_data.to_csv(dir_generated_inputs + 'synthetic_data.txt',sep=' ', index=False)
@@ -490,6 +490,13 @@ def save_synthetic_data(dir_generated_inputs, sweWtSynth, revSimWyr, payoutCfdSi
 
 
 
+##########################################################################
+######### save synthetic monthly data needed for future study ###########
+############## Saves csv, no return #########################################
+##########################################################################
+def save_synthetic_data_monthly(dir_generated_inputs, genSynth, powSynth):
+  synthetic_data = pd.DataFrame({'generation': genSynth.values, 'price': powSynth.values}).iloc[12:, :].reset_index(drop=True)[['generation', 'price']]
+  synthetic_data.to_csv(dir_generated_inputs + 'synthetic_data_monthly.txt.zip',sep=' ', index=False)
 
 
 

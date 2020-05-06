@@ -131,7 +131,7 @@ def plot_pareto_baseline(dir_figs, moea_solns, p_sfpuc, cases_sfpuc_index):
   plt.legend([m2,m1], ['Fund','Fund+CFD'], loc='upper left')
   plt.ylabel(r"$\leftarrow$ Q95 Max Debt $\left(J^{debt}\right)$")
   plt.xlabel(r"Expected Annualized Cash Flow $\left(J^{cash}\right)\rightarrow$")
-  plt.savefig(dir_figs + 'fig8.jpg', bbox_inches='tight', dpi=1200)
+  plt.savefig(dir_figs + 'fig8.png', bbox_inches='tight', dpi=1200)
 
 
 
@@ -286,9 +286,9 @@ def plot_distribution_objectives(dir_figs, synthetic_data, moea_solns, cases_sfp
   ax.tick_params(axis='y', which='both', labelleft=False, labelright=False)
   ax.set_ylim([0, 0.28])
 
-  plt.hist(objectivesA[::3], normed=True, alpha=0.6, color=col[0], bins=np.arange(0,44)/2)
-  plt.hist(objectivesB[::3], normed=True, alpha=0.6, color=col[2], bins=np.arange(0,44)/2)
-  plt.hist(objectivesC[::3], normed=True, alpha=0.6, color=col[3], bins=np.arange(0,44)/2)
+  plt.hist(objectivesA[::3], density=True, alpha=0.6, color=col[0], bins=np.arange(0,44)/2)
+  plt.hist(objectivesB[::3], density=True, alpha=0.6, color=col[2], bins=np.arange(0,44)/2)
+  plt.hist(objectivesC[::3], density=True, alpha=0.6, color=col[3], bins=np.arange(0,44)/2)
 
   plt.axvline(x=cases_sfpuc_Jcash[0], color=col[0], linewidth=2, linestyle='--')
   plt.axvline(x=cases_sfpuc_Jcash[1], color=col[2], linewidth=2, linestyle='--')
@@ -301,16 +301,16 @@ def plot_distribution_objectives(dir_figs, synthetic_data, moea_solns, cases_sfp
   ax.yaxis.set_label_position('right')
   ax.set_ylim([0, 0.07])
 
-  plt.hist(objectivesA[1::3], normed=True, alpha=0.6, color=col[0], bins=np.arange(0,46))
-  plt.hist(objectivesB[1::3], normed=True, alpha=0.6, color=col[2], bins=np.arange(0,46))
-  plt.hist(objectivesC[1::3], normed=True, alpha=0.6, color=col[3], bins=np.arange(0,46))
+  plt.hist(objectivesA[1::3], density=True, alpha=0.6, color=col[0], bins=np.arange(0,46))
+  plt.hist(objectivesB[1::3], density=True, alpha=0.6, color=col[2], bins=np.arange(0,46))
+  plt.hist(objectivesC[1::3], density=True, alpha=0.6, color=col[3], bins=np.arange(0,46))
   plt.legend(['A','B','C'], loc='upper right')
 
   plt.axvline(x=cases_sfpuc_Jdebt[0], color=col[0], linewidth=2, linestyle='--')
   plt.axvline(x=cases_sfpuc_Jdebt[1], color=col[2], linewidth=2, linestyle='--')
   plt.axvline(x=cases_sfpuc_Jdebt[2], color=col[3], linewidth=2, linestyle='--')
 
-  plt.savefig(dir_figs + 'fig9.jpg', dpi=1200)
+  plt.savefig(dir_figs + 'fig9.png', dpi=1200)
 
   return
 
@@ -362,10 +362,10 @@ def plot_tradeoff_cloud(dir_figs, moea_solns, meanRevenue, p_sfpuc, debt_filter)
   plt.xlabel(r"Normalized Expected Annualized Cash Flow $\left(\hat{J}^{cash}\right)\rightarrow$")
   if (debt_filter):
     plt.legend([m2, m3, m1], ['Fund', 'CFD', 'Fund+CFD'], loc='lower left')
-    plt.savefig(dir_figs + 'fig10.jpg', bbox_inches='tight', dpi=1200)
+    plt.savefig(dir_figs + 'fig10.png', bbox_inches='tight', dpi=1200)
   else:
     plt.legend([m2, m3, m1], ['Fund', 'CFD', 'Fund+CFD'], loc='lower left')
-    plt.savefig(dir_figs + 'figS7.jpg', bbox_inches='tight', dpi=1200)
+    plt.savefig(dir_figs + 'figS7.png', bbox_inches='tight', dpi=1200)
 
   return
 
@@ -551,9 +551,9 @@ def plot_sensitivity_debt(dir_figs, moea_solns, p_sfpuc, debt_filter):
                 c='k', alpha=0.7)
 
   if (debt_filter):
-    plt.savefig(dir_figs + 'fig11.jpg', bbox_inches='tight', dpi=1200)
+    plt.savefig(dir_figs + 'fig11.png', bbox_inches='tight', dpi=1200)
   else:
-    plt.savefig(dir_figs + 'figS8.jpg', bbox_inches='tight', dpi=1200)
+    plt.savefig(dir_figs + 'figS8.png', bbox_inches='tight', dpi=1200)
 
   return
 
@@ -778,9 +778,9 @@ def plot_sensitivity_cashflow(dir_figs, moea_solns, p_sfpuc, meanRevenue, debt_f
            c='k', alpha=0.7)
 
   if (debt_filter):
-    plt.savefig(dir_figs + 'fig12.jpg', bbox_inches='tight', dpi=1200)
+    plt.savefig(dir_figs + 'fig12.png', bbox_inches='tight', dpi=1200)
   else:
-    plt.savefig(dir_figs + 'figS9.jpg', bbox_inches='tight', dpi=1200)
+    plt.savefig(dir_figs + 'figS9.png', bbox_inches='tight', dpi=1200)
 
   return
 
@@ -894,7 +894,7 @@ def plot_hypervolume(dir_figs, metrics_seedsBase, metrics_seedsSensitivity, p_su
       ax.set_xlabel('Thousands of Function Evaluations')
     if (rj == 2)&(cj == 0):
       ax.set_ylabel('Normalized Hypervolume')
-  plt.savefig(dir_figs + 'figS4.jpg', bbox_inches='tight', dpi=1200)
+  plt.savefig(dir_figs + 'figS4.png', bbox_inches='tight', dpi=1200)
 
   return
 
@@ -950,7 +950,7 @@ def plot_generational_distance(dir_figs, metrics_seedsBase, metrics_seedsSensiti
       ax.set_xlabel('Thousands of Function Evaluations')
     if (rj == 2)&(cj == 0):
       ax.set_ylabel('Generational Distance')
-  plt.savefig(dir_figs + 'figS5.jpg', bbox_inches='tight', dpi=1200)
+  plt.savefig(dir_figs + 'figS5.png', bbox_inches='tight', dpi=1200)
 
   return
 
@@ -1004,7 +1004,7 @@ def plot_epsilon_indicator(dir_figs, metrics_seedsBase, metrics_seedsSensitivity
       ax.set_xlabel('Thousands of Function Evaluations')
     if (rj == 2)&(cj == 0):
       ax.set_ylabel('Epsilon Indicator')
-  plt.savefig(dir_figs + 'figS6.jpg', bbox_inches='tight', dpi=1200)
+  plt.savefig(dir_figs + 'figS6.png', bbox_inches='tight', dpi=1200)
 
   return
 

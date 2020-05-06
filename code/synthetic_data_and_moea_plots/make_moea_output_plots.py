@@ -22,9 +22,9 @@ sbn.set_context('paper', font_scale=1.55)
 eps = 1e-13
 startTime = datetime.now()
 
-dir_generated_inputs = '../../data/generated_inputs/'
-dir_moea_output = '../../data/optimization_output/'
-dir_figs = '../../figures/'
+dir_generated_inputs = './data/generated_inputs/'
+dir_moea_output = './data/optimization_output/'
+dir_figs = './figures/'
 
 
 
