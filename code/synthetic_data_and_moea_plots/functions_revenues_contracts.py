@@ -489,15 +489,3 @@ def save_synthetic_data_moea(dir_generated_inputs, sweWtSynth, revSimWyr, payout
 
 
 
-
-##########################################################################
-######### save synthetic monthly data needed for future study ###########
-############## Saves csv, no return #########################################
-##########################################################################
-def save_synthetic_data_monthly(dir_generated_inputs, genSynth, powSynth):
-  synthetic_data = pd.DataFrame({'generation': genSynth.values, 'price': powSynth.values}).iloc[12:, :].reset_index(drop=True)[['generation', 'price']]
-  synthetic_data.to_csv(dir_generated_inputs + 'synthetic_data_monthly.txt.zip',sep=' ', index=False)
-
-
-
-
