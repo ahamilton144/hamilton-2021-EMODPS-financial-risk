@@ -1,14 +1,13 @@
-# hamilton-2020-managing-financial-risk-tradeoffs-for-hydropower
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3627730.svg)](https://doi.org/10.5281/zenodo.3627730) 
+# hamilton-2020-EMODPS-financial-risk
 
 This repository contains all code and data (included data for figures) for the following paper:
 
-Hamilton, A.L., Characklis, G.W., &amp; Reed, P.M. (2020). Managing financial risk tradeoffs for hydropower generation using snowpack-based index contracts (submitted manuscript).
+Hamilton, A.L., Characklis, G.W., &amp; Reed, P.M. (2020). From stream flows to cash flows: Leveraging Evolutionary Multi-Objective Direct Policy Search to manage hydrologic financial risks (in preparation).
 
-Licensed under the GNU General Public License v3.0. In building the multi-objective optimization (MOO) component of this code base, I borrowed and built upon sections of Julianne Quinn's [Lake Problem Direct Policy Search code](https://github.com/julianneq/Lake_Problem_DPS).
+Licensed under the GNU General Public License v3.0. This is a fork of [hamilton-2020-managing-financial-risk-tradeoffs-for-hydropower](https://github.com/ahamilton144/hamilton-2020-managing-financial-risk-tradeoffs-for-hydropower), the code and data repository for "Managing financial risk tradeoffs for hydropower generation using snowpack-based index contracts," a previous manuscript (also by Hamilton, Characklis, & Reed) that is under review at *Water Resources Research*. The current repository and associated manuscript build off of the previous work by introducing a dynamic risk management formulation, Evolutionary Direct Policy Search (EMODPS). In building the multi-objective optimization (MOO) component of this code base, I borrowed and built upon sections of Julianne Quinn's [Lake Problem Direct Policy Search code](https://github.com/julianneq/Lake_Problem_DPS).
 
 ## Contents
-* `code/` - directory with all code used to replicate paper
+<!-- * `code/` - directory with all code used to replicate paper
   * `synthetic_data_and_moea_plots/` - Python and bash scripts needed for (1) Generating all synthetic time series, (2) Plotting related to synthetic data, (3) Plotting related to MOO output
   * `optimization/` - C++ and bash scripts needed for MOO
   * `misc/` - directory for storing third-party software
@@ -28,9 +27,9 @@ Licensed under the GNU General Public License v3.0. In building the multi-object
     * `baseline/` - results from MOO using baseline parameters(SFPUC October 2016 estimates)
     * `sensitivity_analysis/` - results from MOO for sensitivity analysis
 * `figures/` - directory for storing figures
-
+-->
 ## Setup
-* Clone the model from this GitHub repository
+<!-- * Clone the model from this GitHub repository
 * Install Python dependencies in virtual environment. All synthetic data generation, data analysis, and figure production are set up to run on my Windows laptop, using a linux bash shell (WSL, Ubuntu 18.04 LTS), and Python 3.6.9. All Python dependencies can be installed with pip using the steps below. If using a different setup, you may have to make alterations to this workflow - If using a different package manager than pip (such as Anaconda), install the packages listed in `code/requirements.txt`.
   * `python3 -m venv .venv` - This will create a virtual environment.
   * `source .venv/bin/activate` - Activate virtual environment.
@@ -45,9 +44,10 @@ Licensed under the GNU General Public License v3.0. In building the multi-object
     * Move `MOEAFramework-*-Demo.jar` to `code/misc`
   * Download `pareto.py` from [Github](https://github.com/matthewjwoodruff/pareto.py) 
     * Move to `code/misc`
-    
+-->
+
 ## Generate synthetic data and figures
-* Create Latin Hypercube Sample for sensitivity analysis. 
+<!-- * Create Latin Hypercube Sample for sensitivity analysis. 
   * From project home directory, navigate to the code directory for synthetic data generation (`cd code/synthetic_data_and_moea_plots`)
   * Now run LHC sample script (`sh get_sample_LHC.sh`)
   * Output (`data/generated_inputs/param_LHC_sample.txt`) will have five columns (one for each uncertain factor) and 151 rows. The first 150 are from the LHC sample, and the last is the baseline parameter values.
@@ -62,8 +62,10 @@ Licensed under the GNU General Public License v3.0. In building the multi-object
   * Run `code/synthetic_data_and_moea_plots/make_swe_copula_plot.py`, from project directory
     * Output - Figure S1 from Supporting Information, in `figures` directory
     * This takes ~2 hours on my laptop. Skip this step if you don't want to reproduce this plot.
+-->
+
 ## Run the multi-objective optimization 
-* Note: If you don't want to repeat the MOO, you can skip to the next section and analyze my MOO output stored in `data/optimization_output`
+<!-- * Note: If you don't want to repeat the MOO, you can skip to the next section and analyze my MOO output stored in `data/optimization_output`
 * Transfer new files from `data/generated_inputs/` to cluster (skip this step if performing all analysis on same machine)
 * Create baseline, sensitivity, & retest versions. Compile each C++ using MPI. All steps executed from directory `code/optimization`
   * `sh remake.sh`
@@ -90,8 +92,10 @@ Licensed under the GNU General Public License v3.0. In building the multi-object
     * `data/optimization_output/sensitivity/param@_borg.hypervolume` 
     * `data/optimization_output/sensitivity/param@_borg_retest.resultfile`
     * `data/optimization_output/sensitivity/metrics/param@_seedS1_seedB*.metrics`. - Indicators of performance throughout Borg MOEA run, for seed number * in 1-10, for sensitivity analysis parameter set @ in 0-149. Note some will be missing, indicating (@,*) combinations for which fewer than two feasible solutions are found, and thus some performance indicators are undefined. We find that 1310 out of 1500 total (@,\*) combinations have feasible metrics files.
+-->
+
 ## Analyze MOO output data and create figures
-* Transfer important MOO outputs to appropriate directories on laptop for plotting (skip this step if performing the all analysis on a single machine)
+<!-- * Transfer important MOO outputs to appropriate directories on laptop for plotting (skip this step if performing the all analysis on a single machine)
   * `data/optimization_output/baseline/param150_borg.hypervolume`
   * `data/optimization_output/baseline/param150_borg_retest.resultfile`
   * `data/optimization_output/baseline/metrics/param150_seedS1_seedB*.metrics`, for * in 1-50
@@ -103,3 +107,4 @@ Licensed under the GNU General Public License v3.0. In building the multi-object
   * This takes about 3 minutes on my laptop
   * Outputs
     * Figures 7-11 from main text and S4-S9 from Supporting Information, in `figures` directory
+-->
