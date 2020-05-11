@@ -175,10 +175,3 @@ print('Finished, ', datetime.now() - startTime)
 
 
 
-# # ### save monthly generation & power data for future study
-# print('Saving monthly synthetic data..., ', datetime.now() - startTime)
-# importlib.reload(functions_revenues_contracts)
-# functions_revenues_contracts.save_synthetic_data_monthly(dir_generated_inputs, genSynth.gen, powSynth.powPrice)
-
-# print('Finished, ', datetime.now() - startTime)
-
