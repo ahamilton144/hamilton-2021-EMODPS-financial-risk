@@ -194,7 +194,7 @@ unsigned int seed_sample; // use same seed for each function evaluation, so alwa
 int lines_to_use[NUM_SAMPLES];
 #if DPS_RUN_TYPE < 2
 // accumulator object to get 95th percentile of debt for objective
-typedef accumulator::accumulator_set<double, accumulator::stats<accumulator::tag::tail_quantile<accumulator::right>>> accumulator_t;
+typedef accumulator::accumulator_set<double, accumulator::stats<accumulator::tag::tail_quantile<accumulator::right> > > accumulator_t;
 #endif
 
 // problem for borg search

@@ -1,21 +1,21 @@
 #!/bin/bash
-NSEEDS=$1
-ps=$(seq 1 ${NSEEDS})
-NDV=$2
-NOBJ=$3
-DIR=$4
+formulation=$1
+nobj=$2
+ndv=$3
+nseeds=$4
 
-if [ "$NDV" -gt 3 ]; then
-	name="maxDebt"
-else
-	name="2dv"
-fi
+dir=../../../data/optimization_output/${formulation}
+param=150
+seeds=$(seq 1 ${nseeds})
 
-for p in ${ps}
+mkdir $dir/objs
+
+for seed in ${seeds}
 do
-	if [ "$NOBJ" -gt 3 ]; then
-		awk -v NDV="$NDV" 'BEGIN {FS=" "}; /^#/ {print $0}; /^[^#/]/ {printf("%s %s %s %s\n",$(NDV+1),$(NDV+2),$(NDV+3),$(NDV+4))}' $DIR/runtime/PortDPS_DPS_${name}_samp50000_seedS1_seedB${p}.runtime >$DIR/objs/PortDPS_DPS_${name}_samp50000_seedS1_seedB${p}.obj
-	else
-		awk -v NDV="$NDV" 'BEGIN {FS=" "}; /^#/ {print $0}; /^[^#/]/ {printf("%s %s\n",$(NDV+1),$(NDV+2))}' $DIR/runtime/PortDPS_DPS_${name}_samp50000_seedS1_seedB${p}.runtime >$DIR/objs/PortDPS_DPS_${name}_samp50000_seedS1_seedB${p}.obj
-	fi
+if [ $nobj -lt 3 ]; then
+	awk -v ndv="$ndv" 'BEGIN {FS=" "}; /^#/ {print $0}; /^[^#/]/ {printf("%s %s\n",$(ndv+1),$(ndv+2))}' ${dir}/runtime/DPS_param${param}_seedS1_seedB${seed}.runtime >${dir}/objs/DPS_param${param}_seedS1_seedB${seed}.obj
+else
+        awk -v ndv="$ndv" 'BEGIN {FS=" "}; /^#/ {print $0}; /^[^#/]/ {printf("%s %s %s %s\n",$(ndv+1),$(ndv+2),$(ndv+3),$(ndv+4))}' ${dir}/runtime/DPS_param${param}_seedS1_seedB${seed}.runtime >${dir}/objs/DPS_param${param}_seedS1_seedB${seed}.obj
+fi
 done
+
