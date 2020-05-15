@@ -3,6 +3,7 @@ formulation_slash=$1
 formulation=${formulation_slash%/}
 nobj=$2
 ndv=$3
+dir_reference_copy=$4
 
 dir=../../../data/optimization_output/${formulation}
 pareto=../../misc/pareto.py
@@ -21,6 +22,7 @@ else
 fi
 cut -d ' ' -f $((ndv+1))-$((ndv+nobj)) ${dir}/DPS_${formulation}_borg.resultfile >${dir}/DPS_${formulation}_borg.reference
 
+cp ${dir}/DPS_${formulation}_borg.reference $dir_reference_copy
 
 
 

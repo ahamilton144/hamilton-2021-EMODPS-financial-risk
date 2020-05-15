@@ -3,6 +3,7 @@ formulation=$1
 nobj=$2
 ndv=$3
 nseeds=$4
+reffil=$5
 
 dir=../../../data/optimization_output/${formulation}
 param=150
@@ -16,7 +17,6 @@ for seed in ${seeds}
 do
 	objfil=${dir}/objs/DPS_param${param}_seedS1_seedB${seed}.obj
 	metricfil=${dir}/metrics/DPS_param${param}_seedS1_seedB${seed}.metrics
-	reffil=${dir}/DPS_${formulation}_borg.reference
 	#echo $objfil $metricfil $reffil
 	sbatch -n 1 -t 12:00:00 --wrap="java ${JAVA_ARGS} org.moeaframework.analysis.sensitivity.ResultFileEvaluator -d $nobj -i $objfil -r $reffil -o $metricfil"
 done
