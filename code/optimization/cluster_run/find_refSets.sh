@@ -22,7 +22,8 @@ else
 fi
 cut -d ' ' -f $((ndv+1))-$((ndv+nobj)) ${dir}/DPS_${formulation}_borg.resultfile >${dir}/DPS_${formulation}_borg.reference
 
-cp ${dir}/DPS_${formulation}_borg.reference $dir_reference_copy
-
+if [ $dir_reference_copy != 'NA' ]; then
+	cp ${dir}/DPS_${formulation}_borg.reference $dir_reference_copy
+fi
 
 

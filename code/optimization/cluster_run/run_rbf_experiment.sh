@@ -2,7 +2,7 @@
 
 nobj=4
 param=150
-nseeds=4
+nseeds=10
 
 for nrbf in 1 2 3 4 8 12 
 do
@@ -12,6 +12,7 @@ do
 	mkdir ${dir}/runtime
 	mkdir ${dir}/sets
 	cp -r ex_4obj $formulation
+	cp ex_4obj/.gitignore $formulation
 	cd $formulation
 	rm dps_*
 	sed -i "s/NUM_RBF 4/NUM_RBF $nrbf/" main.cpp
@@ -20,6 +21,7 @@ do
 	sh remake.sh
 	cp main.cpp $dir
 	cp run_borgms.sh $dir
+	cp .gitignore $dir
 	sbatch run_borgms.sh
 	cd ../
 done
