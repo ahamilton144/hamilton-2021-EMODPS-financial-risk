@@ -5,6 +5,7 @@
 !.gitignore
 !*.hypervolume
 !*.resultfile
+!*.reference
 !*.sh
 !*.cpp
 !makefile
