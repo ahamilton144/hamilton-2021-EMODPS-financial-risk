@@ -75,15 +75,12 @@ col_brewerQual4 = ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c']
 ##################################################################
 
 ### read in ref sets
-nobj = 2
-ncon = 1
-ref_dps_2obj_retest = functions_moea_output_plots.get_set(dir_moea_output + '2obj_2rbf/DPS_2obj_2rbf_borg_retest.resultfile', nobj, ncon)
-ref_2dv_2obj_retest = functions_moea_output_plots.get_set(dir_moea_output + '2obj_2dv/DPS_2obj_2dv_borg_retest.resultfile', nobj, ncon)
-
 nobj = 4
-ref_dps_4obj_retest = functions_moea_output_plots.get_set(dir_moea_output + '4obj_2rbf/DPS_4obj_2rbf_borg_retest.resultfile', nobj, ncon)
-ref_2dv_4obj_retest = functions_moea_output_plots.get_set(dir_moea_output + '4obj_2dv/DPS_4obj_2dv_borg_retest.resultfile', nobj, ncon)
-
+ncon = 1
+ref_dps_2obj_retest, ndv_dps_2obj_retest = functions_moea_output_plots.get_set(dir_moea_output + '2obj_2rbf/DPS_2obj_2rbf_borg_retest.resultfile', nobj, ncon)
+ref_2dv_2obj_retest, ndv_2dv_2obj_retest = functions_moea_output_plots.get_set(dir_moea_output + '2obj_2dv/DPS_2obj_2dv_borg_retest.resultfile', nobj, ncon)
+ref_dps_4obj_retest, ndv_dps_4obj_retest = functions_moea_output_plots.get_set(dir_moea_output + '4obj_2rbf/DPS_4obj_2rbf_borg_retest.resultfile', nobj, ncon)
+ref_2dv_4obj_retest, ndv_dps_4obj_retest = functions_moea_output_plots.get_set(dir_moea_output + '4obj_2dv/DPS_4obj_2dv_borg_retest.resultfile', nobj, ncon)
 
 
 ### get distance from ideal point
