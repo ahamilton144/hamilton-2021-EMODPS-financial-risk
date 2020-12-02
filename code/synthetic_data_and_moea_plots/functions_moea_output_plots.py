@@ -109,22 +109,18 @@ def plot_metrics(dir_figs, metrics, nrbfs, nseed, fe_grid):
 
 
 
-### fn for cleaning set data
-def get_set(file, nobj, has_dv = True, has_constraint = True, sort = True):
+#fn for cleaning set data
+def get_set(file, nobj, ncon, has_dv = True, has_constraint = True, sort = True):
   # read data
   df = pd.read_csv(file, sep=' ', header=None).dropna(axis=1)
-  if has_constraint:
-    ncon = 1
-  else:
-    ncon = 0
-  if has_dv:
+  if (has_dv == True):
     ndv = df.shape[1] - nobj - ncon
   else:
     ndv = 0
   # negate negative objectives
   df.iloc[:, ndv] *= -1
   # get colnames
-  if has_dv:
+  if (has_dv == True):
     names = np.array(['dv1'])
     for i in range(2, ndv + 1):
       names = np.append(names, 'dv' + str(i))
@@ -135,24 +131,16 @@ def get_set(file, nobj, has_dv = True, has_constraint = True, sort = True):
   if (nobj > 2):
     names = np.append(names, 'maxComplex')
     names = np.append(names, 'maxFund')
-  if has_constraint:
+  if (has_constraint == True):
     names = np.append(names, 'constraint')
   df.columns = names
   # sort based on objective values
-  if sort:
+  if (sort == True):
     if (nobj == 4):
       df = df.sort_values(by=list(df.columns[-5:-1])).reset_index(drop=True)
     else:
       df = df.sort_values(by=list(df.columns[-5:-1])).reset_index(drop=True)
-  # get distance from "ideal" point
-  range_objs = {}
-  for o in ['annRev', 'maxDebt', 'maxComplex', 'maxFund']:
-    df[o + 'Norm'] = (df[o] - df[o].min()) / (df[o].max() - df[o].min())
-  df['annRevNorm'] = 1 - df['annRevNorm']
-  df['totalDistance2obj'] = np.sqrt(df['annRevNorm'] **2 + df['maxDebtNorm'] **2)
-  df['totalDistance4obj'] = np.sqrt(df['annRevNorm'] **2 + df['maxDebtNorm'] **2 + df['maxComplexNorm'] **2 + df['maxFundNorm'] **2)
-
-  return df
+  return df, ndv
 
 
 
