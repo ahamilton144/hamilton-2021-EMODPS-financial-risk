@@ -7,6 +7,8 @@ dir=$3
 formulation=${nobj}obj_rbf_overall
 ref_fil=${dir}/DPS_${formulation}_borg.reference
 
+#sh find_refSets_combined.sh $nobj $formulation
+
 for nrbf in 1 2 3 4 8 12
 do
 	formulation_rbf=${nobj}obj_${nrbf}rbf
@@ -15,4 +17,6 @@ do
 	ndv=$(( 4 + 10 * nrbf ))
 	sh find_runtime_metrics.sh $formulation_rbf $nobj $ndv $nseeds $ref_fil
 done
+
+#sh find_hypervolume.sh ${dir}/DPS_${formulation}_borg.reference ${dir}/DPS_${formulation}_borg.hypervolume
 
