@@ -1,0 +1,10 @@
+# Ignore everything in this directory
+/*
+# Except these files
+!metrics/
+!.gitignore
+!*.hypervolume
+!*.resultfile
+!*.sh
+!*.cpp
+!makefile

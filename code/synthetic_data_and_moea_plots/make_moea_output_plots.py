@@ -26,28 +26,28 @@ dir_generated_inputs = './../../data/generated_inputs/'
 dir_moea_output = './../../data/optimization_output/'
 dir_figs = './../../figures/'
 
-### get runtime metrics for moea runs with different number of RBFs (nrbfs)
-print('Getting runtime metrics for moea runs with different number of RBFs..., ',
-      datetime.now() - startTime)
-importlib.reload(functions_moea_output_plots)
-metrics = {}
-nrbfs = (1, 2, 3, 4, 8, 12)
-for nrbf in nrbfs:
-    metrics[str(nrbf)+'rbf'] = []
-    for s in range(1, 11):
-        metrics[str(nrbf)+'rbf'].append(functions_moea_output_plots.getMetrics(dir_moea_output + '4obj_' + str(nrbf) +
-                                                                              'rbf/metrics/DPS_param150_seedS1_seedB' + str(s) + '.metrics',
-                                                                              '../../data/optimization_output/4obj_rbf_overall/DPS_4obj_rbf_overall_borg.hypervolume'))
+# ### get runtime metrics for moea runs with different number of RBFs (nrbfs)
+# print('Getting runtime metrics for moea runs with different number of RBFs..., ',
+#       datetime.now() - startTime)
+# importlib.reload(functions_moea_output_plots)
+# metrics = {}
+# nrbfs = (1, 2, 3, 4, 8, 12)
+# for nrbf in nrbfs:
+#     metrics[str(nrbf)+'rbf'] = []
+#     for s in range(1, 11):
+#         metrics[str(nrbf)+'rbf'].append(functions_moea_output_plots.get_metrics(dir_moea_output + '4obj_' + str(nrbf) +
+#                                                                               'rbf/metrics/DPS_param150_seedS1_seedB' + str(s) + '.metrics',
+#                                                                               '../../data/optimization_output/4obj_rbf_overall/DPS_4obj_rbf_overall_borg.hypervolume'))
 
 
-# ### plot hypervolume for test of number of radial basis functions (nrbfs)
-print('Plotting hypervolume (fig S1)..., ', datetime.now() - startTime)
-importlib.reload(functions_moea_output_plots)
-nfe = 150000
-fe_prints = 100
-fe_grid = np.arange(0, nfe+1, nfe/fe_prints)
-nseed = 10
-functions_moea_output_plots.plot_metrics(dir_figs, metrics, nrbfs, nseed, fe_grid)
+# # ### plot hypervolume for test of number of radial basis functions (nrbfs)
+# print('Plotting hypervolume (fig S1)..., ', datetime.now() - startTime)
+# importlib.reload(functions_moea_output_plots)
+# nfe = 150000
+# fe_prints = 100
+# fe_grid = np.arange(0, nfe+1, nfe/fe_prints)
+# nseed = 10
+# functions_moea_output_plots.plot_metrics(dir_figs, metrics, nrbfs, nseed, fe_grid)
 
 
 
@@ -56,7 +56,7 @@ functions_moea_output_plots.plot_metrics(dir_figs, metrics, nrbfs, nseed, fe_gri
 ### get ref sets
 importlib.reload(functions_moea_output_plots)
 formulation = '4obj_2rbf_moreSeeds'
-ref_dps_4obj_retest = functions_moea_output_plots.getSet(dir_moea_output + formulation + '/DPS_' + formulation + '_borg_retest.resultfile', 4)
+ref_dps_4obj_retest = functions_moea_output_plots.get_set(dir_moea_output + formulation + '/DPS_' + formulation + '_borg_retest.resultfile', 4)
 
 ### get 3d plot limits
 lims, lims3d = functions_moea_output_plots.get_plot_limits(ref_dps_4obj_retest, ref_dps_4obj_retest)
