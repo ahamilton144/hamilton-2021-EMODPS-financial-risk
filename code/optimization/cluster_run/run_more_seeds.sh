@@ -20,9 +20,9 @@ do
 	sed -i "s+{1\.\.10}+{${seed_start}\.\.${seed_end}}+"  run_borgms.sh
 	sed -i "s+-t 12+-t 24+" run_borgms.sh
 	sed -i "s+${old_formulation}+${new_formulation}+" run_borgms.sh
-	cp main.cpp $dir
-        cp run_borgms.sh $dir
-        cp .gitignore $dir
+	cp main.cpp ../$dir
+        cp run_borgms.sh ../$dir
+        cp .gitignore ../$dir
 	sbatch run_borgms.sh
 	cd ../
 done
