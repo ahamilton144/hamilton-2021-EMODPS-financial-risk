@@ -10,6 +10,7 @@ from matplotlib.pyplot import cm
 import seaborn as sbn
 import importlib
 from datetime import datetime
+import copy
 
 ### Project functions ###
 import functions_moea_output_plots
@@ -25,40 +26,52 @@ dir_generated_inputs = './../../data/generated_inputs/'
 dir_moea_output = './../../data/optimization_output/'
 dir_figs = './../../figures/'
 
-# get runtime metrics for moea runs with different number of RBFs (nrbfs)
-print('Getting runtime metrics for moea runs with different number of RBFs..., ',
-      datetime.now() - startTime)
-importlib.reload(functions_moea_output_plots)
-metrics = {}
-nrbfs = (1, 2, 3, 4, 8, 12)
-for nrbf in nrbfs:
-    metrics[str(nrbf)+'rbf'] = []
-    for s in range(1, 11):
-        metrics[str(nrbf)+'rbf'].append(functions_moea_output_plots.getMetrics(dir_moea_output + '4obj_' + str(nrbf) +
-                                                                              'rbf/metrics/DPS_param150_seedS1_seedB' + str(s) + '.metrics',
-                                                                              '../../data/optimization_output/4obj_rbf_overall/DPS_4obj_rbf_overall_borg.hypervolume'))
-
-
-# ### plot hypervolume for baseline (50 seeds) + sample of 12 sensitivity analysis runs (10 seeds) (fig S4)
-print('Plotting hypervolume (fig S1)..., ', datetime.now() - startTime)
-importlib.reload(functions_moea_output_plots)
-nfe = 150000
-fe_prints = 100
-fe_grid = np.arange(0, nfe+1, nfe/fe_prints)
-nseed = 10
-functions_moea_output_plots.plot_metrics(dir_figs, metrics, nrbfs, nseed, fe_grid)
-
-# ### plot generational distance for baseline (50 seeds) + sample of 12 sensitivity analysis runs (10 seeds) (fig S5)
-# print('Plotting generational distance (fig S5)..., ', datetime.now() - startTime)
+# ### get runtime metrics for moea runs with different number of RBFs (nrbfs)
+# print('Getting runtime metrics for moea runs with different number of RBFs..., ',
+#       datetime.now() - startTime)
 # importlib.reload(functions_moea_output_plots)
-# functions_moea_output_plots.plot_generational_distance(dir_figs, metrics_seedsBase, metrics_seedsSensitivity, p_successes, nSeedsBase, nSeedsSensitivity, nfe)
+# metrics = {}
+# nrbfs = (1, 2, 3, 4, 8, 12)
+# for nrbf in nrbfs:
+#     metrics[str(nrbf)+'rbf'] = []
+#     for s in range(1, 11):
+#         metrics[str(nrbf)+'rbf'].append(functions_moea_output_plots.get_metrics(dir_moea_output + '4obj_' + str(nrbf) +
+#                                                                               'rbf/metrics/DPS_param150_seedS1_seedB' + str(s) + '.metrics',
+#                                                                               '../../data/optimization_output/4obj_rbf_overall/DPS_4obj_rbf_overall_borg.hypervolume'))
 
-# ### plot epsilon indicator for baseline (50 seeds) + sample of 12 sensitivity analysis runs (10 seeds) (fig S6)
-# print('Plotting epsilon indicator (fig S6)..., ', datetime.now() - startTime)
+
+# # ### plot hypervolume for test of number of radial basis functions (nrbfs)
+# print('Plotting hypervolume (fig S1)..., ', datetime.now() - startTime)
 # importlib.reload(functions_moea_output_plots)
-# functions_moea_output_plots.plot_epsilon_indicator(dir_figs, metrics_seedsBase, metrics_seedsSensitivity, p_successes, nSeedsBase, nSeedsSensitivity, nfe)
+# nfe = 150000
+# fe_prints = 100
+# fe_grid = np.arange(0, nfe+1, nfe/fe_prints)
+# nseed = 10
+# functions_moea_output_plots.plot_metrics(dir_figs, metrics, nrbfs, nseed, fe_grid)
 
-# print('Finished, ', datetime.now() - startTime)
+
+
+
+
+### get ref sets
+importlib.reload(functions_moea_output_plots)
+formulation = '4obj_2rbf_moreSeeds'
+ref_dps_4obj_retest = functions_moea_output_plots.get_set(dir_moea_output + formulation + '/DPS_' + formulation + '_borg_retest.resultfile', 4)
+
+### get 3d plot limits
+lims, lims3d = functions_moea_output_plots.get_plot_limits(ref_dps_4obj_retest, ref_dps_4obj_retest)
+
+### 3d plot (4 objectives) of dps vs 2dv formulation
+importlib.reload(functions_moea_output_plots)
+functions_moea_output_plots.plot_formulations_4obj(ref_dps_4obj_retest, ref_dps_4obj_retest, lims3d, dir_figs)
+
+### plot min/max marker sizes for use in legend (combine in illustrator)
+functions_moea_output_plots.plot_marker_size_4obj(ref_dps_4obj_retest, ref_dps_4obj_retest, lims3d, dir_figs)
+
+
+
+
+
 
 
 # # ### get stochastic data

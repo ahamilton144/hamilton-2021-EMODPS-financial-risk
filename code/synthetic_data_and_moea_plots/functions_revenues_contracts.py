@@ -31,7 +31,7 @@ eps = 1e-13
 ############## Returns dataframe of monthly revenues ($M/mnth) #########################################
 ##########################################################################
 
-def simulate_revenue(dir_generated_inputs, gen, hp_GWh, hp_dolPerKwh, genSynth, powSynth, redo = False, save = False):
+def simulate_revenue(dir_generated_inputs, gen, hp_GWh, hp_dolPerKwh, genSynth, powSynth, powHistSampleStart, redo = False, save = False):
   if (redo):
     # nYr = int(len(powSynth) / 12)
     # yrSim = np.full((1, nYr * 12), 0)
@@ -83,10 +83,11 @@ def simulate_revenue(dir_generated_inputs, gen, hp_GWh, hp_dolPerKwh, genSynth, 
                                 mtidGrowFrac,
                                 hp_dolPerKwh['M'].iloc[hp_dolPerKwh.shape[0] - 1] ,
                                 hp_dolPerKwh['mtid'].iloc[hp_dolPerKwh.shape[0] - 1] )
-
+    # choose power price series to use with historical data
+    powHistSample = powSynth.powPrice.iloc[powHistSampleStart:(powHistSampleStart+len(gen.tot))].reset_index(drop=True)
     # simulated revs for historical generation w/ random synth power price & current fixed muni/mtid rates
     revHist = pd.DataFrame({'rev': revenue_model_milDollars(gen.tot.reset_index(drop=True),
-                                                      powSynth.powPrice.iloc[360:(360+len(gen.tot))].reset_index(drop=True)/1000,
+                                                      powSynth.powPrice.iloc[3600:(3600+len(gen.tot))].reset_index(drop=True)/1000,
                                                       hp_GWh['M'].iloc[hp_GWh.shape[0] - 1] / 12,
                                                       mtidGrowFrac,
                                                       hp_dolPerKwh['M'].iloc[hp_dolPerKwh.shape[0] - 1],
@@ -97,12 +98,15 @@ def simulate_revenue(dir_generated_inputs, gen, hp_GWh, hp_dolPerKwh, genSynth, 
     if (save):
       revSim.to_pickle(dir_generated_inputs + 'revSim.pkl')
       revHist.to_pickle(dir_generated_inputs + 'revHist.pkl')
+      powHistSample.to_pickle(dir_generated_inputs + 'powHistSample.pkl')
+
 
   else:
     revSim = pd.read_pickle(dir_generated_inputs + 'revSim.pkl')
     revHist = pd.read_pickle(dir_generated_inputs + 'revHist.pkl')
+    powHistSample = pd.read_pickle(dir_generated_inputs + 'powHistSample.pkl')
 
-  return (revHist, revSim)
+  return (revHist, powHistSample, revSim)
 
 
 
@@ -199,7 +203,7 @@ def snow_contract_payout(dir_generated_inputs, sweWtSynth, contractType = 'put',
 ######### plot snow contract  (fig 4) ###########
 ############## Returns figure #########################################
 ##########################################################################
-def plot_contract(dir_figs, sweWtSynth, payoutCfdSim, lambda_shifts, plot_type):
+def plot_contract(dir_figs, sweWtSynth, payoutCfdSim, lambda_shifts):
 
   strike = sweWtSynth.quantile(0.5)
   prob = 1 / sweWtSynth.shape[0]
@@ -233,8 +237,8 @@ def plot_contract(dir_figs, sweWtSynth, payoutCfdSim, lambda_shifts, plot_type):
   kinkY = np.min(payoutCfdSim)
   kinkX = np.min(sweWtSynth.loc[payoutCfdSim < kinkY + eps])
   line3, = ax.plot([0, kinkX, 60], [kinkX + kinkY, kinkY, kinkY], color=col[0], linewidth=2)
-  plot_name = dir_figs + 'fig4.png'
-  plt.savefig(plot_name, dpi=1200)
+  plot_name = dir_figs + 'contract.png'
+  plt.savefig(plot_name, dpi=500)
 
   return
 

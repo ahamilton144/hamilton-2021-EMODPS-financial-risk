@@ -13,7 +13,7 @@ import seaborn as sns
 # import matplotlib as mpl
 from matplotlib import ticker, cm, colors
 # from mpl_toolkits.mplot3d import Axes3D
-# import copy
+import copy
 # import itertools
 
 sns.set_style('white')
@@ -31,8 +31,7 @@ cmap_purples = cm.get_cmap('Purples_r')
 col_purples = [cmap_purples(0.1),cmap_purples(0.3),cmap_purples(0.5),cmap_purples(0.8)]
 col_brewerQual4 = ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c']
 
-# dir_data = './../../data/optimization_output/'
-# dir_figs = './../../figures/'
+
 
 
 
@@ -41,7 +40,7 @@ col_brewerQual4 = ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c']
 ################################################################
 
 #fn for cleaning runtime metrics
-def getMetrics(metricfile, hvfile):
+def get_metrics(metricfile, hvfile):
   # read data
   df = pd.read_csv(metricfile, sep=' ')
   names = list(df.columns)
@@ -86,940 +85,319 @@ def plot_metrics(dir_figs, metrics, nrbfs, nseed, fe_grid):
         elif c==5:
           l5, =  plt.plot(fe_grid/1000, hv, c=col[c], alpha=0.7)
   plt.legend([l0, l1, l2, l3, l4, l5], ['1','2','3','4','8','12'])
-  plt.savefig(dir_figs + 'compareRbfs_hv.png', bbox_inches='tight', dpi=1200)
+  plt.ylim([0,1])
+  plt.savefig(dir_figs + 'compareRbfs_hv.jpg', bbox_inches='tight', dpi=500)
 
   fig = plt.figure()
   # col = ['red', 'yellow', 'cyan']
   # ax = fig.add_subplot(321)
-  # for c, d in enumerate(nrbfs):
-  for c, d in enumerate((1,2,4)):
+  for c, d in enumerate(nrbfs):
+  # for c, d in enumerate((1,2,4)):
     for s in range(nseed):
       hv = metrics[str(d) + 'rbf'][s]['Hypervolume'].values
       hv = np.insert(hv, 0, 0)
       plt.plot(fe_grid/1000, hv, c=col[c], alpha=0.7)
   plt.legend([l0, l1, l2, l3, l4, l5], ['1','2','3','4','8','12'])
   plt.xlim([100,150])
-  plt.ylim([0.96,0.99])
-  plt.savefig(dir_figs + 'compareRbfs_hv.png', bbox_inches='tight', dpi=1200)
+  plt.ylim([0.95,0.992])
+  plt.savefig(dir_figs + 'compareRbfs_hv_zoom.jpg', bbox_inches='tight', dpi=500)
   return
 
 
 
-# #########################################################################
-# ######### plot hypervolume for baseline (50 seeds) + sample of 12 sensitivity analysis runs (10 seeds) ####
-# ### outputs plot, no return. ####
-# # ##########################################################################
-# def plot_generational_distance(dir_figs, metrics_seedsBase, metrics_seedsSensitivity, p_successes, nSeedsBase, nSeedsSensitivity, nfe):
-#   ### combined generational distance plot for sfpuc + sensitivity analysis
-#   col_scal = np.arange(1,(nSeedsBase+1))/(nSeedsBase+1)
-#   cmap_vir = cm.get_cmap('viridis')
-#   function_eval = np.arange(0, nfe+1, 200)
-#   fig = plt.figure()
-#   ax = plt.subplot2grid((4,4),(0,0), rowspan=2, colspan=2)
-#   ax.tick_params(axis='x',which='both',labelbottom=False,labeltop=True)
-#   for s in range(1, (nSeedsBase+1)):
-#     hv = metrics_seedsBase[s - 1]['GenerationalDistance']
-#     ax.plot(function_eval/1000, hv, c=cmap_vir(col_scal[s - 1]), alpha=0.7)
-#   ax.set_yticks([0,0.1])
-#   ax.set_ylim([-0.01, 0.11])
-#   ax.set_xticks([0,10])
-#   nsamp=12
-#   nrow=2
-#   ncol=4
-#   np.random.seed(7)
-#   param_samps = np.random.choice(p_successes, size=nsamp, replace=False)
-#   col_scal = np.arange(1,(nSeedsSensitivity+1))/(nSeedsSensitivity+1)
-#   for j,p in enumerate(param_samps):
-#     if (j < 4):
-#       rj = int(j/2)
-#       cj = 2 + j - 2*rj
-#       ax = plt.subplot2grid((4,4), (rj, cj))
-#     else:
-#       rj = 2 + int((j-4)/ncol)
-#       cj = j+4 - ncol*rj
-#       ax = plt.subplot2grid((4,4), (rj, cj))
-#     if (rj == 0):
-#       ax.tick_params(axis='x', which='both', labelbottom=False, labeltop=True)
-#     elif (rj < ncol-1):
-#       ax.tick_params(axis='x', which='both', labelbottom=False, labeltop=False)
-#     if (cj > 0)&(cj < ncol-1):
-#       ax.tick_params(axis='y', which='both', labelleft=False, labelright=False)
-#     elif (cj == ncol-1):
-#       ax.tick_params(axis='y', which='both', labelleft=False, labelright=True)
-#     for s in range(1, (nSeedsSensitivity+1)):
-#       i = nSeedsSensitivity * np.where(np.array(p_successes)==p)[0][0] + s - 1
-#       hv = metrics_seedsSensitivity[i]['GenerationalDistance']
-#       ax.plot(function_eval / 1000, hv, c=cmap_vir(col_scal[s - 1]), alpha=0.7)
-#     ax.set_ylim([-0.01, 0.11])
-#     if (rj == 3)&(cj == 1):
-#       ax.set_xlabel('Thousands of Function Evaluations')
-#     if (rj == 2)&(cj == 0):
-#       ax.set_ylabel('Generational Distance')
-#   plt.savefig(dir_figs + 'figS5.png', bbox_inches='tight', dpi=1200)
 
-#   return
 
 
-# #########################################################################
-# ######### plot epsilon indicator for baseline (50 seeds) + sample of 12 sensitivity analysis runs (10 seeds) ####
-# ### outputs plot, no return. ####
-# # ##########################################################################
-# def plot_epsilon_indicator(dir_figs, metrics_seedsBase, metrics_seedsSensitivity, p_successes, nSeedsBase, nSeedsSensitivity, nfe):
-#   col_scal = np.arange(1,(nSeedsBase+1))/(nSeedsBase+1)
-#   cmap_vir = cm.get_cmap('viridis')
-#   function_eval = np.arange(0, nfe+1, 200)
-#   fig = plt.figure()
-#   ax = plt.subplot2grid((4,4),(0,0), rowspan=2, colspan=2)
-#   ax.tick_params(axis='x',which='both',labelbottom=False,labeltop=True)
-#   for s in range(1, (nSeedsBase+1)):
-#     hv = metrics_seedsBase[s - 1]['EpsilonIndicator']
-#     ax.plot(function_eval/1000, hv, c=cmap_vir(col_scal[s - 1]), alpha=0.7)
-#   ax.set_yticks([0,0.5])
-#   ax.set_ylim([-0.05, 0.55])
-#   ax.set_xticks([0,10])
-#   nsamp=12
-#   nrow=2
-#   ncol=4
-#   np.random.seed(7)
-#   param_samps = np.random.choice(p_successes, size=nsamp, replace=False)
-#   col_scal = np.arange(1,(nSeedsSensitivity+1))/(nSeedsSensitivity+1)
-#   for j,p in enumerate(param_samps):
-#     if (j < 4):
-#       rj = int(j/2)
-#       cj = 2 + j - 2*rj
-#       ax = plt.subplot2grid((4,4), (rj, cj))
-#     else:
-#       rj = 2 + int((j-4)/ncol)
-#       cj = j+4 - ncol*rj
-#       ax = plt.subplot2grid((4,4), (rj, cj))
-#     if (rj == 0):
-#       ax.tick_params(axis='x', which='both', labelbottom=False, labeltop=True)
-#     elif (rj < ncol-1):
-#       ax.tick_params(axis='x', which='both', labelbottom=False, labeltop=False)
-#     if (cj > 0)&(cj < ncol-1):
-#       ax.tick_params(axis='y', which='both', labelleft=False, labelright=False)
-#     elif (cj == ncol-1):
-#       ax.tick_params(axis='y', which='both', labelleft=False, labelright=True)
-#     for s in range(1, (nSeedsSensitivity+1)):
-#       i = nSeedsSensitivity * np.where(np.array(p_successes)==p)[0][0] + s - 1
-#       hv = metrics_seedsSensitivity[i]['EpsilonIndicator']
-#       ax.plot(function_eval / 1000, hv, c=cmap_vir(col_scal[s - 1]), alpha=0.7)
-#     ax.set_ylim([-0.05, 0.55])
-#     if (rj == 3)&(cj == 1):
-#       ax.set_xlabel('Thousands of Function Evaluations')
-#     if (rj == 2)&(cj == 0):
-#       ax.set_ylabel('Epsilon Indicator')
-#   plt.savefig(dir_figs + 'figS6.png', bbox_inches='tight', dpi=1200)
 
-#   return
-
-
-
-
-
-# ##################################################################
-# #### Analysis of 2dv vs full DPS. both 2obj & 4obj problems
-# ##################################################################
-
-# #fn for cleaning set data
-# def getSet(file, nobj, has_dv = True, has_constraint = True, sort = True):
-#   # read data
-#   df = pd.read_csv(file, sep=' ', header=None).dropna(axis=1)
-#   if has_constraint:
-#     ncon = 1
-#   else:
-#     ncon = 0
-#   if has_dv:
-#     ndv = df.shape[1] - nobj - ncon
-#   else:
-#     ndv = 0
-#   # negate negative objectives
-#   df.iloc[:, ndv] *= -1
-#   # get colnames
-#   if has_dv:
-#     names = np.array(['dv1'])
-#     for i in range(2, ndv + 1):
-#       names = np.append(names, 'dv' + str(i))
-#     names = np.append(names, 'annRev')
-#   else:
-#     names = np.array(['annRev'])
-#   names = np.append(names, 'maxDebt')
-#   if (nobj > 2):
-#     names = np.append(names, 'maxComplex')
-#     names = np.append(names, 'maxFund')
-#   if has_constraint:
-#     names = np.append(names, 'constraint')
-#   df.columns = names
-#   # sort based on objective values
-#   if sort:
-#     if (nobj == 4):
-#       df = df.sort_values(by=list(df.columns[-5:-1])).reset_index(drop=True)
-#     else:
-#       df = df.sort_values(by=list(df.columns[-5:-1])).reset_index(drop=True)
-#   return df, ndv
-
-
-
-# #########################################################################
-# ######### plot pareto front for sfpuc baseline case (fig 8) ####
-# ### outputs plot, no return. ####
-# # ##########################################################################
-# def plot_pareto_baseline(dir_figs, moea_solns, p_sfpuc, cases_sfpuc_index):
-#   ### plot tradeoff for particular parameter set
-#   plt.figure()
-#   plt.plot(moea_solns.exp_ann_cashflow_retest.loc[(moea_solns.p == p_sfpuc)&(moea_solns.Regime=='Fund+CFD')],
-#                  moea_solns.q95_max_debt_retest.loc[(moea_solns.p == p_sfpuc)&(moea_solns.Regime=='Fund+CFD')],
-#                 marker=marker['Fund+CFD'], linewidth=0, markeredgewidth=2, markerfacecolor='none',
-#                 c=palette['Fund+CFD'],alpha=0.4, ms=10)
-#   plt.plot(moea_solns.exp_ann_cashflow_retest.loc[(moea_solns.p == p_sfpuc)&(moea_solns.Regime == 'Fund')],
-#                 moea_solns.q95_max_debt_retest.loc[(moea_solns.p == p_sfpuc)&(moea_solns.Regime == 'Fund')],
-#                 marker=marker['Fund'], linewidth=0, markeredgewidth=2, markerfacecolor='none',
-#                 c=palette['Fund'], alpha=0.4, ms=8)
-#   m2, = plt.plot(moea_solns.exp_ann_cashflow_retest.iloc[cases_sfpuc_index[0]],
-#                  moea_solns.q95_max_debt_retest.iloc[cases_sfpuc_index[0]],
-#                  marker=marker['Fund'], linewidth=0, markeredgewidth=2, markerfacecolor='none',
-#                  c=palette['Fund'], alpha=1, ms=8)
-#   plt.annotate('A', xy=(moea_solns.exp_ann_cashflow_retest.iloc[cases_sfpuc_index[0]]+0.03,
-#                  moea_solns.q95_max_debt_retest.iloc[cases_sfpuc_index[0]]-1.0))
-#   plt.plot(moea_solns.exp_ann_cashflow_retest.iloc[cases_sfpuc_index[1]],
-#            moea_solns.q95_max_debt_retest.iloc[cases_sfpuc_index[1]],
-#            marker=marker['Fund+CFD'], linewidth=0, markeredgewidth=2, markerfacecolor='none',
-#            c=palette['Fund+CFD'], alpha=1, ms=10)
-#   plt.annotate('B', xy=(moea_solns.exp_ann_cashflow_retest.iloc[cases_sfpuc_index[1]]+0.015,
-#                  moea_solns.q95_max_debt_retest.iloc[cases_sfpuc_index[1]]-2.2))
-#   m1, = plt.plot(moea_solns.exp_ann_cashflow_retest.iloc[cases_sfpuc_index[2]],
-#                  moea_solns.q95_max_debt_retest.iloc[cases_sfpuc_index[2]],
-#                  marker=marker['Fund+CFD'], linewidth=0, markeredgewidth=2, markerfacecolor='none',
-#                  c=palette['Fund+CFD'], alpha=1, ms=10)
-#   plt.annotate('C', xy=(moea_solns.exp_ann_cashflow_retest.iloc[cases_sfpuc_index[2]]-0.02,
-#                  moea_solns.q95_max_debt_retest.iloc[cases_sfpuc_index[2]]-2.5))
-#   plt.plot([11],[0.2],marker='*',ms=15,c='0.6')
-#   plt.annotate('Ideal', xy=(10.92,1.5),color='0.6')
-#   plt.legend([m2,m1], ['Fund','Fund+CFD'], loc='upper left')
-#   plt.ylabel(r"$\leftarrow$ Q95 Max Debt $\left(J^{debt}\right)$")
-#   plt.xlabel(r"Expected Annualized Cash Flow $\left(J^{cash}\right)\rightarrow$")
-#   plt.savefig(dir_figs + 'fig8.png', bbox_inches='tight', dpi=1200)
-
-
-
-# ##########################################################################
-# ######### calculate cash flow after withdrawal (deposit) from (to) reserve fund ####
-# ### returns scalar. ####
-# # ##########################################################################
-# def get_cashflow_post_withdrawal(fund_balance, cash_in, cashflow_target, maxFund):
-#   if (cash_in < cashflow_target):
-#     if (fund_balance < eps):
-#       x = cash_in
-#     else:
-#       x = min(cash_in + fund_balance, cashflow_target)
-#   else:
-#     if (fund_balance > (maxFund - eps)):
-#       x = cash_in + (fund_balance - maxFund)
-#     else:
-#       x = max(cash_in - (maxFund - fund_balance), cashflow_target)
-#   return(x)
-
-
-
-
-# ##########################################################################
-# ######### Run single random simulation with given cfd slope & max fund  ###########
-# ############## Return set of objectives #########################################
-# ##########################################################################
-# def single_sim_objectives(revenue_sample, payoutCfd_sample, fixedCostFraction, meanRevenue, maxFund, slopeCfd, 
-#                         interestFund, interestDebt, lambdaCfdPremiumShift, discFactor, discNorm, nYears):
-
-#   net_revenue = revenue_sample - meanRevenue * fixedCostFraction
-#   fund_balance = [0]  # reserve fund balance starts at zero
-#   debt = [0]  # debt starts at zero
-#   withdrawal = []  # withdrawal
-#   final_cashflow = []  # net_revenue post
-#   for i in range(0, nYears):
-#     # cash flow after recieving revenues (net of fixed cost), plus net payout cfd, minus debt (plus interest) from last year
-#     cash_in = net_revenue[i] + slopeCfd * (payoutCfd_sample[i] - lambdaCfdPremiumShift) - debt[i] * interestDebt
-#     # rule for withdrawal (or deposit), after growing fund at interestFund from last year
-#     final_cashflow.append(get_cashflow_post_withdrawal(fund_balance[i] * interestFund, cash_in, 0, maxFund))
-#     withdrawal.append(final_cashflow[i] - cash_in)
-#     fund_balance.append(fund_balance[i] * interestFund - withdrawal[i])  # adjust reserve based on withdrawal (deposit)
-#     # if insufficient cash to pay off debt and still be above costs, take on more debt, which grows by interestDebt next year
-#     if (final_cashflow[i] < -eps):
-#       debt.append(-final_cashflow[i])
-#       final_cashflow[i] = 0.0
-#     else:
-#       debt.append(0)
-
-#   # sub-objectives for simulation
-#   objectives_1sim = []
-#   # annualized cash flow
-#   objectives_1sim.append(discNorm * (np.sum((discFactor * final_cashflow)) +
-#                                      (fund_balance[-1] * interestFund * discFactor[0] -
-#                                       debt[-1] * interestDebt * discFactor[0]) * discFactor[-1]))
-
-#   # max debt
-#   objectives_1sim.append(np.max(debt))
-#   # debt constraint
-#   objectives_1sim.append(debt[-1] - debt[-2])
-
-#   return (objectives_1sim)
-
-
-
-
-# ##########################################################################
-# ######### Run nSamples simulations with given cfd slope & max fund ###########
-# ############## Returns set of objectives #########################################
-# ##########################################################################
-# def monte_carlo_objectives(synthetic_data, fixedCostFraction, meanRevenue, maxFund, slopeCfd, interestFund, interestDebt,
-#                          discountRate, lambdaCfdPremiumShift, nYears, nSamples, set_seed, full_output, sample_starts=[0]):
-
-#   objectives_1sim = np.array([])
-#   if (len(sample_starts) == 1):
-#     if (set_seed > 0):
-#       np.random.seed(set_seed)
-#     sample_starts = np.random.choice(range(1, synthetic_data.shape[0] - nYears), size=nSamples)
-
-#   discFactor = discountRate ** np.array(range(1,nYears+1))
-#   discNorm = 1 / np.sum(discFactor)
-#   for s in range(0, len(sample_starts)):
-#     objectives_1sim = np.append(objectives_1sim,
-#                                 single_sim_objectives(
-#                                   synthetic_data.revenue.iloc[sample_starts[s]:(sample_starts[s] + nYears)].values,
-#                                   synthetic_data.payoutCfd.iloc[sample_starts[s]:(sample_starts[s] + nYears)].values,
-#                                   fixedCostFraction, meanRevenue, maxFund, slopeCfd, interestFund, interestDebt,
-#                                   lambdaCfdPremiumShift, discFactor, discNorm, nYears))
-#   if (full_output):
-#     return (objectives_1sim)
-#   else:
-#     objectives_mc = [np.mean(objectives_1sim[::3]),
-#                      np.quantile(objectives_1sim[1::3],0.95),
-#                      np.mean(objectives_1sim[2::3])]
-#     return(objectives_mc)
-
-
-
-# #########################################################################
-# ######### plot distribution of sub-objectives for 3 cases, baseline params (fig 9) ####
-# ### outputs plot, no return. ####
-# # ##########################################################################
-# def plot_distribution_objectives(dir_figs, synthetic_data, moea_solns, cases_sfpuc_index, params_sfpuc, meanRevenue, nYears):
-
-#   fixedCostFraction = params_sfpuc['c']
-#   discountRate = 1 / (params_sfpuc['delta'] / 100 + 1)
-#   interestFund = (params_sfpuc['Delta_fund'] + params_sfpuc['delta']) / 100 + 1
-#   interestDebt = (params_sfpuc['Delta_debt'] + params_sfpuc['delta']) / 100 + 1
-#   lambdaCfdPremiumShift = params_sfpuc['lam_prem_shift']
-
-#   cases_sfpuc_max_fund = moea_solns.max_fund.values[cases_sfpuc_index]
-#   cases_sfpuc_slope_cfd = moea_solns.slope_cfd.values[cases_sfpuc_index]
-#   cases_sfpuc_Jcash = moea_solns.exp_ann_cashflow_retest.values[cases_sfpuc_index]
-#   cases_sfpuc_Jdebt = moea_solns.q95_max_debt_retest.values[cases_sfpuc_index]
-
-#   # Run nSamples of nYears each and calculate objectives & constraint
-#   sample_starts = [0]
-#   objectivesA = monte_carlo_objectives(synthetic_data, fixedCostFraction, meanRevenue,
-#                                      cases_sfpuc_max_fund[0], cases_sfpuc_slope_cfd[0], interestFund, interestDebt,
-#                                      discountRate, lambdaCfdPremiumShift, nYears, 50000, set_seed=6, full_output=True,
-#                                      sample_starts=sample_starts)
-#   objectivesB = monte_carlo_objectives(synthetic_data, fixedCostFraction, meanRevenue,
-#                                      cases_sfpuc_max_fund[1], cases_sfpuc_slope_cfd[1], interestFund, interestDebt,
-#                                      discountRate, lambdaCfdPremiumShift, nYears, 50000, set_seed=6, full_output=True,
-#                                      sample_starts=sample_starts)
-#   objectivesC = monte_carlo_objectives(synthetic_data, fixedCostFraction, meanRevenue,
-#                                      cases_sfpuc_max_fund[2], cases_sfpuc_slope_cfd[2], interestFund, interestDebt,
-#                                      discountRate, lambdaCfdPremiumShift, nYears, 50000, set_seed=6, full_output=True,
-#                                      sample_starts=sample_starts)
-
-#   # validate objectives against c++ version (borg, retest)
-#   print('Policy A:  Jcash_borg (', moea_solns.exp_ann_cashflow_borg.iloc[cases_sfpuc_index[0]], '), Jcash_retest (',
-#         moea_solns.exp_ann_cashflow_retest.iloc[cases_sfpuc_index[0]], '), Jcash_validate (', np.mean(objectivesA[::3]))
-#   print('Policy B:  Jcash_borg (', moea_solns.exp_ann_cashflow_borg.iloc[cases_sfpuc_index[1]], '), Jcash_retest (',
-#         moea_solns.exp_ann_cashflow_retest.iloc[cases_sfpuc_index[1]], '), Jcash_validate (', np.mean(objectivesB[::3]))
-#   print('Policy C:  Jcash_borg (', moea_solns.exp_ann_cashflow_borg.iloc[cases_sfpuc_index[2]], '), Jcash_retest (',
-#         moea_solns.exp_ann_cashflow_retest.iloc[cases_sfpuc_index[2]], '), Jcash_validate (', np.mean(objectivesC[::3]))
-#   print('Policy A:  Jdebt_borg (', moea_solns.q95_max_debt_borg.iloc[cases_sfpuc_index[0]], '), Jdebt_retest (',
-#         moea_solns.q95_max_debt_retest.iloc[cases_sfpuc_index[0]], '), Jdebt_validate (',
-#         np.quantile(objectivesA[1::3],0.95))
-#   print('Policy B:  Jdebt_borg (', moea_solns.q95_max_debt_borg.iloc[cases_sfpuc_index[1]], '), Jdebt_retest (',
-#         moea_solns.q95_max_debt_retest.iloc[cases_sfpuc_index[1]], '), Jdebt_validate (',
-#         np.quantile(objectivesB[1::3],0.95))
-#   print('Policy C:  Jdebt_borg (', moea_solns.q95_max_debt_borg.iloc[cases_sfpuc_index[2]], '), Jdebt_retest (',
-#         moea_solns.q95_max_debt_retest.iloc[cases_sfpuc_index[2]], '), Jdebt_validate (',
-#         np.quantile(objectivesC[1::3],0.95))
-
-#   plt.figure()
-#   ax = plt.subplot2grid((1,2), (0, 0))
-#   ax.set_xlabel('Annualized Cash Flow ($M/year)')
-#   ax.set_ylabel('Density')
-#   ax.tick_params(axis='y', which='both', labelleft=False, labelright=False)
-#   ax.set_ylim([0, 0.28])
-
-#   plt.hist(objectivesA[::3], density=True, alpha=0.6, color=col[0], bins=np.arange(0,44)/2)
-#   plt.hist(objectivesB[::3], density=True, alpha=0.6, color=col[2], bins=np.arange(0,44)/2)
-#   plt.hist(objectivesC[::3], density=True, alpha=0.6, color=col[3], bins=np.arange(0,44)/2)
-
-#   plt.axvline(x=cases_sfpuc_Jcash[0], color=col[0], linewidth=2, linestyle='--')
-#   plt.axvline(x=cases_sfpuc_Jcash[1], color=col[2], linewidth=2, linestyle='--')
-#   plt.axvline(x=cases_sfpuc_Jcash[2], color=col[3], linewidth=2, linestyle='--')
-
-#   ax = plt.subplot2grid((1,2), (0, 1))
-#   ax.set_xlabel('Max Debt ($M)')
-#   ax.set_ylabel('Density')
-#   ax.tick_params(axis='y', which='both', labelleft=False, labelright=False)
-#   ax.yaxis.set_label_position('right')
-#   ax.set_ylim([0, 0.07])
-
-#   plt.hist(objectivesA[1::3], density=True, alpha=0.6, color=col[0], bins=np.arange(0,46))
-#   plt.hist(objectivesB[1::3], density=True, alpha=0.6, color=col[2], bins=np.arange(0,46))
-#   plt.hist(objectivesC[1::3], density=True, alpha=0.6, color=col[3], bins=np.arange(0,46))
-#   plt.legend(['A','B','C'], loc='upper right')
-
-#   plt.axvline(x=cases_sfpuc_Jdebt[0], color=col[0], linewidth=2, linestyle='--')
-#   plt.axvline(x=cases_sfpuc_Jdebt[1], color=col[2], linewidth=2, linestyle='--')
-#   plt.axvline(x=cases_sfpuc_Jdebt[2], color=col[3], linewidth=2, linestyle='--')
-
-#   plt.savefig(dir_figs + 'fig9.png', dpi=1200)
-
-#   return
-
-
-
-# #########################################################################
-# ######### plot tradeoff cloud of pareto fronts for sensitivity analysis (fig 10/S8) ####
-# ### outputs plot, no return. ####
-# # ##########################################################################
-# def plot_tradeoff_cloud(dir_figs, moea_solns, meanRevenue, p_sfpuc, debt_filter):
-#   ### plot tradeoff cloud for sensitivity analysis
-#   plt.figure()
-#   m1, = plt.plot(moea_solns.exp_ann_cashflow_retest.loc[(moea_solns.Regime == 'Fund+CFD')] /
-#                  (meanRevenue * (1 - moea_solns.c.loc[(moea_solns.Regime == 'Fund+CFD')])),
-#                  moea_solns.q95_max_debt_retest.loc[(moea_solns.Regime == 'Fund+CFD')] /
-#                  (meanRevenue * (1 - moea_solns.c.loc[(moea_solns.Regime == 'Fund+CFD')])),
-#                  marker=marker['Fund+CFD'], linewidth=0, markeredgewidth=1.5, markerfacecolor='none',
-#                  c=palette['Fund+CFD'], alpha=0.5)  # , ms=10)
-#   m2, = plt.plot(moea_solns.exp_ann_cashflow_retest.loc[(moea_solns.Regime == 'Fund')] /
-#                  (meanRevenue * (1 - moea_solns.c.loc[(moea_solns.Regime == 'Fund')])),
-#                  moea_solns.q95_max_debt_retest.loc[(moea_solns.Regime == 'Fund')] /
-#                  (meanRevenue * (1 - moea_solns.c.loc[(moea_solns.Regime == 'Fund')])),
-#                  marker=marker['Fund'], linewidth=0, markeredgewidth=1.5, markerfacecolor='none',
-#                  c=palette['Fund'], alpha=0.5)  # , ms=8)
-#   m3, = plt.plot(moea_solns.exp_ann_cashflow_retest.loc[(moea_solns.Regime == 'CFD')] /
-#                  (meanRevenue * (1 - moea_solns.c.loc[(moea_solns.Regime == 'CFD')])),
-#                  moea_solns.q95_max_debt_retest.loc[(moea_solns.Regime == 'CFD')] /
-#                  (meanRevenue * (1 - moea_solns.c.loc[(moea_solns.Regime == 'CFD')])),
-#                  marker=marker['CFD'], linewidth=0, markeredgewidth=1.5, markerfacecolor='none',
-#                  c=palette['CFD'], alpha=0.5)  # , ms=8)
-#   plt.plot(moea_solns.exp_ann_cashflow_retest.loc[(moea_solns.p == p_sfpuc) & (moea_solns.Regime == 'Fund+CFD')] /
-#            (meanRevenue * (1 - moea_solns.c.loc[(moea_solns.p == p_sfpuc)].iloc[0])),
-#            moea_solns.q95_max_debt_retest.loc[(moea_solns.p == p_sfpuc) & (moea_solns.Regime == 'Fund+CFD')] /
-#            (meanRevenue * (1 - moea_solns.c.loc[(moea_solns.p == p_sfpuc)].iloc[0])),
-#            marker=marker['Fund+CFD'], linewidth=0, markeredgewidth=1.5, markerfacecolor='none',
-#            c='k', alpha=0.7)
-#   plt.plot(moea_solns.exp_ann_cashflow_retest.loc[(moea_solns.p == p_sfpuc) & (moea_solns.Regime == 'Fund')] /
-#            (meanRevenue * (1 - moea_solns.c.loc[(moea_solns.p == p_sfpuc)].iloc[0])),
-#            moea_solns.q95_max_debt_retest.loc[(moea_solns.p == p_sfpuc) & (moea_solns.Regime == 'Fund')] /
-#            (meanRevenue * (1 - moea_solns.c.loc[(moea_solns.p == p_sfpuc)].iloc[0])),
-#            marker=marker['Fund'], linewidth=0, markeredgewidth=1.5, markerfacecolor='none',
-#            c='k', alpha=0.7)
-
-#   if (debt_filter):
-#     plt.plot([1], [0], marker='*', ms=15, c='0.6')
-#     plt.annotate('Ideal', xy=(0.975, -0.35), color='0.6')
-#     # plt.ylim([-0.4, 5.4])
-#   plt.ylabel(r"$\leftarrow$ Normalized Q95 Max Debt $\left(\hat{J}^{debt}\right)$")
-#   plt.xlabel(r"Normalized Expected Annualized Cash Flow $\left(\hat{J}^{cash}\right)\rightarrow$")
-#   if (debt_filter):
-#     plt.legend([m2, m3, m1], ['Fund', 'CFD', 'Fund+CFD'], loc='lower left')
-#     plt.savefig(dir_figs + 'fig10.png', bbox_inches='tight', dpi=1200)
-#   else:
-#     plt.legend([m2, m3, m1], ['Fund', 'CFD', 'Fund+CFD'], loc='lower left')
-#     plt.savefig(dir_figs + 'figS7.png', bbox_inches='tight', dpi=1200)
-
-#   return
-
-
-
-
-
-# #########################################################################
-# ######### plot sensitivity analysis for debt objective (fig 11/S9) ####
-# ### outputs plot, no return. ####
-# # ##########################################################################
-# def plot_sensitivity_debt(dir_figs, moea_solns, p_sfpuc, debt_filter):
-#   ### plot regime as function of normalized debt and uncertain params
-#   plt.figure()
-#   ax = plt.subplot2grid((2,4),(0,0),rowspan=2,colspan=2)
-#   ax.set_xlabel('$c$')
-#   ax.set_ylabel('$\leftarrow\hat{J}^{debt}$')
-#   ax.set_xticks(np.arange(0.85, 0.98, 0.04))
-#   if (debt_filter):
-#     # ax.set_xlim([0.84,0.98])
-#     ax.set_yticks(np.arange(0, 6))
-#   else:
-#     ax.set_yticks(np.arange(0, 36, 5))
-#   for xp, yp, colp, mp in zip(moea_solns.c.loc[(moea_solns.Regime=='Fund')|(moea_solns.Regime=='Fund+CFD')],
-#                               moea_solns.q95_max_debt_retest.loc[(moea_solns.Regime=='Fund')|(moea_solns.Regime=='Fund+CFD')] /
-#                               moea_solns.expected_net_revenue.loc[(moea_solns.Regime=='Fund')|(moea_solns.Regime=='Fund+CFD')],
-#                               [palette[i] for i in moea_solns.Regime.loc[(moea_solns.Regime=='Fund')|(moea_solns.Regime=='Fund+CFD')]],
-#                               [marker[i] for i in moea_solns.Regime.loc[(moea_solns.Regime=='Fund')|(moea_solns.Regime=='Fund+CFD')]]):
-#     ax.plot(xp, yp, c=colp, marker=mp, alpha=0.7, linewidth=0, markeredgewidth=1, markerfacecolor='none')
-
-#   m1, = ax.plot(moea_solns.c.loc[(moea_solns.Regime=='Fund+CFD')].iloc[0], moea_solns.q95_max_debt_retest.loc[(moea_solns.Regime=='Fund+CFD')].iloc[0] /
-#                               moea_solns.expected_net_revenue.loc[(moea_solns.Regime=='Fund+CFD')].iloc[0],
-#                 marker=marker['Fund+CFD'], linewidth=0, markeredgewidth=1, markerfacecolor='none',
-#                 c=palette['Fund+CFD'],alpha=0.3)
-#   m2, = ax.plot(moea_solns.c.loc[(moea_solns.Regime == 'Fund')].iloc[0],
-#                 moea_solns.q95_max_debt_retest.loc[(moea_solns.Regime == 'Fund')].iloc[0] /
-#                               moea_solns.expected_net_revenue.loc[(moea_solns.Regime=='Fund')].iloc[0],
-#                 marker=marker['Fund'], linewidth=0, markeredgewidth=1, markerfacecolor='none',
-#                 c=palette['Fund'], alpha=0.3)
-#   m3, = ax.plot(moea_solns.c.loc[moea_solns.Regime=='None'],moea_solns.q95_max_debt_retest.loc[moea_solns.Regime=='None'] /
-#                               moea_solns.expected_net_revenue.loc[(moea_solns.Regime=='None')],
-#              marker = marker['None'], linewidth=0, markeredgewidth=1, markerfacecolor='none', c=palette['None'],alpha=alpha['None'])
-#   m4, = ax.plot(moea_solns.c.loc[moea_solns.Regime=='CFD'],moea_solns.q95_max_debt_retest.loc[moea_solns.Regime=='CFD'] /
-#                               moea_solns.expected_net_revenue.loc[(moea_solns.Regime=='CFD')],
-#              marker = marker['CFD'], linewidth=0, markeredgewidth=1, markerfacecolor='none', c=palette['CFD'],alpha=alpha['CFD'])
-#   plt.plot(moea_solns.c.loc[(moea_solns.p == p_sfpuc)&(moea_solns.Regime == 'Fund')],
-#                 moea_solns.q95_max_debt_retest.loc[(moea_solns.p == p_sfpuc)&(moea_solns.Regime == 'Fund')] /
-#                               moea_solns.expected_net_revenue.loc[(moea_solns.p == p_sfpuc)&(moea_solns.Regime == 'Fund')],
-#                 marker=marker['Fund'], linewidth=0, markeredgewidth=1.5, markerfacecolor='none',
-#                 c='k', alpha=0.7)
-#   plt.plot(moea_solns.c.loc[(moea_solns.p == p_sfpuc)&(moea_solns.Regime == 'Fund+CFD')],
-#                 moea_solns.q95_max_debt_retest.loc[(moea_solns.p == p_sfpuc)&(moea_solns.Regime == 'Fund+CFD')] /
-#                               moea_solns.expected_net_revenue.loc[(moea_solns.p == p_sfpuc)&(moea_solns.Regime == 'Fund+CFD')],
-#                 marker=marker['Fund+CFD'], linewidth=0, markeredgewidth=1.5, markerfacecolor='none',
-#                 c='k', alpha=0.7)
-#   ax.legend([(m2,m2,m2,m2,m2,m2,m2,m2,m2,m2,m2,m2,m2,m2,m2,m2,m2),(m4,m4,m4,m4,m4),
-#              (m1,m1,m1,m1,m1,m1,m1,m1,m1,m1,m1,m1,m1,m1,m1,m1,m1)],['Fund','CFD','Fund+CFD'])
-
-#   ax = plt.subplot2grid((2,4),(0,2))
-#   ax.set_xlabel('$\delta$')
-#   ax.xaxis.set_label_position('top')
-#   ax.set_xticks(np.arange(0,6,5))
-#   ax.tick_params(axis='y',which='both',labelleft=False)
-#   ax.tick_params(axis='x',which='both',labelbottom=False,labeltop=True)
-#   for xp, yp, colp, mp in zip(moea_solns.delta.loc[(moea_solns.Regime=='Fund')|(moea_solns.Regime=='Fund+CFD')],
-#                               moea_solns.q95_max_debt_retest.loc[(moea_solns.Regime=='Fund')|(moea_solns.Regime=='Fund+CFD')] /
-#                               moea_solns.expected_net_revenue.loc[(moea_solns.Regime=='Fund')|(moea_solns.Regime=='Fund+CFD')],
-#                               [palette[i] for i in moea_solns.Regime.loc[(moea_solns.Regime=='Fund')|(moea_solns.Regime=='Fund+CFD')]],
-#                               [marker[i] for i in moea_solns.Regime.loc[(moea_solns.Regime=='Fund')|(moea_solns.Regime=='Fund+CFD')]]):
-#     ax.plot(xp, yp, c=colp, marker=mp, alpha=0.7, linewidth=0, markeredgewidth=1, markerfacecolor='none')
-#   m3, = ax.plot(moea_solns.delta.loc[moea_solns.Regime=='None'],moea_solns.q95_max_debt_retest.loc[moea_solns.Regime=='None'] /
-#                 moea_solns.expected_net_revenue.loc[moea_solns.Regime=='None'],
-#              marker = marker['None'], linewidth=0, markeredgewidth=1, markerfacecolor='none', c=palette['None'],alpha=alpha['None'])
-#   m4, = ax.plot(moea_solns.delta.loc[moea_solns.Regime=='CFD'],moea_solns.q95_max_debt_retest.loc[moea_solns.Regime=='CFD'] /
-#                 moea_solns.expected_net_revenue.loc[moea_solns.Regime=='CFD'],
-#              marker = marker['CFD'], linewidth=0, markeredgewidth=1, markerfacecolor='none', c=palette['CFD'],alpha=alpha['CFD'])
-#   plt.plot(moea_solns.delta.loc[(moea_solns.p == p_sfpuc)&(moea_solns.Regime == 'Fund')],
-#                 moea_solns.q95_max_debt_retest.loc[(moea_solns.p == p_sfpuc)&(moea_solns.Regime == 'Fund')] /
-#            moea_solns.expected_net_revenue.loc[(moea_solns.p == p_sfpuc)&(moea_solns.Regime == 'Fund')],
-#                 marker=marker['Fund'], linewidth=0, markeredgewidth=1.5, markerfacecolor='none',
-#                 c='k', alpha=0.7)
-#   plt.plot(moea_solns.delta.loc[(moea_solns.p == p_sfpuc)&(moea_solns.Regime == 'Fund+CFD')],
-#                 moea_solns.q95_max_debt_retest.loc[(moea_solns.p == p_sfpuc)&(moea_solns.Regime == 'Fund+CFD')] /
-#            moea_solns.expected_net_revenue.loc[(moea_solns.p == p_sfpuc)&(moea_solns.Regime == 'Fund+CFD')],
-#                 marker=marker['Fund+CFD'], linewidth=0, markeredgewidth=1.5, markerfacecolor='none',
-#                 c='k', alpha=0.7)
-
-#   ax = plt.subplot2grid((2,4),(1,2))
-#   ax.set_xlabel('$\Delta_F$')
-#   ax.set_xticks(np.arange(-2, 0.5, 2))
-#   ax.tick_params(axis='y',which='both',labelleft=False)
-#   ax.tick_params(axis='x',which='both',labelbottom=True,labeltop=False)
-#   for xp, yp, colp, mp in zip(moea_solns.Delta_fund.loc[(moea_solns.Regime=='Fund')|(moea_solns.Regime=='Fund+CFD')],
-#                               moea_solns.q95_max_debt_retest.loc[(moea_solns.Regime=='Fund')|(moea_solns.Regime=='Fund+CFD')] /
-#                               moea_solns.expected_net_revenue.loc[(moea_solns.Regime=='Fund')|(moea_solns.Regime=='Fund+CFD')],
-#                               [palette[i] for i in moea_solns.Regime.loc[(moea_solns.Regime=='Fund')|(moea_solns.Regime=='Fund+CFD')]],
-#                               [marker[i] for i in moea_solns.Regime.loc[(moea_solns.Regime=='Fund')|(moea_solns.Regime=='Fund+CFD')]]):
-#     ax.plot(xp, yp, c=colp, marker=mp, alpha=0.7, linewidth=0, markeredgewidth=1, markerfacecolor='none')
-#   m3, = ax.plot(moea_solns.Delta_fund.loc[moea_solns.Regime=='None'],moea_solns.q95_max_debt_retest.loc[moea_solns.Regime=='None'] /
-#                 moea_solns.expected_net_revenue.loc[moea_solns.Regime=='None'],
-#              marker = marker['None'], linewidth=0, markeredgewidth=1, markerfacecolor='none', c=palette['None'],alpha=alpha['None'])
-#   m4, = ax.plot(moea_solns.Delta_fund.loc[moea_solns.Regime=='CFD'],moea_solns.q95_max_debt_retest.loc[moea_solns.Regime=='CFD'] /
-#                 moea_solns.expected_net_revenue.loc[moea_solns.Regime=='CFD'],
-#              marker = marker['CFD'], linewidth=0, markeredgewidth=1, markerfacecolor='none', c=palette['CFD'],alpha=alpha['CFD'])
-#   plt.plot(moea_solns.Delta_fund.loc[(moea_solns.p == p_sfpuc)&(moea_solns.Regime == 'Fund')],
-#                 moea_solns.q95_max_debt_retest.loc[(moea_solns.p == p_sfpuc)&(moea_solns.Regime == 'Fund')] /
-#            moea_solns.expected_net_revenue.loc[(moea_solns.p == p_sfpuc)&(moea_solns.Regime == 'Fund')],
-#                 marker=marker['Fund'], linewidth=0, markeredgewidth=1.5, markerfacecolor='none',
-#                 c='k', alpha=0.7)
-#   plt.plot(moea_solns.Delta_fund.loc[(moea_solns.p == p_sfpuc)&(moea_solns.Regime == 'Fund+CFD')],
-#                 moea_solns.q95_max_debt_retest.loc[(moea_solns.p == p_sfpuc)&(moea_solns.Regime == 'Fund+CFD')] /
-#            moea_solns.expected_net_revenue.loc[(moea_solns.p == p_sfpuc)&(moea_solns.Regime == 'Fund+CFD')],
-#                 marker=marker['Fund+CFD'], linewidth=0, markeredgewidth=1.5, markerfacecolor='none',
-#                 c='k', alpha=0.7)
-
-#   ax = plt.subplot2grid((2,4),(1,3))
-#   ax.set_xlabel('$\Delta_D$')
-#   ax.set_ylabel(r"$\hat{J}^{debt}\rightarrow$",  rotation=270, labelpad=20)
-#   ax.yaxis.set_label_position('right')
-#   ax.set_xticks(np.arange(0, 6, 5))
-#   if (debt_filter):
-#     ax.set_yticks(np.arange(0, 6, 5))
-#   else:
-#     ax.set_yticks(np.arange(0,21,20))
-#   ax.tick_params(axis='y',which='both',labelleft=False,labelright=True)
-#   ax.tick_params(axis='x',which='both',labelbottom=True,labeltop=False)
-#   for xp, yp, colp, mp in zip(moea_solns.Delta_debt.loc[(moea_solns.Regime=='Fund')|(moea_solns.Regime=='Fund+CFD')],
-#                               moea_solns.q95_max_debt_retest.loc[(moea_solns.Regime=='Fund')|(moea_solns.Regime=='Fund+CFD')] /
-#                               moea_solns.expected_net_revenue.loc[(moea_solns.Regime=='Fund')|(moea_solns.Regime=='Fund+CFD')],
-#                               [palette[i] for i in moea_solns.Regime.loc[(moea_solns.Regime=='Fund')|(moea_solns.Regime=='Fund+CFD')]],
-#                               [marker[i] for i in moea_solns.Regime.loc[(moea_solns.Regime=='Fund')|(moea_solns.Regime=='Fund+CFD')]]):
-#     ax.plot(xp, yp, c=colp, marker=mp, alpha=0.7, linewidth=0, markeredgewidth=1, markerfacecolor='none')
-#   m3, = ax.plot(moea_solns.Delta_debt.loc[moea_solns.Regime=='None'],moea_solns.q95_max_debt_retest.loc[moea_solns.Regime=='None'] /
-#                 moea_solns.expected_net_revenue.loc[moea_solns.Regime=='None'],
-#              marker = marker['None'], linewidth=0, markeredgewidth=1, markerfacecolor='none', c=palette['None'],alpha=alpha['None'])
-#   m4, = ax.plot(moea_solns.Delta_debt.loc[moea_solns.Regime=='CFD'],moea_solns.q95_max_debt_retest.loc[moea_solns.Regime=='CFD'] /
-#                 moea_solns.expected_net_revenue.loc[moea_solns.Regime=='CFD'],
-#              marker = marker['CFD'], linewidth=0, markeredgewidth=1, markerfacecolor='none', c=palette['CFD'],alpha=alpha['CFD'])
-#   plt.plot(moea_solns.Delta_debt.loc[(moea_solns.p == p_sfpuc)&(moea_solns.Regime == 'Fund')],
-#                 moea_solns.q95_max_debt_retest.loc[(moea_solns.p == p_sfpuc)&(moea_solns.Regime == 'Fund')] /
-#            moea_solns.expected_net_revenue.loc[(moea_solns.p == p_sfpuc)&(moea_solns.Regime == 'Fund')],
-#                 marker=marker['Fund'], linewidth=0, markeredgewidth=1.5, markerfacecolor='none',
-#                 c='k', alpha=0.7)
-#   plt.plot(moea_solns.Delta_debt.loc[(moea_solns.p == p_sfpuc)&(moea_solns.Regime == 'Fund+CFD')],
-#                 moea_solns.q95_max_debt_retest.loc[(moea_solns.p == p_sfpuc)&(moea_solns.Regime == 'Fund+CFD')] /
-#            moea_solns.expected_net_revenue.loc[(moea_solns.p == p_sfpuc)&(moea_solns.Regime == 'Fund+CFD')],
-#                 marker=marker['Fund+CFD'], linewidth=0, markeredgewidth=1.5, markerfacecolor='none',
-#                 c='k', alpha=0.7)
-
-#   ax = plt.subplot2grid((2,4),(0,3))
-#   ax.set_xlabel('$\lambda$')
-#   ax.xaxis.set_label_position('top')
-#   ax.set_ylabel(r"$\hat{J}^{debt}\rightarrow$",  rotation=270, labelpad=20)
-#   ax.yaxis.set_label_position('right')
-#   ax.set_xticks(np.arange(0, 0.6, 0.5))
-#   if (debt_filter):
-#     ax.set_yticks(np.arange(0, 6, 5))
-#   else:
-#     ax.set_yticks(np.arange(0,21,20))
-#   ax.tick_params(axis='y',which='both',labelleft=False,labelright=True)
-#   ax.tick_params(axis='x',which='both',labelbottom=False,labeltop=True)
-#   for xp, yp, colp, mp in zip(moea_solns.lam.loc[(moea_solns.Regime=='Fund')|(moea_solns.Regime=='Fund+CFD')],
-#                               moea_solns.q95_max_debt_retest.loc[(moea_solns.Regime=='Fund')|(moea_solns.Regime=='Fund+CFD')] /
-#                               moea_solns.expected_net_revenue.loc[(moea_solns.Regime=='Fund')|(moea_solns.Regime=='Fund+CFD')],
-#                               [palette[i] for i in moea_solns.Regime.loc[(moea_solns.Regime=='Fund')|(moea_solns.Regime=='Fund+CFD')]],
-#                               [marker[i] for i in moea_solns.Regime.loc[(moea_solns.Regime=='Fund')|(moea_solns.Regime=='Fund+CFD')]]):
-#     ax.plot(xp, yp, c=colp, marker=mp, alpha=0.7, linewidth=0, markeredgewidth=1, markerfacecolor='none')
-#   m3, = ax.plot(moea_solns.lam.loc[moea_solns.Regime=='None'],moea_solns.q95_max_debt_retest.loc[moea_solns.Regime=='None'] /
-#                 moea_solns.expected_net_revenue.loc[moea_solns.Regime=='None'],
-#              marker = marker['None'], linewidth=0, markeredgewidth=1, markerfacecolor='none', c=palette['None'],alpha=alpha['None'])
-#   m4, = ax.plot(moea_solns.lam.loc[moea_solns.Regime=='CFD'],moea_solns.q95_max_debt_retest.loc[moea_solns.Regime=='CFD'] /
-#                 moea_solns.expected_net_revenue.loc[moea_solns.Regime=='CFD'],
-#              marker = marker['CFD'], linewidth=0, markeredgewidth=1, markerfacecolor='none', c=palette['CFD'],alpha=alpha['CFD'])
-#   plt.plot(moea_solns.lam.loc[(moea_solns.p == p_sfpuc)&(moea_solns.Regime == 'Fund')],
-#                 moea_solns.q95_max_debt_retest.loc[(moea_solns.p == p_sfpuc)&(moea_solns.Regime == 'Fund')] /
-#            moea_solns.expected_net_revenue.loc[(moea_solns.p == p_sfpuc)&(moea_solns.Regime == 'Fund')],
-#                 marker=marker['Fund'], linewidth=0, markeredgewidth=1.5, markerfacecolor='none',
-#                 c='k', alpha=0.7)
-#   plt.plot(moea_solns.lam.loc[(moea_solns.p == p_sfpuc)&(moea_solns.Regime == 'Fund+CFD')],
-#                 moea_solns.q95_max_debt_retest.loc[(moea_solns.p == p_sfpuc)&(moea_solns.Regime == 'Fund+CFD')] /
-#            moea_solns.expected_net_revenue.loc[(moea_solns.p == p_sfpuc)&(moea_solns.Regime == 'Fund+CFD')],
-#                 marker=marker['Fund+CFD'], linewidth=0, markeredgewidth=1.5, markerfacecolor='none',
-#                 c='k', alpha=0.7)
-
-#   if (debt_filter):
-#     plt.savefig(dir_figs + 'fig11.png', bbox_inches='tight', dpi=1200)
-#   else:
-#     plt.savefig(dir_figs + 'figS8.png', bbox_inches='tight', dpi=1200)
-
-#   return
-
-
-
-
-
-
-
-# #########################################################################
-# ######### plot sensitivity analysis for cash flow objective (fig 12/S10) ####
-# ### outputs plot, no return. ####
-# # ##########################################################################
-# def plot_sensitivity_cashflow(dir_figs, moea_solns, p_sfpuc, meanRevenue, debt_filter):
-#   ### plot regime as function of normalized annualized revenue and uncertain params
-#   plt.figure()
-#   ax = plt.subplot2grid((2, 4), (0, 0), rowspan=2, colspan=2)
-#   ax.set_xlabel('$c$')
-#   ax.set_ylabel(r"$\hat{J}^{cash}\rightarrow$")
-#   ax.set_xticks(np.arange(0.85, 0.98, 0.04))
-#   if (debt_filter):
-#     ax.set_xlim([0.84, 0.98])
-#   ax.set_yticks(np.arange(0.5, 1.01, 0.1))
-#   for xp, yp, colp, mp in zip(moea_solns.c.loc[(moea_solns.Regime == 'Fund') | (moea_solns.Regime == 'Fund+CFD')],
-#                               moea_solns.exp_ann_cashflow_retest.loc[
-#                                 (moea_solns.Regime == 'Fund') | (moea_solns.Regime == 'Fund+CFD')] /
-#                               (meanRevenue * (1 - moea_solns.c.loc[
-#                                 (moea_solns.Regime == 'Fund') | (moea_solns.Regime == 'Fund+CFD')])),
-#                               [palette[i] for i in moea_solns.Regime.loc[
-#                                 (moea_solns.Regime == 'Fund') | (moea_solns.Regime == 'Fund+CFD')]],
-#                               [marker[i] for i in moea_solns.Regime.loc[
-#                                 (moea_solns.Regime == 'Fund') | (moea_solns.Regime == 'Fund+CFD')]]):
-#     ax.plot(xp, yp, c=colp, marker=mp, alpha=0.7, linewidth=0, markeredgewidth=1, markerfacecolor='none')
-
-#   m1, = ax.plot(moea_solns.c.loc[(moea_solns.Regime == 'Fund+CFD')].iloc[0],
-#                 moea_solns.exp_ann_cashflow_retest.loc[(moea_solns.Regime == 'Fund+CFD')].iloc[0] /
-#                 (meanRevenue * (1 - moea_solns.c.loc[(moea_solns.Regime == 'Fund+CFD')].iloc[0])),
-#                 marker=marker['Fund+CFD'], linewidth=0, markeredgewidth=1, markerfacecolor='none',
-#                 c=palette['Fund+CFD'], alpha=0.3)
-#   m2, = ax.plot(moea_solns.c.loc[(moea_solns.Regime == 'Fund')].iloc[0],
-#                 moea_solns.exp_ann_cashflow_retest.loc[(moea_solns.Regime == 'Fund')].iloc[0] /
-#                 (meanRevenue * (1 - moea_solns.c.loc[(moea_solns.Regime == 'Fund')].iloc[0])),
-#                 marker=marker['Fund'], linewidth=0, markeredgewidth=1, markerfacecolor='none',
-#                 c=palette['Fund'], alpha=0.3)
-#   m3, = ax.plot(moea_solns.c.loc[moea_solns.Regime == 'None'],
-#                 moea_solns.exp_ann_cashflow_retest.loc[moea_solns.Regime == 'None'] /
-#                 (meanRevenue * (1 - moea_solns.c.loc[moea_solns.Regime == 'None'])),
-#                 marker=marker['None'], linewidth=0, markeredgewidth=1, markerfacecolor='none',
-#                 c=palette['None'], alpha=alpha['None'])
-#   m4, = ax.plot(moea_solns.c.loc[moea_solns.Regime == 'CFD'],
-#                 moea_solns.exp_ann_cashflow_retest.loc[moea_solns.Regime == 'CFD'] /
-#                 (meanRevenue * (1 - moea_solns.c.loc[moea_solns.Regime == 'CFD'])),
-#                 marker=marker['CFD'], linewidth=0, markeredgewidth=1,
-#                 markerfacecolor='none', c=palette['CFD'], alpha=alpha['CFD'])
-#   plt.plot(moea_solns.c.loc[(moea_solns.p == p_sfpuc) & (moea_solns.Regime == 'Fund')],
-#            moea_solns.exp_ann_cashflow_retest.loc[(moea_solns.p == p_sfpuc) & (moea_solns.Regime == 'Fund')] /
-#            (meanRevenue * (1 - moea_solns.c.loc[(moea_solns.p == p_sfpuc) & (moea_solns.Regime == 'Fund')])),
-#            marker=marker['Fund'], linewidth=0, markeredgewidth=1.5, markerfacecolor='none',
-#            c='k', alpha=0.7)
-#   plt.plot(moea_solns.c.loc[(moea_solns.p == p_sfpuc) & (moea_solns.Regime == 'Fund+CFD')],
-#            moea_solns.exp_ann_cashflow_retest.loc[(moea_solns.p == p_sfpuc) & (moea_solns.Regime == 'Fund+CFD')] /
-#            (meanRevenue * (1 - moea_solns.c.loc[(moea_solns.p == p_sfpuc) & (moea_solns.Regime == 'Fund+CFD')])),
-#            marker=marker['Fund+CFD'], linewidth=0, markeredgewidth=1.5, markerfacecolor='none',
-#            c='k', alpha=0.7)
-#   ax.legend([(m2, m2, m2, m2, m2, m2, m2, m2, m2, m2, m2, m2, m2, m2, m2, m2, m2), (m4, m4, m4, m4, m4),
-#              (m1, m1, m1, m1, m1, m1, m1, m1, m1, m1, m1, m1, m1, m1, m1, m1, m1)], ['Fund', 'CFD', 'Fund+CFD'])
-
-#   ax = plt.subplot2grid((2, 4), (0, 2))
-#   ax.set_xlabel('$\delta$')
-#   ax.xaxis.set_label_position('top')
-#   ax.set_xticks(np.arange(0, 6, 5))
-#   ax.tick_params(axis='y', which='both', labelleft=False)
-#   ax.tick_params(axis='x', which='both', labelbottom=False, labeltop=True)
-#   for xp, yp, colp, mp in zip(moea_solns.delta.loc[(moea_solns.Regime == 'Fund') | (moea_solns.Regime == 'Fund+CFD')],
-#                               moea_solns.exp_ann_cashflow_retest.loc[
-#                                 (moea_solns.Regime == 'Fund') | (moea_solns.Regime == 'Fund+CFD')] /
-#                               (meanRevenue * (
-#                                       1 - moea_solns.c.loc[
-#                                 (moea_solns.Regime == 'Fund') | (moea_solns.Regime == 'Fund+CFD')])),
-#                               [palette[i] for i in moea_solns.Regime.loc[
-#                                 (moea_solns.Regime == 'Fund') | (moea_solns.Regime == 'Fund+CFD')]],
-#                               [marker[i] for i in moea_solns.Regime.loc[
-#                                 (moea_solns.Regime == 'Fund') | (moea_solns.Regime == 'Fund+CFD')]]):
-#     ax.plot(xp, yp, c=colp, marker=mp, alpha=0.7, linewidth=0, markeredgewidth=1, markerfacecolor='none')
-#   m3, = ax.plot(moea_solns.delta.loc[moea_solns.Regime == 'None'],
-#                 moea_solns.exp_ann_cashflow_retest.loc[moea_solns.Regime == 'None'] /
-#                 (meanRevenue * (1 - moea_solns.c.loc[moea_solns.Regime == 'None'])),
-#                 marker=marker['None'], linewidth=0, markeredgewidth=1, markerfacecolor='none', c=palette['None'],
-#                 alpha=alpha['None'])
-#   m4, = ax.plot(moea_solns.delta.loc[moea_solns.Regime == 'CFD'],
-#                 moea_solns.exp_ann_cashflow_retest.loc[moea_solns.Regime == 'CFD'] /
-#                 (meanRevenue * (1 - moea_solns.c.loc[moea_solns.Regime == 'CFD'])),
-#                 marker=marker['CFD'], linewidth=0, markeredgewidth=1, markerfacecolor='none', c=palette['CFD'],
-#                 alpha=alpha['CFD'])
-#   plt.plot(moea_solns.delta.loc[(moea_solns.p == p_sfpuc) & (moea_solns.Regime == 'Fund')],
-#            moea_solns.exp_ann_cashflow_retest.loc[(moea_solns.p == p_sfpuc) & (moea_solns.Regime == 'Fund')] /
-#            (meanRevenue * (1 - moea_solns.c.loc[(moea_solns.p == p_sfpuc) & (moea_solns.Regime == 'Fund')])),
-#            marker=marker['Fund'], linewidth=0, markeredgewidth=1.5, markerfacecolor='none',
-#            c='k', alpha=0.7)
-#   plt.plot(moea_solns.delta.loc[(moea_solns.p == p_sfpuc) & (moea_solns.Regime == 'Fund+CFD')],
-#            moea_solns.exp_ann_cashflow_retest.loc[(moea_solns.p == p_sfpuc) & (moea_solns.Regime == 'Fund+CFD')] /
-#            (meanRevenue * (1 - moea_solns.c.loc[(moea_solns.p == p_sfpuc) & (moea_solns.Regime == 'Fund+CFD')])),
-#            marker=marker['Fund+CFD'], linewidth=0, markeredgewidth=1.5, markerfacecolor='none',
-#            c='k', alpha=0.7)
-
-#   ax = plt.subplot2grid((2, 4), (1, 2))
-#   ax.set_xlabel('$\Delta_F$')
-#   ax.set_xticks(np.arange(-2, 1, 2))
-#   ax.tick_params(axis='y', which='both', labelleft=False)
-#   ax.tick_params(axis='x', which='both', labelbottom=True, labeltop=False)
-#   for xp, yp, colp, mp in zip(
-#           moea_solns.Delta_fund.loc[(moea_solns.Regime == 'Fund') | (moea_solns.Regime == 'Fund+CFD')],
-#           moea_solns.exp_ann_cashflow_retest.loc[
-#             (moea_solns.Regime == 'Fund') | (moea_solns.Regime == 'Fund+CFD')] /
-#           (meanRevenue * (
-#                   1 - moea_solns.c.loc[(moea_solns.Regime == 'Fund') | (moea_solns.Regime == 'Fund+CFD')])),
-#           [palette[i] for i in
-#            moea_solns.Regime.loc[(moea_solns.Regime == 'Fund') | (moea_solns.Regime == 'Fund+CFD')]],
-#           [marker[i] for i in
-#            moea_solns.Regime.loc[(moea_solns.Regime == 'Fund') | (moea_solns.Regime == 'Fund+CFD')]]):
-#     ax.plot(xp, yp, c=colp, marker=mp, alpha=0.7, linewidth=0, markeredgewidth=1, markerfacecolor='none')
-#   m3, = ax.plot(moea_solns.Delta_fund.loc[moea_solns.Regime == 'None'],
-#                 moea_solns.exp_ann_cashflow_retest.loc[moea_solns.Regime == 'None'] /
-#                 (meanRevenue * (1 - moea_solns.c.loc[moea_solns.Regime == 'None'])),
-#                 marker=marker['None'], linewidth=0, markeredgewidth=1, markerfacecolor='none', c=palette['None'],
-#                 alpha=alpha['None'])
-#   m4, = ax.plot(moea_solns.Delta_fund.loc[moea_solns.Regime == 'CFD'],
-#                 moea_solns.exp_ann_cashflow_retest.loc[moea_solns.Regime == 'CFD'] /
-#                 (meanRevenue * (1 - moea_solns.c.loc[moea_solns.Regime == 'CFD'])),
-#                 marker=marker['CFD'], linewidth=0, markeredgewidth=1, markerfacecolor='none', c=palette['CFD'],
-#                 alpha=alpha['CFD'])
-#   plt.plot(moea_solns.Delta_fund.loc[(moea_solns.p == p_sfpuc) & (moea_solns.Regime == 'Fund')],
-#            moea_solns.exp_ann_cashflow_retest.loc[(moea_solns.p == p_sfpuc) & (moea_solns.Regime == 'Fund')] /
-#            (meanRevenue * (1 - moea_solns.c.loc[(moea_solns.p == p_sfpuc) & (moea_solns.Regime == 'Fund')])),
-#            marker=marker['Fund'], linewidth=0, markeredgewidth=1.5, markerfacecolor='none',
-#            c='k', alpha=0.7)
-#   plt.plot(moea_solns.Delta_fund.loc[(moea_solns.p == p_sfpuc) & (moea_solns.Regime == 'Fund+CFD')],
-#            moea_solns.exp_ann_cashflow_retest.loc[(moea_solns.p == p_sfpuc) & (moea_solns.Regime == 'Fund+CFD')] /
-#            (meanRevenue * (1 - moea_solns.c.loc[(moea_solns.p == p_sfpuc) & (moea_solns.Regime == 'Fund+CFD')])),
-#            marker=marker['Fund+CFD'], linewidth=0, markeredgewidth=1.5, markerfacecolor='none',
-#            c='k', alpha=0.7)
-
-#   ax = plt.subplot2grid((2, 4), (1, 3))
-#   ax.set_xlabel('$\Delta_D$')
-#   ax.set_ylabel('$\leftarrow\hat{J}^{cash}$', rotation=270, labelpad=20)
-#   ax.yaxis.set_label_position('right')
-#   ax.set_xticks(np.arange(0, 6, 5))
-#   ax.set_yticks(np.arange(0.6, 1.1, 0.4))
-#   ax.tick_params(axis='y', which='both', labelleft=False, labelright=True)
-#   ax.tick_params(axis='x', which='both', labelbottom=True, labeltop=False)
-#   for xp, yp, colp, mp in zip(
-#           moea_solns.Delta_debt.loc[(moea_solns.Regime == 'Fund') | (moea_solns.Regime == 'Fund+CFD')],
-#           moea_solns.exp_ann_cashflow_retest.loc[
-#             (moea_solns.Regime == 'Fund') | (moea_solns.Regime == 'Fund+CFD')] /
-#           (meanRevenue * (
-#                   1 - moea_solns.c.loc[(moea_solns.Regime == 'Fund') | (moea_solns.Regime == 'Fund+CFD')])),
-#           [palette[i] for i in
-#            moea_solns.Regime.loc[(moea_solns.Regime == 'Fund') | (moea_solns.Regime == 'Fund+CFD')]],
-#           [marker[i] for i in
-#            moea_solns.Regime.loc[(moea_solns.Regime == 'Fund') | (moea_solns.Regime == 'Fund+CFD')]]):
-#     ax.plot(xp, yp, c=colp, marker=mp, alpha=0.7, linewidth=0, markeredgewidth=1, markerfacecolor='none')
-#   m3, = ax.plot(moea_solns.Delta_debt.loc[moea_solns.Regime == 'None'],
-#                 moea_solns.exp_ann_cashflow_retest.loc[moea_solns.Regime == 'None'] /
-#                 (meanRevenue * (1 - moea_solns.c.loc[moea_solns.Regime == 'None'])),
-#                 marker=marker['None'], linewidth=0, markeredgewidth=1, markerfacecolor='none', c=palette['None'],
-#                 alpha=alpha['None'])
-#   m4, = ax.plot(moea_solns.Delta_debt.loc[moea_solns.Regime == 'CFD'],
-#                 moea_solns.exp_ann_cashflow_retest.loc[moea_solns.Regime == 'CFD'] /
-#                 (meanRevenue * (1 - moea_solns.c.loc[moea_solns.Regime == 'CFD'])),
-#                 marker=marker['CFD'], linewidth=0, markeredgewidth=1, markerfacecolor='none', c=palette['CFD'],
-#                 alpha=alpha['CFD'])
-#   plt.plot(moea_solns.Delta_debt.loc[(moea_solns.p == p_sfpuc) & (moea_solns.Regime == 'Fund')],
-#            moea_solns.exp_ann_cashflow_retest.loc[(moea_solns.p == p_sfpuc) & (moea_solns.Regime == 'Fund')] /
-#            (meanRevenue * (1 - moea_solns.c.loc[(moea_solns.p == p_sfpuc) & (moea_solns.Regime == 'Fund')])),
-#            marker=marker['Fund'], linewidth=0, markeredgewidth=1.5, markerfacecolor='none',
-#            c='k', alpha=0.7)
-#   plt.plot(moea_solns.Delta_debt.loc[(moea_solns.p == p_sfpuc) & (moea_solns.Regime == 'Fund+CFD')],
-#            moea_solns.exp_ann_cashflow_retest.loc[(moea_solns.p == p_sfpuc) & (moea_solns.Regime == 'Fund+CFD')] /
-#            (meanRevenue * (1 - moea_solns.c.loc[(moea_solns.p == p_sfpuc) & (moea_solns.Regime == 'Fund+CFD')])),
-#            marker=marker['Fund+CFD'], linewidth=0, markeredgewidth=1.5, markerfacecolor='none',
-#            c='k', alpha=0.7)
-
-#   ax = plt.subplot2grid((2, 4), (0, 3))
-#   ax.set_xlabel('$\lambda$')
-#   ax.xaxis.set_label_position('top')
-#   ax.set_ylabel('$\leftarrow\hat{J}^{cash}$', rotation=270, labelpad=20)
-#   ax.yaxis.set_label_position('right')
-#   ax.set_xticks(np.arange(0, 0.6, 0.5))
-#   ax.set_yticks(np.arange(0.6, 1.1, 0.4))
-#   ax.tick_params(axis='y', which='both', labelleft=False, labelright=True)
-#   ax.tick_params(axis='x', which='both', labelbottom=False, labeltop=True)
-#   for xp, yp, colp, mp in zip(moea_solns.lam.loc[(moea_solns.Regime == 'Fund') | (moea_solns.Regime == 'Fund+CFD')],
-#                               moea_solns.exp_ann_cashflow_retest.loc[
-#                                 (moea_solns.Regime == 'Fund') | (moea_solns.Regime == 'Fund+CFD')] /
-#                               (meanRevenue * (
-#                                       1 - moea_solns.c.loc[
-#                                 (moea_solns.Regime == 'Fund') | (moea_solns.Regime == 'Fund+CFD')])),
-#                               [palette[i] for i in moea_solns.Regime.loc[
-#                                 (moea_solns.Regime == 'Fund') | (moea_solns.Regime == 'Fund+CFD')]],
-#                               [marker[i] for i in moea_solns.Regime.loc[
-#                                 (moea_solns.Regime == 'Fund') | (moea_solns.Regime == 'Fund+CFD')]]):
-#     ax.plot(xp, yp, c=colp, marker=mp, alpha=0.7, linewidth=0, markeredgewidth=1, markerfacecolor='none')
-#   m3, = ax.plot(moea_solns.lam.loc[moea_solns.Regime == 'None'],
-#                 moea_solns.exp_ann_cashflow_retest.loc[moea_solns.Regime == 'None'] /
-#                 (meanRevenue * (1 - moea_solns.c.loc[moea_solns.Regime == 'None'])),
-#                 marker=marker['None'], linewidth=0, markeredgewidth=1, markerfacecolor='none', c=palette['None'],
-#                 alpha=alpha['None'])
-#   m4, = ax.plot(moea_solns.lam.loc[moea_solns.Regime == 'CFD'],
-#                 moea_solns.exp_ann_cashflow_retest.loc[moea_solns.Regime == 'CFD'] /
-#                 (meanRevenue * (1 - moea_solns.c.loc[moea_solns.Regime == 'CFD'])),
-#                 marker=marker['CFD'], linewidth=0, markeredgewidth=1, markerfacecolor='none', c=palette['CFD'],
-#                 alpha=alpha['CFD'])
-#   plt.plot(moea_solns.lam.loc[(moea_solns.p == p_sfpuc) & (moea_solns.Regime == 'Fund')],
-#            moea_solns.exp_ann_cashflow_retest.loc[(moea_solns.p == p_sfpuc) & (moea_solns.Regime == 'Fund')] /
-#            (meanRevenue * (1 - moea_solns.c.loc[(moea_solns.p == p_sfpuc) & (moea_solns.Regime == 'Fund')])),
-#            marker=marker['Fund'], linewidth=0, markeredgewidth=1.5, markerfacecolor='none',
-#            c='k', alpha=0.7)
-#   plt.plot(moea_solns.lam.loc[(moea_solns.p == p_sfpuc) & (moea_solns.Regime == 'Fund+CFD')],
-#            moea_solns.exp_ann_cashflow_retest.loc[(moea_solns.p == p_sfpuc) & (moea_solns.Regime == 'Fund+CFD')] /
-#            (meanRevenue * (1 - moea_solns.c.loc[(moea_solns.p == p_sfpuc) & (moea_solns.Regime == 'Fund+CFD')])),
-#            marker=marker['Fund+CFD'], linewidth=0, markeredgewidth=1.5, markerfacecolor='none',
-#            c='k', alpha=0.7)
-
-#   if (debt_filter):
-#     plt.savefig(dir_figs + 'fig12.png', bbox_inches='tight', dpi=1200)
-#   else:
-#     plt.savefig(dir_figs + 'figS9.png', bbox_inches='tight', dpi=1200)
-
-#   return
-
-
-
-
-
-
-
-
-# #########################################################################
-# ######### get runtime metrics for single moea run ####
-# ### outputs dataframe ####
-# # ##########################################################################
-# def get_metrics_single(metric_file, hv_file, p, s):
-#   # read data
-#   df = pd.read_csv(metric_file, sep=' ')
-#   names = list(df.columns)
-#   names[0] = names[0].replace('#','')
-#   df.columns = names
-#   df['p'] = p
-#   df['s'] = s
-#   df = df[['p', 's', 'Hypervolume','GenerationalDistance','EpsilonIndicator']]
-#   hv = pd.read_csv(hv_file, sep=' ', header=None)
-#   df['Hypervolume'] /= hv.iloc[0,0]
-#   df = pd.DataFrame(np.array([[p,s,0,np.nan,np.nan]]), columns=['p','s','Hypervolume','GenerationalDistance','EpsilonIndicator']).append(df, ignore_index=True)
-#   return df
-
-
-# #########################################################################
-# ######### get runtime metrics for all moea runs, baseline and sensitivity analysis ####
-# ### outputs dataframe ####
-# # ##########################################################################
-# def get_metrics_all(dir_moea_output, p_sfpuc, nSeedsBase, nSeedsSensitivity):
-#   ### first get metrics for sfpuc base case
-#   metrics_seedsBase = []
-#   p = p_sfpuc
-#   for s in range(1, nSeedsBase+1):
-#     metric_file = dir_moea_output + 'baseline/metrics/param' + str(p) + '_seedS1_seedB' + str(s) + '.metrics'
-#     hv_file = dir_moea_output + 'baseline/param' + str(p) +'_borg.hypervolume'
-#     metrics_seedsBase.append(get_metrics_single(metric_file, hv_file, p, s))
-
-#   ### now do same for sensitivity analysis samples
-#   metrics_seedsSensitivity = []
-#   p_successes = []
-#   for p in range(p_sfpuc):
-#     for s in range(1, nSeedsSensitivity+1):
-#       try:
-#         metric_file = dir_moea_output + 'sensitivity/metrics/param' + str(p) + '_seedS1_seedB' + str(s) + '.metrics'
-#         hv_file = dir_moea_output + 'sensitivity/param' + str(p) +'_borg.hypervolume'
-#         metrics_seedsSensitivity.append(get_metrics_single(metric_file, hv_file, p, s))
-#         if (s == 1):
-#           p_successes.append(p)
-#       except:
-#         print(p, ' fail')
-
-#   return(metrics_seedsBase, metrics_seedsSensitivity, p_successes)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+### fn for cleaning set data
+def get_set(file, nobj, has_dv = True, has_constraint = True, sort = True):
+  # read data
+  df = pd.read_csv(file, sep=' ', header=None).dropna(axis=1)
+  if has_constraint:
+    ncon = 1
+  else:
+    ncon = 0
+  if has_dv:
+    ndv = df.shape[1] - nobj - ncon
+  else:
+    ndv = 0
+  # negate negative objectives
+  df.iloc[:, ndv] *= -1
+  # get colnames
+  if has_dv:
+    names = np.array(['dv1'])
+    for i in range(2, ndv + 1):
+      names = np.append(names, 'dv' + str(i))
+    names = np.append(names, 'annRev')
+  else:
+    names = np.array(['annRev'])
+  names = np.append(names, 'maxDebt')
+  if (nobj > 2):
+    names = np.append(names, 'maxComplex')
+    names = np.append(names, 'maxFund')
+  if has_constraint:
+    names = np.append(names, 'constraint')
+  df.columns = names
+  # sort based on objective values
+  if sort:
+    if (nobj == 4):
+      df = df.sort_values(by=list(df.columns[-5:-1])).reset_index(drop=True)
+    else:
+      df = df.sort_values(by=list(df.columns[-5:-1])).reset_index(drop=True)
+  # get distance from "ideal" point
+  range_objs = {}
+  for o in ['annRev', 'maxDebt', 'maxComplex', 'maxFund']:
+    df[o + 'Norm'] = (df[o] - df[o].min()) / (df[o].max() - df[o].min())
+  df['annRevNorm'] = 1 - df['annRevNorm']
+  df['totalDistance2obj'] = np.sqrt(df['annRevNorm'] **2 + df['maxDebtNorm'] **2)
+  df['totalDistance4obj'] = np.sqrt(df['annRevNorm'] **2 + df['maxDebtNorm'] **2 + df['maxComplexNorm'] **2 + df['maxFundNorm'] **2)
+
+  return df
+
+
+
+
+### fn to get limits for 3d plots, accounting for automatic padding
+def get_plot_limits(df_dps, df_2dv):
+  # lims = {'annRev':[1e6, -1e6],'maxDebt':[1e6, -1e6],'maxComplex':[1e6, -1e6],'maxFund':[1e6, -1e6]}
+  # for c,d in enumerate([df_dps, df_2dv]):
+  #   lims['annRev'][0] = min(lims['annRev'][0], d.annRev.min())
+  #   lims['maxDebt'][0] = min(lims['maxDebt'][0], d.maxDebt.min())
+  #   lims['maxComplex'][0] = min(lims['maxComplex'][0], d.maxComplex.min())
+  #   lims['maxFund'][0] = min(lims['maxFund'][0], d.maxFund.min())
+  #   lims['annRev'][1] = max(lims['annRev'][1], d.annRev.max())
+  #   lims['maxDebt'][1] = max(lims['maxDebt'][1], d.maxDebt.max())
+  #   lims['maxComplex'][1] = max(lims['maxComplex'][1], d.maxComplex.max())
+  #   lims['maxFund'][1] = max(lims['maxFund'][1], d.maxFund.max())
+  lims = {'annRev':[9.4,11.13],'maxDebt':[0,40],'maxComplex':[0,1],'maxFund':[0,125]}
+  #Find the amount of padding for 3d plot
+  padding = {'annRev':(lims['annRev'][1] - lims['annRev'][0])/50, 'maxDebt':(lims['maxDebt'][1] - lims['maxDebt'][0])/50,
+            'maxComplex':(lims['maxComplex'][1] - lims['maxComplex'][0])/50, 'maxFund':(lims['maxFund'][1] - lims['maxFund'][0])/50}
+  lims3d = copy.deepcopy(lims)
+  lims3d['annRev'][0] += padding['annRev']
+  lims3d['annRev'][1] -= padding['annRev']
+  lims3d['maxDebt'][0] += padding['maxDebt']
+  lims3d['maxDebt'][1] -= padding['maxDebt']
+  lims3d['maxComplex'][0] += padding['maxComplex']
+  lims3d['maxComplex'][1] -= padding['maxComplex']
+
+  return lims, lims3d
+
+
+### fn to 3d-plot DPS vs 2dv reference sets (4 objectives)
+def plot_formulations_4obj(df_dps, df_2dv, lims3d, dir_figs):
+  fig = plt.figure()
+  ax = fig.add_subplot(1,1,1, projection='3d')
+  min_dist = [np.where(df_dps.totalDistance4obj == df_dps.totalDistance4obj.min())[0][0],
+              np.where(df_2dv.totalDistance4obj == df_2dv.totalDistance4obj.min())[0][0]]
+  z_min_dist = [df_dps.annRev.iloc[min_dist[0]], df_2dv.annRev.iloc[min_dist[1]]]
+  y_min_dist = [df_dps.maxDebt.iloc[min_dist[0]], df_2dv.maxDebt.iloc[min_dist[1]]]
+  x_min_dist = [df_dps.maxComplex.iloc[min_dist[0]], df_2dv.maxComplex.iloc[min_dist[1]]]
+  s_min_dist = [df_dps.maxFund.iloc[min_dist[0]], df_2dv.maxFund.iloc[min_dist[1]]]
+  zs = df_dps.annRev.drop(min_dist[0])
+  ys = df_dps.maxDebt.drop(min_dist[0])
+  xs = df_dps.maxComplex.drop(min_dist[0])
+  ss = 20 + 1.3*df_dps.maxFund.drop(min_dist[0])
+  p1 = ax.scatter(xs, ys, zs, s=ss, marker='v', alpha=0.6, c=col_blues[2],zorder=2)#, c=cs, cmap=cmap_blues, vmin=vmin, vmax=vmax) #, norm=colors.LogNorm() , )
+  p1 = ax.scatter(x_min_dist[0], y_min_dist[0], z_min_dist[0], s=s_min_dist[0], marker='v', alpha=1, c=col_blues[0],zorder=3)#, c=cs, cmap=cmap_blues, vmin=vmin, vmax=vmax) #, norm=colors.LogNorm() , )
+  # zs = df_2dv.annRev.drop(min_dist[1])
+  # ys = df_2dv.maxDebt.drop(min_dist[1])
+  # xs = df_2dv.maxComplex.drop(min_dist[1])
+  # ss = 20 + 1.3*df_2dv.maxFund.drop(min_dist[1])
+  # p1 = ax.scatter(xs, ys, zs, s=ss, marker='^',alpha=0.6, c=col_reds[2],zorder=3)#, c=cs, cmap=cmap_reds, vmin=vmin, vmax=vmax) #, norm=colors.LogNorm() , )
+  # p1 = ax.scatter(x_min_dist[1], y_min_dist[1], z_min_dist[1], s=s_min_dist[1], marker='^', alpha=1, c=col_reds[0], zorder=0)#, c=cs, cmap=cmap_blues, vmin=vmin, vmax=vmax) #, norm=colors.LogNorm() , )
+  ax.set_xlim(lims3d['maxComplex'])
+  ax.set_ylim(lims3d['maxDebt'])
+  ax.set_zlim(lims3d['annRev'])
+  ax.set_xticks([0,0.25,0.5,0.75])
+  ax.set_yticks([10,20,30,40])
+  ax.set_zticks([9.5,10,10.5,11])
+  ax.view_init(elev=20, azim =-45)
+  ax.plot([0.01],[0.01],[11.09],marker='*',ms=25,c='k')
+  plt.savefig(dir_figs + 'compare2dvDps_4obj.eps', bbox_inches='tight', figsize=(4.5,8), dpi=500)
+
+  return
+
+
+
+### fn to 3d-plot min/max marker size for use in legend (combined in illustrator)
+def plot_marker_size_4obj(df_dps, df_2dv, lims3d, dir_figs):
+  fig = plt.figure()
+  fig = plt.figure()
+  ax = fig.add_subplot(1,1,1, projection='3d')
+  min_s = 20 + 1.3*min(df_dps.maxFund.min(),df_2dv.maxFund.max())
+  max_s = 20 + 1.3*max(df_dps.maxFund.max(),df_2dv.maxFund.max())
+  zs = df_dps.annRev
+  ys = df_dps.maxDebt
+  xs = df_dps.maxComplex
+  ss = 20 + 1.3*df_dps.maxFund
+  p1 = ax.scatter(xs[0], ys[0], zs[0], s=min_s, marker='v',alpha=0.6, c='0.5',zorder=3)#, c=cs, cmap=cmap_reds, vmin=vmin, vmax=vmax) #, norm=colors.LogNorm() , )
+  p1 = ax.scatter(xs[100], ys[100], zs[100], s=max_s, marker='v',alpha=0.6, c='0.5',zorder=3)#, c=cs, cmap=cmap_reds, vmin=vmin, vmax=vmax) #, norm=colors.LogNorm() , )
+  ax.set_xlim(lims3d['maxComplex'])
+  ax.set_ylim(lims3d['maxDebt'])
+  ax.set_zlim(lims3d['annRev'])
+  ax.set_xticks([0,0.25,0.5,0.75])
+  ax.set_yticks([10,20,30,40])
+  ax.set_zticks([9.5,10,10.5,11])
+  ax.view_init(elev=20, azim =-45)
+  ax.plot([0.01],[0.01],[11.09],marker='*',ms=25,c='k')
+  plt.savefig(dir_figs + 'compare2dvDps_4obj_marker.eps', bbox_inches='tight', figsize=(4.5,8), dpi=500)
+
+  return
+
+
+
+
+
+def plot_subproblems(df_dps, lims3d, dir_moea_output, dir_figs):
+  ### get subproblem pareto fronts
+  subproblems = ['1234','123','124','134','234','12','13','14','23','24','34']
+  paretos = {}
+  for s in subproblems:
+    paretos[s] = pd.read_csv(dir_moea_output + 'DPS_subproblems/DPS_' + s + '_pareto.reference', sep=' ', names=['annRev','maxDebt','maxComplex','maxFund'],index_col=0)
+    paretos[s].index -= 1
+    paretos[s]['annRev'] *= -1
+
+  subproblems_with_conflicts = ['1234','123','124','234','12','23','24']
+  pareto_cols = {}
+  pareto_cols['1234'] = ['annRev', 'maxDebt', 'maxComplex', 'maxFund']
+  pareto_cols['123'] = ['annRev', 'maxDebt', 'maxComplex']
+  pareto_cols['124'] = ['annRev', 'maxDebt', 'maxFund']
+  pareto_cols['234'] = ['maxDebt', 'maxComplex', 'maxFund']
+  pareto_cols['12'] = ['annRev', 'maxDebt']
+  pareto_cols['23'] = ['maxDebt', 'maxComplex']
+  pareto_cols['24'] = ['maxDebt', 'maxFund']
+
+  range_objs = {}
+  for n,k in enumerate(subproblems_with_conflicts):
+    d = paretos[k]
+    range_objs[k] = {}
+    for o in pareto_cols[k]:
+      range_objs[k][o] = [d[o].min(), d[o].max()]
+      d[o + 'Norm'] = (d[o] - range_objs[k][o][0]) / (range_objs[k][o][1] - range_objs[k][o][0])
+    if ('annRev' in pareto_cols[k]):
+      d['annRevNorm'] = 1 - d['annRevNorm']
+    squares = 0
+    if ('annRev' in pareto_cols[k]):
+      squares += d['annRevNorm'] **2
+    if ('maxDebt' in pareto_cols[k]):
+      squares += d['maxDebtNorm'] **2
+    if ('maxComplex' in pareto_cols[k]):
+      squares += d['maxComplexNorm'] **2
+    if ('maxFund' in pareto_cols[k]):
+      squares += d['maxFundNorm'] **2
+    d['totalDistance'] = np.sqrt(squares)
+
+
+  ### plot 4obj with subproblem bests
+  fig = plt.figure()
+  baseline = paretos['1234'].copy()
+  ax = fig.add_subplot(1,1,1, projection='3d')
+  subprob = paretos['13'].copy()
+  baseline = baseline.drop(subprob.index, errors='ignore')
+  ind = subprob.index[np.where(subprob.totalDistance == subprob.totalDistance.min())[0][0]]
+  zs = subprob.annRev.loc[ind]
+  ys = subprob.maxDebt.loc[ind]
+  xs = subprob.maxComplex.loc[ind]
+  ss = 20 + 1.3 * subprob.maxFund.loc[ind]
+  p1 = ax.scatter(xs, ys, zs, s=ss, marker='v', alpha=1, c=[col_blues[0]])
+  zs = subprob.annRev.drop(ind)
+  ys = subprob.maxDebt.drop(ind)
+  xs = subprob.maxComplex.drop(ind)
+  ss = 20 + 1.3*subprob.maxFund.drop(ind)
+  p1 = ax.scatter(xs, ys, zs, s=ss, marker='v', alpha=1, c=[col_blues[2]])
+  subprob = paretos['23'].copy()
+  baseline = baseline.drop(subprob.index, errors='ignore')
+  ind = subprob.index[np.where(subprob.totalDistance == subprob.totalDistance.min())[0][0]]
+  zs = subprob.annRev.loc[ind]
+  ys = subprob.maxDebt.loc[ind]
+  xs = subprob.maxComplex.loc[ind]
+  ss = 20 + 1.3 * subprob.maxFund.loc[ind]
+  p1 = ax.scatter(xs, ys, zs, s=ss, marker='<', alpha=1, c=[col_reds[0]])
+  zs = subprob.annRev.drop(ind)
+  ys = subprob.maxDebt.drop(ind)
+  xs = subprob.maxComplex.drop(ind)
+  ss = 20 + 1.3*subprob.maxFund.drop(ind)
+  p1 = ax.scatter(xs, ys, zs, s=ss, marker='<', alpha=1, c=[col_reds[2]])
+  subprob = paretos['24'].copy()
+  baseline = baseline.drop(subprob.index, errors='ignore')
+  ind = subprob.index[np.where(subprob.totalDistance == subprob.totalDistance.min())[0][0]]
+  zs = subprob.annRev.loc[ind]
+  ys = subprob.maxDebt.loc[ind]
+  xs = subprob.maxComplex.loc[ind]
+  ss = 20 + 1.3 * subprob.maxFund.loc[ind]
+  p1 = ax.scatter(xs, ys, zs, s=ss, marker='>', alpha=1, c=[col_purples[0]])
+  zs = subprob.annRev.drop(ind)
+  ys = subprob.maxDebt.drop(ind)
+  xs = subprob.maxComplex.drop(ind)
+  ss = 20 + 1.3*subprob.maxFund.drop(ind)
+  p1 = ax.scatter(xs, ys, zs, s=ss, marker='>', alpha=1, c=[col_purples[2]])
+  subprob = paretos['13'].copy()
+  baseline = baseline.drop(subprob.index, errors='ignore')
+  zs = subprob.annRev
+  ys = subprob.maxDebt
+  xs = subprob.maxComplex
+  ss = 20 + 1.3 * subprob.maxFund
+  p1 = ax.scatter(xs, ys, zs, s=ss, marker='^', alpha=1, c='0.4')
+  subprob = paretos['14'].copy()
+  baseline = baseline.drop(subprob.index, errors='ignore')
+  zs = subprob.annRev
+  ys = subprob.maxDebt
+  xs = subprob.maxComplex
+  ss = 20 + 1.3 * subprob.maxFund
+  p1 = ax.scatter(xs, ys, zs, s=ss, marker='^', alpha=1, c='0.4')
+  subprob = paretos['34'].copy()
+  baseline = baseline.drop(subprob.index, errors='ignore')
+  zs = subprob.annRev
+  ys = subprob.maxDebt
+  xs = subprob.maxComplex
+  ss = 20 + 1.3 * subprob.maxFund
+  p1 = ax.scatter(xs, ys, zs, s=ss, marker='^', alpha=1, c='0.4')
+  zs = baseline.annRev
+  ys = baseline.maxDebt
+  xs = baseline.maxComplex
+  ss = 20 + 1.3*baseline.maxFund
+  p1 = ax.scatter(xs, ys, zs, s=ss, marker='^', alpha=1, c='0.8')
+  ax.set_xlim(lims3d['maxComplex'])
+  ax.set_ylim(lims3d['maxDebt'])
+  ax.set_zlim(lims3d['annRev'])
+  ax.set_xticks([0,0.25,0.5,0.75])
+  ax.set_yticks([10,20,30,40])
+  ax.set_zticks([9.5,10,10.5,11])
+  ax.view_init(elev=20, azim =-45)
+  ax.plot([0.01],[0.01],[11.09],marker='*',ms=25,c='k')
+  plt.savefig(dir_figs + 'compareObjFormulations_2objSub.eps', bbox_inches='tight', figsize=(4.5,8), dpi=500)
+
+
+  for k in ['123','124','234']:
+    fig = plt.figure()
+    baseline = paretos['1234'].copy()
+    ax = fig.add_subplot(1,1,1, projection='3d')
+    subprob = paretos[k].copy()
+    baseline = baseline.drop(subprob.index, errors='ignore')
+    ind = subprob.index[np.where(subprob.totalDistance == subprob.totalDistance.min())[0][0]]
+    zs = subprob.annRev.loc[ind]
+    ys = subprob.maxDebt.loc[ind]
+    xs = subprob.maxComplex.loc[ind]
+    ss = 20 + 1.3 * subprob.maxFund.loc[ind]
+    p1 = ax.scatter(xs, ys, zs, s=ss, marker='v', alpha=1, c=[col_blues[0]])
+    zs = subprob.annRev.drop(ind)
+    ys = subprob.maxDebt.drop(ind)
+    xs = subprob.maxComplex.drop(ind)
+    ss = 20 + 1.3*subprob.maxFund.drop(ind)
+    p1 = ax.scatter(xs, ys, zs, s=ss, marker='v', alpha=1, c=[col_blues[2]])
+    zs = baseline.annRev
+    ys = baseline.maxDebt
+    xs = baseline.maxComplex
+    ss = 20 + 1.3*baseline.maxFund
+    p1 = ax.scatter(xs, ys, zs, s=ss, marker='^', alpha=1, c='0.8')
+    ax.set_xlim(lims3d['maxComplex'])
+    ax.set_ylim(lims3d['maxDebt'])
+    ax.set_zlim(lims3d['annRev'])
+    ax.set_xticks([0,0.25,0.5,0.75])
+    ax.set_yticks([10,20,30,40])
+    ax.set_zticks([9.5,10,10.5,11])
+    ax.view_init(elev=20, azim =-45)
+    ax.plot([0.01],[0.01],[11.09],marker='*',ms=25,c='k')
+    plt.savefig(dir_figs + 'compareObjFormulations_' + k + '.eps', bbox_inches='tight', figsize=(4.5,8), dpi=500)
 
