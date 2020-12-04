@@ -18,11 +18,9 @@ for f in files:
   except:
     print('Error with ' + f)
   
-  mi_df.to_csv(dir_data + 'mi_combined.csv')
+mi_df.to_csv(dir_data + 'mi_combined.csv')
 
 
 
 
 
-  # except:
-  #   print(f + ' fail')

@@ -14,6 +14,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import copy
 import itertools
+from datetime import datetime
+
+startTime = datetime.now()
 
 eps = 1e-10
 ny = 20
@@ -480,7 +483,8 @@ for m in policy_ranks:
     results[start:end, 8] = action_withdrawal
     # results[start:end, 9] = adj_rev
 
-  print(name + ' simulation finished')
+  print(name + ' simulation finished', datetime.now() - startTime)
+  sys.stdout.flush()
 
   ### calculate entropic sensitivity indices - hedge action
   atts = ['fund', 'debt', 'power', 'hedge']
@@ -512,11 +516,12 @@ for m in policy_ranks:
     tot_mi += mi_dict[att + '_withdrawal_mi']
   mi_dict['withdrawal_total_mi'] = tot_mi
 
-  print(name + ' entropy finished')
+  print(name + ' entropy finished', datetime.now() - startTime)
+  sys.stdout.flush()
   pd.to_pickle(mi_dict, dir_data + 'policy_simulation/' + str(m) + '.pkl')
 
-  reread = pd.read_pickle(dir_data + 'policy_simulation/' + str(m) + '.pkl')
-  print(reread)
+#  reread = pd.read_pickle(dir_data + 'policy_simulation/' + str(m) + '.pkl')
+#  print(reread)
 
 
 
