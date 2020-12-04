@@ -419,32 +419,39 @@ def get_mutual_info(dat, name, atts_full, atts_mi):
       if ((atts_full[i] in atts_mi[j]) == False):
         probs_temp = probs_temp.sum(i)
     sets_mi[j]['probs_integrated'] = probs_temp
+    print('probs_integrated', j, sets_mi[j]['probs_integrated'])
   if (len(sets_mi[0]['n_grid'].keys()) == 2):
     # two-pt mutual info (e.g. I(X1;Y))
-    for i in range(sets_mi[0]['n_grid'][list(sets_mi[0]['n_grid'].keys())[0]]):
-      for j in range(sets_mi[0]['n_grid'][list(sets_mi[0]['n_grid'].keys())[1]]):
-        numerator_prob = sets_mi[0]['probs_integrated'][i,j]
-        denominator_prob = sets_mi[1]['probs_integrated'][i] * sets_mi[2]['probs_integrated'][j]
-        mutual_info += prob_log_prob(numerator_prob, denominator_prob)
-  elif (len(sets_mi[0]['n_grid'].keys()) == 4):
-    if (len(sets_mi.keys())-1 == 4):
-      # 4-pt interaction (e.g. I(X1;X2;X3;Y))
+    try:
       for i in range(sets_mi[0]['n_grid'][list(sets_mi[0]['n_grid'].keys())[0]]):
         for j in range(sets_mi[0]['n_grid'][list(sets_mi[0]['n_grid'].keys())[1]]):
-          for k in range(sets_mi[0]['n_grid'][list(sets_mi[0]['n_grid'].keys())[2]]):
-            for l in range(sets_mi[0]['n_grid'][list(sets_mi[0]['n_grid'].keys())[3]]):
-                numerator_prob = sets_mi[0]['probs_integrated'][i, j, k, l]
-                denominator_prob = sets_mi[1]['probs_integrated'][i] * sets_mi[2]['probs_integrated'][j] * sets_mi[3]['probs_integrated'][k] * sets_mi[4]['probs_integrated'][l]
-                mutual_info += prob_log_prob(numerator_prob, denominator_prob)
-    else:
-      # 3+1 mutual interaction (e.g. I(X1,X2,X3;Y))
-      for i in range(sets_mi[0]['n_grid'][list(sets_mi[0]['n_grid'].keys())[0]]):
-        for j in range(sets_mi[0]['n_grid'][list(sets_mi[0]['n_grid'].keys())[1]]):
-          for k in range(sets_mi[0]['n_grid'][list(sets_mi[0]['n_grid'].keys())[2]]):
-            for l in range(sets_mi[0]['n_grid'][list(sets_mi[0]['n_grid'].keys())[3]]):
-                numerator_prob = sets_mi[0]['probs_integrated'][i, j, k, l]
-                denominator_prob = sets_mi[1]['probs_integrated'][i, j, k] * sets_mi[2]['probs_integrated'][l]
-                mutual_info += prob_log_prob(numerator_prob, denominator_prob)
+            numerator_prob = sets_mi[0]['probs_integrated'][i,j]
+            denominator_prob = sets_mi[1]['probs_integrated'][i] * sets_mi[2]['probs_integrated'][j]
+            mutual_info += prob_log_prob(numerator_prob, denominator_prob)
+    except:
+      ### if above fails, it is because variable only takes 1 value and MI undefined (e.g., reserve always zero). Let's just say it's zero.
+      mutual_info = np.nan
+
+  ### Note: only set up for 2-part MI at present, haven't validated that code below works
+  # elif (len(sets_mi[0]['n_grid'].keys()) == 4):
+  #   if (len(sets_mi.keys())-1 == 4):
+  #     # 4-pt interaction (e.g. I(X1;X2;X3;Y))
+  #     for i in range(sets_mi[0]['n_grid'][list(sets_mi[0]['n_grid'].keys())[0]]):
+  #       for j in range(sets_mi[0]['n_grid'][list(sets_mi[0]['n_grid'].keys())[1]]):
+  #         for k in range(sets_mi[0]['n_grid'][list(sets_mi[0]['n_grid'].keys())[2]]):
+  #           for l in range(sets_mi[0]['n_grid'][list(sets_mi[0]['n_grid'].keys())[3]]):
+  #               numerator_prob = sets_mi[0]['probs_integrated'][i, j, k, l]
+  #               denominator_prob = sets_mi[1]['probs_integrated'][i] * sets_mi[2]['probs_integrated'][j] * sets_mi[3]['probs_integrated'][k] * sets_mi[4]['probs_integrated'][l]
+  #               mutual_info += prob_log_prob(numerator_prob, denominator_prob)
+  #   else:
+  #     # 3+1 mutual interaction (e.g. I(X1,X2,X3;Y))
+  #     for i in range(sets_mi[0]['n_grid'][list(sets_mi[0]['n_grid'].keys())[0]]):
+  #       for j in range(sets_mi[0]['n_grid'][list(sets_mi[0]['n_grid'].keys())[1]]):
+  #         for k in range(sets_mi[0]['n_grid'][list(sets_mi[0]['n_grid'].keys())[2]]):
+  #           for l in range(sets_mi[0]['n_grid'][list(sets_mi[0]['n_grid'].keys())[3]]):
+  #               numerator_prob = sets_mi[0]['probs_integrated'][i, j, k, l]
+  #               denominator_prob = sets_mi[1]['probs_integrated'][i, j, k] * sets_mi[2]['probs_integrated'][l]
+  #               mutual_info += prob_log_prob(numerator_prob, denominator_prob)
   return mutual_info
 
 
@@ -493,10 +500,12 @@ for m in policy_ranks:
   dat_temp = {name:{}}
   for i, att in enumerate(atts):
     (dat_temp[name][att + '_binfreq'], dat_temp[name][att + '_bincenter'], dat_temp[name][att + '_binpoint']) = sort_bins(results[:, atts_cols[att]], nbins_entropy, True)
+    print(att, dat_temp[name][att + '_binfreq'])
   dat_temp = get_joint_probability(dat_temp, name, atts)
   mi_dict['hedge_entropy'] = get_entropy(dat_temp[name]['hedge_binfreq'])
   tot_mi = 0
   for att in atts[:-1]:
+    print(att)
     mi_dict[att + '_hedge_mi'] = get_mutual_info(dat_temp, name, atts, [[att, 'hedge'], [att], ['hedge']]) / mi_dict['hedge_entropy']
     tot_mi += mi_dict[att + '_hedge_mi']
   mi_dict['hedge_total_mi'] = tot_mi
