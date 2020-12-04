@@ -20,7 +20,7 @@ startTime = datetime.now()
 
 eps = 1e-10
 ny = 20
-ns = 1000
+ns = 500
 nbins_entropy = 50
 
 
