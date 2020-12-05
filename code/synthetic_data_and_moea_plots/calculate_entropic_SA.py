@@ -20,7 +20,7 @@ startTime = datetime.now()
 
 eps = 1e-10
 ny = 20
-ns = 500
+ns = 50000
 nbins_entropy = 50
 
 
@@ -70,7 +70,7 @@ def getSet(file, nobj, has_dv = True, has_constraint = True, sort = True):
   return df, ndv
 
 
-dps = getSet(dir_data + 'optimization_output/4obj_2rbf_moreSeeds/DPS_4obj_2rbf_moreSeeds_borg_retest.resultfile', 4, sort=True)[0]
+dps = getSet(dir_data + 'optimization_output/4obj_2rbf_moreSeeds/DPS_4obj_2rbf_moreSeeds_borg_retest.resultfile', 4, sort=False)[0]
 nsolns = dps.shape[0]
 
 ##################################################################
@@ -178,7 +178,8 @@ def getDV(dvs):
     # normalize weights
     for j in range(NUM_DECISIONS_TOTAL):
         dum = np.sum(dv_w[(j * NUM_RBF):((j + 1) * NUM_RBF)])
-        dv_w[(j * NUM_RBF):((j + 1) * NUM_RBF)] = dv_w[(j * NUM_RBF):((j + 1) * NUM_RBF)] / dum
+        if dum > 0:
+          dv_w[(j * NUM_RBF):((j + 1) * NUM_RBF)] = dv_w[(j * NUM_RBF):((j + 1) * NUM_RBF)] / dum
     return (dv_d, dv_c, dv_b, dv_w, dv_a)
 
 
@@ -419,7 +420,6 @@ def get_mutual_info(dat, name, atts_full, atts_mi):
       if ((atts_full[i] in atts_mi[j]) == False):
         probs_temp = probs_temp.sum(i)
     sets_mi[j]['probs_integrated'] = probs_temp
-    print('probs_integrated', j, sets_mi[j]['probs_integrated'])
   if (len(sets_mi[0]['n_grid'].keys()) == 2):
     # two-pt mutual info (e.g. I(X1;Y))
     try:
@@ -500,12 +500,10 @@ for m in policy_ranks:
   dat_temp = {name:{}}
   for i, att in enumerate(atts):
     (dat_temp[name][att + '_binfreq'], dat_temp[name][att + '_bincenter'], dat_temp[name][att + '_binpoint']) = sort_bins(results[:, atts_cols[att]], nbins_entropy, True)
-    print(att, dat_temp[name][att + '_binfreq'])
   dat_temp = get_joint_probability(dat_temp, name, atts)
   mi_dict['hedge_entropy'] = get_entropy(dat_temp[name]['hedge_binfreq'])
   tot_mi = 0
   for att in atts[:-1]:
-    print(att)
     mi_dict[att + '_hedge_mi'] = get_mutual_info(dat_temp, name, atts, [[att, 'hedge'], [att], ['hedge']]) / mi_dict['hedge_entropy']
     tot_mi += mi_dict[att + '_hedge_mi']
   mi_dict['hedge_total_mi'] = tot_mi
