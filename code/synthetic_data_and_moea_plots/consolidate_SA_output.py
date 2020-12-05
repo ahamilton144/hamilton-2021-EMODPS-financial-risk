@@ -10,7 +10,6 @@ for f in files:
   try:
     mi_dict = pd.read_pickle(dir_data + f)
     polnum = int(f.split('.')[0])
-
     if 'mi_df' not in locals():
       mi_df = pd.DataFrame(mi_dict, index=[polnum])
     else:
