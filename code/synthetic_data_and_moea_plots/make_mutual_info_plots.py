@@ -1,31 +1,58 @@
+##################################################################
+#### get policy line numbers from file args
+##################################################################
+import sys
+# policy_start = int(sys.argv[1])
+# policy_end = int(sys.argv[2])
+# policy_ranks = range(policy_start, policy_end)
+
+
+
+######################################################################
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib.pyplot import cm
 from matplotlib.colors import BoundaryNorm
 from matplotlib.ticker import MaxNLocator
-import seaborn as sns
-import matplotlib as mpl
 from matplotlib import ticker, cm, colors
+import seaborn as sns
 import copy
 import itertools
+from datetime import datetime
 
+startTime = datetime.now()
 
 sns.set_style('white')
-# sns.set_context('paper', font_scale=3)
+sns.set_context('paper', font_scale=1.55)
 
-eps = 1e-10
+startTime = datetime.now()
+
+# cmap_vir = cm.get_cmap('viridis')
+# col_vir = [cmap_vir(0.1),cmap_vir(0.4),cmap_vir(0.7),cmap_vir(0.85)]
+# cmap_blues = cm.get_cmap('Blues_r')
+# col_blues = [cmap_blues(0.1),cmap_blues(0.3),cmap_blues(0.5),cmap_blues(0.8)]
+# cmap_reds = cm.get_cmap('Reds_r')
+# col_reds = [cmap_reds(0.1),cmap_reds(0.3),cmap_reds(0.5),cmap_reds(0.8)]
+# cmap_purples = cm.get_cmap('Purples_r')
+# col_purples = [cmap_purples(0.1),cmap_purples(0.3),cmap_purples(0.5),cmap_purples(0.8)]
+# col_brewerQual4 = ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c']
+
+##################################################################
+#### Constants
+##################################################################
+fixed_cost = 0.914
+mean_revenue = 127.80086602479503
+mean_net_revenue = mean_revenue * (1 - fixed_cost)
+
 ny = 20
-ns = 10000
+# ns = 50000
+# nbins_entropy = 50
 
-cmap_vir = cm.get_cmap('viridis')
-col_vir = [cmap_vir(0.1),cmap_vir(0.3),cmap_vir(0.6),cmap_vir(0.8)]
-cmap_blues = cm.get_cmap('Blues_r')
-col_blues = [cmap_blues(0.1),cmap_blues(0.3),cmap_blues(0.6),cmap_blues(0.8)]
-cmap_reds = cm.get_cmap('Reds_r')
-col_reds = [cmap_reds(0.1),cmap_reds(0.3),cmap_reds(0.6),cmap_reds(0.8)]
 
 dir_data = '../../data/'
-dir_figs = '../../figs/'
+dir_figs = '../../figures/'
+
 
 ##################################################################
 #### Analysis of 2dv vs full DPS. both 2obj & 4obj problems
@@ -69,7 +96,7 @@ def getSet(file, nobj, has_dv = True, has_constraint = True, sort = True):
   return df, ndv
 
 
-dps = getSet(dir_data + 'optimization_output/4obj_2rbf_moreSeeds/DPS_4obj_2rbf_moreSeeds_borg_retest.resultfile', 4, sort=True)[0]
+dps = getSet(dir_data + 'optimization_output/4obj_2rbf_moreSeeds/DPS_4obj_2rbf_moreSeeds_borg_retest.resultfile', 4, sort=False)[0]
 nsolns = dps.shape[0]
 
 ##################################################################
@@ -177,7 +204,8 @@ def getDV(dvs):
     # normalize weights
     for j in range(NUM_DECISIONS_TOTAL):
         dum = np.sum(dv_w[(j * NUM_RBF):((j + 1) * NUM_RBF)])
-        dv_w[(j * NUM_RBF):((j + 1) * NUM_RBF)] = dv_w[(j * NUM_RBF):((j + 1) * NUM_RBF)] / dum
+        if dum > 0:
+          dv_w[(j * NUM_RBF):((j + 1) * NUM_RBF)] = dv_w[(j * NUM_RBF):((j + 1) * NUM_RBF)] / dum
     return (dv_d, dv_c, dv_b, dv_w, dv_a)
 
 
@@ -286,472 +314,307 @@ def policyWithdrawal(f_fund_balance, f_debt, f_power_price_index, f_cash_in, use
   return withdrawal
 
 
-# # policy_ranks = [9,498,2059]
-policy_ranks = range(3)
-# # policies = ['LowDebt','MedDebt','HighDebt']
+
+
+
+# samples = np.random.choice([int(x) for x in np.arange(1e6 - 21)], size=ns, replace=True)
+# samp_rev = samp.revenue.values
+# samp_sswp = samp.payoutCfd.values
+# samp_pow = samp.power.values
+
+# ### loop over policies in pareto set
+# for m in policy_ranks:
+#   name = 'm'+str(m)
+#   mi_dict = {}
+#   # get policy params
+#   dps_choice = dps.iloc[m,:]
+#   dv_d, dv_c, dv_b, dv_w, dv_a = getDV(dps_choice)
+#   # get trajectories through state space
+#   mi_dict['annRev'] = dps_choice['annRev']
+#   mi_dict['maxDebt'] = dps_choice['maxDebt']
+#   mi_dict['maxComplex'] = dps_choice['maxComplex']
+#   mi_dict['maxFund'] = dps_choice['maxFund']
+
+#   ### simulate ns*ny trajectories
+#   results = np.empty([ns*ny, 9])
+#   for s in range(ns):
+#     start, end = s*ny, ny * (s + 1)
+#     fund_hedge, fund_withdrawal, debt_hedge, debt_withdrawal, power_hedge, power_withdrawal, cash_in, action_hedge, action_withdrawal, adj_rev = simulate(samp_rev[samples[s]:(samples[s]+ny+1)], samp_sswp[samples[s]:(samples[s]+ny+1)], samp_pow[samples[s]:(samples[s]+ny+1)])
+#     results[start:end, 0] = fund_hedge
+#     results[start:end, 1] = fund_withdrawal
+#     results[start:end, 2] = debt_hedge
+#     results[start:end, 3] = debt_withdrawal
+#     results[start:end, 4] = power_hedge
+#     results[start:end, 5] = power_withdrawal
+#     results[start:end, 6] = cash_in
+#     results[start:end, 7] = action_hedge
+#     results[start:end, 8] = action_withdrawal
+#     # results[start:end, 9] = adj_rev
+
+#   print(name + ' simulation finished', datetime.now() - startTime)
+#   sys.stdout.flush()
+
+#   ### calculate entropic sensitivity indices - hedge action
+#   atts = ['fund', 'debt', 'power', 'hedge']
+#   # results columns = fund_hedge, fund_withdrawal, debt_hedge, debt_withdrawal, power_hedge, power_withdrawal, cash_in, action_hedge, action_withdrawal, adj_rev
+#   atts_cols = {'fund': 0, 'debt': 2, 'power': 4, 'hedge': 7}
+#   dat_temp = {name:{}}
+#   for i, att in enumerate(atts):
+#     (dat_temp[name][att + '_binfreq'], dat_temp[name][att + '_bincenter'], dat_temp[name][att + '_binpoint']) = sort_bins(results[:, atts_cols[att]], nbins_entropy, True)
+#   dat_temp = get_joint_probability(dat_temp, name, atts)
+#   mi_dict['hedge_entropy'] = get_entropy(dat_temp[name]['hedge_binfreq'])
+#   tot_mi = 0
+#   for att in atts[:-1]:
+#     mi_dict[att + '_hedge_mi'] = get_mutual_info(dat_temp, name, atts, [[att, 'hedge'], [att], ['hedge']]) / mi_dict['hedge_entropy']
+#     tot_mi += mi_dict[att + '_hedge_mi']
+#   mi_dict['hedge_total_mi'] = tot_mi
+
+#   ### calculate entropic sensitivity indices - withdrawal action
+#   atts = ['fund', 'debt', 'power', 'cash', 'withdrawal']
+#   # results columns = fund_hedge, fund_withdrawal, debt_hedge, debt_withdrawal, power_hedge, power_withdrawal, cash_in, action_hedge, action_withdrawal, adj_rev
+#   atts_cols = {'fund': 1, 'debt': 3, 'power': 5, 'cash': 6, 'withdrawal': 8}
+#   dat_temp = {name:{}}
+#   for i, att in enumerate(atts):
+#     (dat_temp[name][att + '_binfreq'], dat_temp[name][att + '_bincenter'], dat_temp[name][att + '_binpoint']) = sort_bins(results[:, atts_cols[att]], nbins_entropy, True)
+#   dat_temp = get_joint_probability(dat_temp, name, atts)
+#   mi_dict['withdrawal_entropy'] = get_entropy(dat_temp[name]['withdrawal_binfreq'])
+#   tot_mi = 0
+#   for att in atts[:-1]:
+#     mi_dict[att + '_withdrawal_mi'] = get_mutual_info(dat_temp, name, atts, [[att, 'withdrawal'], [att], ['withdrawal']]) / mi_dict['withdrawal_entropy']
+#     tot_mi += mi_dict[att + '_withdrawal_mi']
+#   mi_dict['withdrawal_total_mi'] = tot_mi
+
+#   print(name + ' entropy finished', datetime.now() - startTime)
+#   sys.stdout.flush()
+#   pd.to_pickle(mi_dict, dir_data + 'policy_simulation/' + str(m) + '.pkl')
+
+# #  reread = pd.read_pickle(dir_data + 'policy_simulation/' + str(m) + '.pkl')
+# #  print(reread)
 
 
 
 
+
+
+
+
+
+### vis results from MI analysis
+dat = pd.read_csv(dir_data + 'policy_simulation/mi_combined.csv', index_col=0).sort_index()
+
+
+### view information of policies
+lims = {}
+lims['entropy'] = {'min': np.min(dat.hedge_entropy), 'max':np.max(dat.hedge_entropy)}
+lims['mi'] = {'min': min(np.min(dat.fund_hedge_mi), np.min(dat.debt_hedge_mi), np.min(dat.power_hedge_mi)),
+              'max': max(np.max(dat.fund_hedge_mi), np.max(dat.debt_hedge_mi), np.max(dat.power_hedge_mi))}
+lims['entropy'] = {'min': 0, 'max': 5}
+lims['mi'] = {'min': 0, 'max': 1}
+
+lims3d = {'annRev':[9.4,11.13],'maxDebt':[0.,36.],'maxComplex':[0.,1.],'maxFund':[0.,125.]}
+
+
+
+
+
+# fig = plt.figure()
+# ax = fig.add_subplot(1,1,1, projection='3d')
+# zs = dat.annRev
+# ys = dat.maxDebt
+# xs = dat.maxComplex
+# ss = [20 + 1.3 * x for x in dat.maxFund]
+# cs = dat.hedge_entropy
+# p1 = ax.scatter(xs, ys, zs, s=ss, c=cs, cmap=cmap_vir, vmin=lims['entropy']['min'], vmax=lims['entropy']['max'], marker='v', alpha=0.4)
+# cb = fig.colorbar(p1, ax=ax)
+# ax.set_xticks([0,0.25,0.5,0.75])
+# ax.set_yticks([12, 24, 36])
+# ax.set_zticks([9.5,10,10.5,11])
+# ax.view_init(elev=20, azim =-45)
+# ax.plot([0.01],[0.01],[mean_net_revenue],marker='*',ms=25,c='k')
+# ax.set_xlim(lims3d['maxComplex'])
+# ax.set_ylim(lims3d['maxDebt'])
+# ax.set_zlim(lims3d['annRev'])
+# plt.savefig(dir_figs + 'entropy_cb.jpg', bbox_inches='tight', figsize=(4.5,8), dpi=500)
+
+
+## get example policies for each sensitivity index
+dat.fund_hedge_mi = dat.fund_hedge_mi.fillna(-1)
+dat.debt_hedge_mi = dat.debt_hedge_mi.fillna(-1)
+dat.power_hedge_mi = dat.power_hedge_mi.fillna(-1)
+
+fund_mi_max = [np.array(dat.fund_hedge_mi).argsort()[-2]]
+debt_mi_max = [np.array(dat.debt_hedge_mi).argsort()[-2]]
+power_mi_max = [np.array(dat.power_hedge_mi).argsort()[-4]]
+
+print(fund_mi_max, debt_mi_max, power_mi_max)
+
+
+cmap_vir_mi = cm.get_cmap('viridis')
+cmap_vir_mi.set_under('grey')
+
+fig = plt.figure()
+ax = fig.add_subplot(1,1,1, projection='3d')
+zs = dat.annRev
+ys = dat.maxDebt
+xs = dat.maxComplex
+ss = [20 + 1.3 * x for x in dat.maxFund]
+cs = dat.fund_hedge_mi
+p1 = ax.scatter(xs, ys, zs, s=ss, c=cs, cmap=cmap_vir_mi, vmin=lims['mi']['min'], vmax=lims['mi']['max'], marker='v', alpha=0.4)
+zs = [dat.annRev[x] for x in fund_mi_max]
+ys = [dat.maxDebt[x] for x in fund_mi_max]
+xs = [dat.maxComplex[x] for x in fund_mi_max]
+ss = [20 + 1.3 * x for x in [dat.maxFund[x] for x in fund_mi_max]]
+cs = [dat.fund_hedge_mi[x] for x in fund_mi_max]
+p1 = ax.scatter(xs[0], ys[0], zs[0], s=ss, c=cs, cmap=cmap_vir_mi, vmin=lims['mi']['min'], vmax=lims['mi']['max'], marker='v', alpha=1)
+p1 = ax.text(xs[0], ys[0], zs[0], 'o', color='k', horizontalalignment='center', verticalalignment='center', size=36)
+ax.set_xticks([0,0.25,0.5,0.75])
+ax.set_yticks([12, 24, 36])
+ax.set_zticks([9.5,10,10.5,11])
+ax.view_init(elev=20, azim =-45)
+ax.plot([0.01],[0.01],[mean_net_revenue],marker='*',ms=25,c='k')
+ax.set_xlim(lims3d['maxComplex'])
+ax.set_ylim(lims3d['maxDebt'])
+ax.set_zlim(lims3d['annRev'])
+plt.savefig(dir_figs + 'mi_fund.jpg', bbox_inches='tight', figsize=(4.5,8), dpi=500)
+
+
+fig = plt.figure()
+ax = fig.add_subplot(1,1,1, projection='3d')
+zs = dat.annRev
+ys = dat.maxDebt
+xs = dat.maxComplex
+ss = [20 + 1.3 * x for x in dat.maxFund]
+cs = dat.debt_hedge_mi
+p1 = ax.scatter(xs, ys, zs, s=ss, c=cs, cmap=cmap_vir_mi, vmin=lims['mi']['min'], vmax=lims['mi']['max'], marker='v', alpha=0.4)
+# cb = fig.colorbar(p1, ax=ax)
+zs = [dat.annRev[x] for x in debt_mi_max]
+ys = [dat.maxDebt[x] for x in debt_mi_max]
+xs = [dat.maxComplex[x] for x in debt_mi_max]
+ss = [20 + 1.3 * x for x in [dat.maxFund[x] for x in debt_mi_max]]
+cs = [dat.debt_hedge_mi[x] for x in debt_mi_max]
+p1 = ax.scatter(xs[0], ys[0], zs[0], s=ss, c=cs, cmap=cmap_vir_mi, vmin=lims['mi']['min'], vmax=lims['mi']['max'], marker='v', alpha=1)
+p1 = ax.text(xs[0], ys[0], zs[0], 'o', color='k', horizontalalignment='center', verticalalignment='center', size=36)
+ax.set_xticks([0,0.25,0.5,0.75])
+ax.set_yticks([12, 24, 36])
+ax.set_zticks([9.5,10,10.5,11])
+ax.view_init(elev=20, azim =-45)
+ax.plot([0.01],[0.01],[mean_net_revenue],marker='*',ms=25,c='k')
+ax.set_xlim(lims3d['maxComplex'])
+ax.set_ylim(lims3d['maxDebt'])
+ax.set_zlim(lims3d['annRev'])
+plt.savefig(dir_figs + 'mi_debt.jpg', bbox_inches='tight', figsize=(4.5,8), dpi=500)
+
+
+fig = plt.figure()
+ax = fig.add_subplot(1,1,1, projection='3d')
+zs = dat.annRev
+ys = dat.maxDebt
+xs = dat.maxComplex
+ss = [20 + 1.3 * x for x in dat.maxFund]
+cs = dat.power_hedge_mi
+p1 = ax.scatter(xs, ys, zs, s=ss, c=cs, cmap=cmap_vir_mi, vmin=lims['mi']['min'], vmax=lims['mi']['max'], marker='v', alpha=0.4)
+zs = [dat.annRev[x] for x in power_mi_max]
+ys = [dat.maxDebt[x] for x in power_mi_max]
+xs = [dat.maxComplex[x] for x in power_mi_max]
+ss = [20 + 1.3 * x for x in [dat.maxFund[x] for x in power_mi_max]]
+cs = [dat.power_hedge_mi[x] for x in power_mi_max]
+p1 = ax.scatter(xs[0], ys[0], zs[0], s=ss, c=cs, cmap=cmap_vir_mi, vmin=lims['mi']['min'], vmax=lims['mi']['max'], marker='v', alpha=1)
+p1 = ax.text(xs[0], ys[0], zs[0], 'o', color='k', horizontalalignment='center', verticalalignment='center', size=36)
+ax.set_xticks([0,0.25,0.5,0.75])
+ax.set_yticks([12, 24, 36])
+ax.set_zticks([9.5,10,10.5,11])
+ax.view_init(elev=20, azim =-45)
+ax.plot([0.01],[0.01],[mean_net_revenue],marker='*',ms=25,c='k')
+ax.set_xlim(lims3d['maxComplex'])
+ax.set_ylim(lims3d['maxDebt'])
+ax.set_zlim(lims3d['annRev'])
+plt.savefig(dir_figs + 'mi_power.jpg', bbox_inches='tight', figsize=(4.5,8), dpi=500)
+
+
+
+
+
+
+
+
+
+### get dataframe of simulation results, output for parallel coords in R
+policy_ranks = [fund_mi_max[0], debt_mi_max[0], power_mi_max[0]]
+ny = 20
+ns = 20
+
+### get input samples
 samples = np.random.choice([int(x) for x in np.arange(1e6 - 21)], size=ns, replace=True)
 samp_rev = samp.revenue.values
 samp_sswp = samp.payoutCfd.values
 samp_pow = samp.power.values
+
+### loop over policies in pareto set
+df = pd.DataFrame({'fund_hedge':[], 'fund_withdrawal':[], 'debt_hedge':[], 'debt_withdrawal':[], 'power_hedge':[],
+                   'power_withdrawal':[], 'cash_in':[], 'action_hedge':[], 'action_withdrawal':[], 'policy':[]})
 for m in policy_ranks:
   name = 'm'+str(m)
-  dict = {}
   # get policy params
   dps_choice = dps.iloc[m,:]
   dv_d, dv_c, dv_b, dv_w, dv_a = getDV(dps_choice)
-  # get trajectories through state space
-  dict['annRev'] = dps_choice['annRev']
-  dict['maxDebt'] = dps_choice['maxDebt']
-  dict['maxComplex'] = dps_choice['maxComplex']
-  dict['maxFund'] = dps_choice['maxFund']
-
-  # dict['fund_hedge'] = np.empty([ns * ny])
-  # dict['fund_withdrawal'] = np.empty([ns * ny])
-  # dict['debt_hedge'] = np.empty([ns * ny])
-  # dict['debt_withdrawal'] = np.empty([ns * ny])
-  # dict['power_hedge'] = np.empty([ns * ny])
-  # dict['power_withdrawal'] = np.empty([ns * ny])
-  # dict['cash_in'] = np.empty([ns * ny])
-  # dict['action_hedge'] = np.empty([ns * ny])
-  # dict['action_withdrawal'] = np.empty([ns * ny])
-  results = np.empty([ns*ny, 10])
+ 
+  ### simulate ns*ny trajectories
+  results = np.empty([ns*ny, 9])
   for s in range(ns):
     start, end = s*ny, ny * (s + 1)
     fund_hedge, fund_withdrawal, debt_hedge, debt_withdrawal, power_hedge, power_withdrawal, cash_in, action_hedge, action_withdrawal, adj_rev = simulate(samp_rev[samples[s]:(samples[s]+ny+1)], samp_sswp[samples[s]:(samples[s]+ny+1)], samp_pow[samples[s]:(samples[s]+ny+1)])
     results[start:end, 0] = fund_hedge
-    # results[start:end, 1] = fund_withdrawal
+    results[start:end, 1] = fund_withdrawal
     results[start:end, 2] = debt_hedge
-    # results[start:end, 3] = debt_withdrawal
+    results[start:end, 3] = debt_withdrawal
     results[start:end, 4] = power_hedge
-    # results[start:end, 5] = power_withdrawal
-    # results[start:end, 6] = cash_in
+    results[start:end, 5] = power_withdrawal
+    results[start:end, 6] = cash_in
     results[start:end, 7] = action_hedge
-    # results[start:end, 8] = action_withdrawal
-    # results[start:end, 9] = adj_rev
-
-  dict['results'] = results
-  pd.to_pickle(dict, dir_data + 'policy_simulation/'+str(m)+'.pkl')
-  print(m)
-
-
-
-
-
-
-
-
-
-
-
-# policy_ranks = [9,498,2059]
-# policies = ['LowDebt','MedDebt','HighDebt']
-
-
-
-# names = ['m0','m1','m2']
-# ranges = {'fund_hedge':[100,0], 'debt_hedge':[100,0], 'power_hedge':[100,0], 'action_hedge':[4,0]}
-# for name in names:
-#   for att in list(ranges.keys()):
-#     ranges[att][0] = min(ranges[att][0], dict[name][att].min())
-#     ranges[att][1] = max(ranges[att][1], dict[name][att].max())
-# ranges = {'fund_hedge':[0,35], 'debt_hedge':[0,55], 'power_hedge':[30,60], 'action_hedge':[0,2]}
-
-def getProbGrid(xdat, ydat, xdomain, ydomain):
-  xmin = xdomain[0]
-  xmax = xdomain[1]
-  ymin = ydomain[0]
-  ymax = ydomain[1]
-  yrange = ymax - ymin
-  xrange = xmax - xmin
-
-  nstep = 10
-  dy = yrange / nstep
-  dx = xrange / nstep
-  freqMat = np.zeros([nstep, nstep])
-  for i in range(len(ydat)):
-    row = int(np.floor((ydat[i] - ymin) / dy))
-    col = int(np.floor((xdat[i] - xmin) / dx))
-    freqMat[row, col] += 1
-  freqMat /= len(ydat)
-  freqMat = np.log10(freqMat)
-  freqMat[freqMat == -np.inf] = np.nan
-  return freqMat
-
-# freqMat = {}
-# attPairs = ['fund_fund','fund_debt','fund_power','fund_action','debt_fund','debt_debt','debt_power','debt_action','power_fund','power_debt','power_power','power_action','action_fund','action_debt','action_power','action_action']
-# for name in names:
-#   freqMat[name] = {}
-#   for attPair in attPairs:
-#     [att1, att2] = attPair.split(sep='_')
-#     freqMat[name][attPair + '_hedge'] = getProbGrid(dict[name][att1 + '_hedge'], dict[name][att2 + '_hedge'], ranges[att1 + '_hedge'],ranges[att2 + '_hedge'])
-#
-# ranges['freq_hedge'] = [0,-1000]
-# for name in names:
-#   for attPair in attPairs:
-#     ranges['freq_hedge'][0] = min(ranges['freq_hedge'][0], np.nanmin(freqMat[name][attPair + '_hedge']))
-#     ranges['freq_hedge'][1] = max(ranges['freq_hedge'][1], np.nanmax(freqMat[name][attPair + '_hedge']))
-#
-# for name in names:
-#   fig = plt.figure()
-#   col = 0
-#   row = -1
-#   for attPair in attPairs:
-#     row += 1
-#     if row == 4:
-#       row = 0
-#       col += 1
-#     ax = plt.subplot2grid((4, 4), (row, col))  # ,colspan=2)
-#     plt.imshow(freqMat[name][attPair + '_hedge'], cmap='RdYlBu_r', origin='lower',
-#                norm=mpl.colors.Normalize(vmin=ranges['freq_hedge'][0], vmax=ranges['freq_hedge'][1]))
-
-
-
-def sort_bins(d, n_bins, try_sep_bins):
-  separate_min = False
-  separate_max = False
-  if (try_sep_bins == True):
-    if (np.mean(np.abs(d - d.min()) < eps) > 0.05):
-      separate_min = True
-    if (np.mean(np.abs(d - d.max()) < eps) > 0.05):
-      separate_max = True
-  if (separate_min):
-    d_min_val = d.min()
-    d_min_n = np.sum(np.abs(d - d_min_val) < eps)
-    d_interior = d[np.abs(d - d_min_val) > eps]
-    n_bins -= 1
-  if (separate_max):
-    d_max_val = d.max()
-    d_max_n = np.sum(np.abs(d - d_max_val) < eps)
-    if (separate_min):
-      d_interior = d_interior[np.abs(d_interior - d_max_val) > eps]
-    else:
-      d_interior = d[np.abs(d - d_max_val) > eps]
-    n_bins -= 1
-  if (separate_min | separate_max):
-    (d_bins, bins, dum) = plt.hist(d_interior, bins=n_bins)
-  else:
-    (d_bins, bins, dum) = plt.hist(d, bins=n_bins)
-  if (separate_min):
-    bins = np.insert(bins, 0, d_min_val + eps)
-    bins = np.insert(bins, 0, d_min_val - eps)
-    d_bins = np.insert(d_bins, 0, 0)
-    d_bins = np.insert(d_bins, 0, d_min_n)
-    n_bins += 2
-  else:
-    bins[0] -= eps
-  if (separate_max):
-    bins = np.append(bins, d_max_val - eps)
-    bins = np.append(bins, d_max_val + eps)
-    d_bins = np.append(d_bins, 0)
-    d_bins = np.append(d_bins, d_max_n)
-    n_bins += 2
-  else:
-    bins[-1] += eps
-  bincenter = (bins[:-1] + bins[1:]) / 2
-  while (np.sum(d_bins < eps) > 0):
-    ind = np.where(d_bins < eps)[0]
-    d_bins = np.delete(d_bins, ind)
-    bins = np.delete(bins, ind + 1)
-    bincenter = np.delete(bincenter, ind)
-    n_bins -= 1
-  binpoint = np.digitize(d, bins=bins) - 1
-  binfreq = d_bins / len(d)
-  return binfreq, bincenter, binpoint
-
-
-
-
-
-def get_joint_probability(dat, name, atts):
-  nbintot = ns * ny
-  ndim = len(atts)
-  nbin = []
-  d = []
-  p = []
-  for i in range(ndim):
-    d.append(dat[name][atts[i] + '_binpoint'])
-    p.append(np.unique(dat[name][atts[i] + '_binpoint']))
-    nbin.append(len(p[i]))
-  joint_prob = np.histogramdd(np.transpose(d), bins=nbin)[0] / nbintot
-  dat[name]['joint_freq'] = joint_prob
-  return(dat)
-
-
-
-@np.vectorize
-def prob_log_prob(numerator_prob, denominator_prob = -1):
-  if numerator_prob < eps:
-    z = 0
-  else:
-    if (denominator_prob < eps):
-      z = numerator_prob * np.log2(numerator_prob)
-    else:
-      z = numerator_prob * (np.log2(1 / denominator_prob) - np.log2(1 / numerator_prob))
-  return z
-
-
-def get_entropy(probs):
-  entropy = - np.sum(prob_log_prob(probs))
-  return entropy
-
-
-def get_mutual_info(dat, name, atts_full, atts_mi):
-  mutual_info = 0
-  probs = dat[name]['joint_freq']
-  sets_mi = {}
-  for i in range(len(atts_mi)):
-    sets_mi[i] = {}
-    sets_mi[i]['n_att'] = len(atts_mi[i])
-    sets_mi[i]['n_grid'] = {}
-    sets_mi[i]['idx_base'] = {}
-    for att in atts_mi[i]:
-      sets_mi[i]['n_grid'][att] = len(dat[name][att + '_binfreq'])
-      sets_mi[i]['idx_base'][att] = [idx for idx, x in enumerate(list(sets_mi[0]['n_grid'].keys())) if x == att]
-  for j in range(len(sets_mi)):
-    probs_temp = probs.copy()
-    for i in range(len(atts_full)-1, -1, -1):
-      if ((atts_full[i] in atts_mi[j]) == False):
-        probs_temp = probs_temp.sum(i)
-    sets_mi[j]['probs_integrated'] = probs_temp
-  if (len(sets_mi[0]['n_grid'].keys()) == 2):
-    # two-pt mutual info (e.g. I(X1;Y))
-    for i in range(sets_mi[0]['n_grid'][list(sets_mi[0]['n_grid'].keys())[0]]):
-      for j in range(sets_mi[0]['n_grid'][list(sets_mi[0]['n_grid'].keys())[1]]):
-        numerator_prob = sets_mi[0]['probs_integrated'][i,j]
-        denominator_prob = sets_mi[1]['probs_integrated'][i] * sets_mi[2]['probs_integrated'][j]
-        mutual_info += prob_log_prob(numerator_prob, denominator_prob)
-  elif (len(sets_mi[0]['n_grid'].keys()) == 4):
-    if (len(sets_mi.keys())-1 == 4):
-      # 4-pt interaction (e.g. I(X1;X2;X3;Y))
-      for i in range(sets_mi[0]['n_grid'][list(sets_mi[0]['n_grid'].keys())[0]]):
-        for j in range(sets_mi[0]['n_grid'][list(sets_mi[0]['n_grid'].keys())[1]]):
-          for k in range(sets_mi[0]['n_grid'][list(sets_mi[0]['n_grid'].keys())[2]]):
-            for l in range(sets_mi[0]['n_grid'][list(sets_mi[0]['n_grid'].keys())[3]]):
-                numerator_prob = sets_mi[0]['probs_integrated'][i, j, k, l]
-                denominator_prob = sets_mi[1]['probs_integrated'][i] * sets_mi[2]['probs_integrated'][j] * sets_mi[3]['probs_integrated'][k] * sets_mi[4]['probs_integrated'][l]
-                mutual_info += prob_log_prob(numerator_prob, denominator_prob)
-    else:
-      # 3+1 mutual interaction (e.g. I(X1,X2,X3;Y))
-      for i in range(sets_mi[0]['n_grid'][list(sets_mi[0]['n_grid'].keys())[0]]):
-        for j in range(sets_mi[0]['n_grid'][list(sets_mi[0]['n_grid'].keys())[1]]):
-          for k in range(sets_mi[0]['n_grid'][list(sets_mi[0]['n_grid'].keys())[2]]):
-            for l in range(sets_mi[0]['n_grid'][list(sets_mi[0]['n_grid'].keys())[3]]):
-                numerator_prob = sets_mi[0]['probs_integrated'][i, j, k, l]
-                denominator_prob = sets_mi[1]['probs_integrated'][i, j, k] * sets_mi[2]['probs_integrated'][l]
-                mutual_info += prob_log_prob(numerator_prob, denominator_prob)
-  return mutual_info
-
-# h = get_entropy(dat[name]['action_binfreq'])
-# abcde = get_mutual_info(dat, name, ['t', 'fund', 'debt', 'power', 'action'], [['t', 'fund', 'debt', 'power', 'action'],['t', 'fund', 'debt', 'power'],['action']])
-# a=get_mutual_info(dat, name, ['t', 'fund', 'debt', 'power', 'action'], [['t', 'action'],['t'],['action']])
-# b=get_mutual_info(dat, name, ['t', 'fund', 'debt', 'power', 'action'], [['fund', 'action'],['fund'],['action']])
-# c=get_mutual_info(dat, name, ['t', 'fund', 'debt', 'power', 'action'], [['debt', 'action'],['debt'],['action']])
-# d=get_mutual_info(dat, name, ['t', 'fund', 'debt', 'power', 'action'], [['power', 'action'],['power'],['action']])
-# e=get_mutual_info(dat, name, ['t', 'fund', 'debt', 'power', 'action'], [['t', 'fund', 'debt', 'power', 'action'], ['t','fund','debt','power'], ['action']])
-#
-
-# policy_ranks = range(1)
-# policy_ranks = range(8)
-
-nbins_each = 50
-atts = ['fund', 'debt', 'power', 'action']
-# results columns = fund_hedge, fund_withdrawal, debt_hedge, debt_withdrawal, power_hedge, power_withdrawal, cash_in, action_hedge, action_withdrawal, adj_rev
-atts_cols = {'fund': 0, 'debt': 2, 'power': 4, 'action': 7}
-dat = {}
-for m in policy_ranks:
-  # try:
-  name = 'm'+str(m)
-  dat[name] = {}
-  dat_temp = {name:{}}
-  samples = pd.read_pickle(dir_data + 'policy_simulation/'+str(m)+'.pkl')
-  (dat[name]['annRev'], dat[name]['maxDebt'], dat[name]['maxComplex'], dat[name]['maxFund']) = (samples['annRev'], samples['maxDebt'], samples['maxComplex'], samples['maxFund'])
-  for i, att in enumerate(atts):
-    (dat_temp[name][att + '_binfreq'], dat_temp[name][att + '_bincenter'], dat_temp[name][att + '_binpoint']) = sort_bins(samples['results'][:, atts_cols[att]], nbins_each, True)
-  dat_temp = get_joint_probability(dat_temp, name, atts)
-  dat[name]['action_entropy'] = get_entropy(dat_temp[name]['action_binfreq'])
-  tot_mi = 0
-  print(name)
-  for att in atts[:-1]:
-    dat[name][att + '_action_mi'] = get_mutual_info(dat_temp, name, atts, [[att, 'action'], [att], ['action']]) / dat[name]['action_entropy']
-    tot_mi += dat[name][att + '_action_mi']
-    print(dat[name][att + '_action_mi'])
-  dat[name]['total_mi'] = tot_mi
-  # except:
-  #   print(name + ' not found')
-
-pd.to_pickle(dat, dir_data + 'policy_simulation/policy_MI.pkl')
-
-
-
-
-
-# ### vis results from MI analysis
-# dat = pd.read_pickle('data/save_dps_samples/policy_MI.pkl')
-# policy_ranks = range(2062)
-
-# annRev = []
-# maxDebt = []
-# maxComplex = []
-# maxFund = []
-# fund_action_mi = []
-# debt_action_mi = []
-# power_action_mi = []
-# action_entropy = []
-
-# for m in policy_ranks:
-#   try:
-#     fund_action_mi.append(dat['m' + str(m)]['fund_action_mi'])
-#     debt_action_mi.append(dat['m' + str(m)]['debt_action_mi'])
-#     power_action_mi.append(dat['m' + str(m)]['power_action_mi'])
-#     action_entropy.append(dat['m'+str(m)]['action_entropy'])
-#     annRev.append(dat['m'+str(m)]['annRev'])
-#     maxDebt.append(dat['m'+str(m)]['maxDebt'])
-#     maxComplex.append(dat['m'+str(m)]['maxComplex'])
-#     maxFund.append(dat['m'+str(m)]['maxFund'])
-#   except:
-#     dum = 0
-
-
-
-
-# ### view information of policies
-# # lims = {}
-# # lims['entropy'] = {'min': np.min(action_entropy), 'max':np.max(action_entropy)}
-# # lims['mi'] = {'min': min(np.min(fund_action_mi), np.min(debt_action_mi), np.min(power_action_mi)),
-# #               'max': max(np.max(fund_action_mi), np.max(debt_action_mi), np.max(power_action_mi))}
-# # lims['entropy'] = {'min': 0, 'max': 5}
-# # lims['mi'] = {'min': 0, 'max': 1}
-
-# lims = {'annRev':[9.4,11.1],'maxDebt':[0,40],'maxComplex':[0,1],'maxFund':[0,125],'entropy':[0,5],'mi':[0,1]}
-# #Find the amount of padding
-# padding = {'annRev':(lims['annRev'][1] - lims['annRev'][0])/50, 'maxDebt':(lims['maxDebt'][1] - lims['maxDebt'][0])/50,
-#            'maxComplex':(lims['maxComplex'][1] - lims['maxComplex'][0])/50, 'maxFund':(lims['maxFund'][1] - lims['maxFund'][0])/50}
-# lims3d = copy.deepcopy(lims)
-# lims3d['annRev'][0] += padding['annRev']
-# lims3d['annRev'][1] -= padding['annRev']
-# lims3d['maxDebt'][0] += padding['maxDebt']
-# lims3d['maxDebt'][1] -= padding['maxDebt']
-# lims3d['maxComplex'][0] += padding['maxComplex']
-# lims3d['maxComplex'][1] -= padding['maxComplex']
-
-
-
-
-
-# fig = plt.figure()
-# ax = fig.add_subplot(1,1,1, projection='3d')
-# zs = annRev
-# ys = maxDebt
-# xs = maxComplex
-# ss = [20 + 1.3 * x for x in maxFund]
-# cs = action_entropy
-# p1 = ax.scatter(xs, ys, zs, s=ss, c=cs, cmap='viridis', vmin=lims['entropy'][0], vmax=lims['entropy'][1], marker='v', alpha=0.4)
-# cb = fig.colorbar(p1, ax=ax)
-# ax.set_xlim(lims3d['maxComplex'])
-# ax.set_ylim(lims3d['maxDebt'])
-# ax.set_zlim(lims3d['annRev'])
-# ax.set_xticks([0,0.25,0.5,0.75])
-# ax.set_yticks([10,20,30,40])
-# ax.set_zticks([9.5,10,10.5,11])
-# ax.view_init(elev=20, azim =-45)
-# ax.plot([0.01],[0.01],[11.09],marker='*',ms=25,c='k')
-# plt.savefig(dir_figs + 'entropy_cb.eps', bbox_inches='tight', figsize=(4.5,8), dpi=500)
-
-
-# ### get example policies for parallel coord plot
-# # fund_mi_max = list(np.array(fund_action_mi).argsort()[-5:])
-# # debt_mi_max = list(np.array(debt_action_mi).argsort()[-5:])
-# # power_mi_max = list(np.array(power_action_mi).argsort()[-5:])
-# fund_mi_max = [np.array(fund_action_mi).argsort()[-3]]
-# debt_mi_max = [np.array(debt_action_mi).argsort()[-2]]
-# power_mi_max = [np.array(power_action_mi).argsort()[-2]]
-
-
-
-# fig = plt.figure()
-# ax = fig.add_subplot(1,1,1, projection='3d')
-# zs = annRev
-# ys = maxDebt
-# xs = maxComplex
-# ss = [20 + 1.3 * x for x in maxFund]
-# cs = fund_action_mi
-# p1 = ax.scatter(xs, ys, zs, s=ss, c=cs, cmap='viridis', vmin=lims['mi'][0], vmax=lims['mi'][1], marker='v', alpha=0.4)
-# zs = [annRev[x] for x in fund_mi_max]
-# ys = [maxDebt[x] for x in fund_mi_max]
-# xs = [maxComplex[x] for x in fund_mi_max]
-# ss = [20 + 1.3 * x for x in [maxFund[x] for x in fund_mi_max]]
-# cs = [fund_action_mi[x] for x in fund_mi_max]
-# p1 = ax.scatter(xs[0], ys[0], zs[0], s=ss, c=cs, cmap='viridis', vmin=lims['mi'][0], vmax=lims['mi'][1], marker='v', alpha=1)
-# p1 = ax.text(xs[0], ys[0], zs[0], 'o', color='k', horizontalalignment='center', verticalalignment='center', size=36)
-# ax.set_xlim(lims3d['maxComplex'])
-# ax.set_ylim(lims3d['maxDebt'])
-# ax.set_zlim(lims3d['annRev'])
-# ax.set_xticks([0,0.25,0.5,0.75])
-# ax.set_yticks([10,20,30,40])
-# ax.set_zticks([9.5,10,10.5,11])
-# ax.view_init(elev=20, azim =-45)
-# ax.plot([0.01],[0.01],[11.09],marker='*',ms=25,c='k')
-# plt.savefig(dir_figs + 'mi_fund.eps', bbox_inches='tight', figsize=(4.5,8), dpi=500)
-
-
-# fig = plt.figure()
-# ax = fig.add_subplot(1,1,1, projection='3d')
-# zs = annRev
-# ys = maxDebt
-# xs = maxComplex
-# ss = [20 + 1.3 * x for x in maxFund]
-# cs = debt_action_mi
-# p1 = ax.scatter(xs, ys, zs, s=ss, c=cs, cmap='viridis', vmin=lims['mi'][0], vmax=lims['mi'][1], marker='v', alpha=0.4)
-# # cb = fig.colorbar(p1, ax=ax)
-# zs = [annRev[x] for x in debt_mi_max]
-# ys = [maxDebt[x] for x in debt_mi_max]
-# xs = [maxComplex[x] for x in debt_mi_max]
-# ss = [20 + 1.3 * x for x in [maxFund[x] for x in debt_mi_max]]
-# cs = [debt_action_mi[x] for x in debt_mi_max]
-# p1 = ax.scatter(xs[0], ys[0], zs[0], s=ss, c=cs, cmap='viridis', vmin=lims['mi'][0], vmax=lims['mi'][1], marker='v', alpha=1)
-# p1 = ax.text(xs[0], ys[0], zs[0], 'o', color='k', horizontalalignment='center', verticalalignment='center', size=36)
-# ax.set_xlim(lims3d['maxComplex'])
-# ax.set_ylim(lims3d['maxDebt'])
-# ax.set_zlim(lims3d['annRev'])
-# ax.set_xticks([0,0.25,0.5,0.75])
-# ax.set_yticks([10,20,30,40])
-# ax.set_zticks([9.5,10,10.5,11])
-# ax.view_init(elev=20, azim =-45)
-# ax.plot([0.01],[0.01],[11.09],marker='*',ms=25,c='k')
-# plt.savefig(dir_figs + 'mi_debt.eps', bbox_inches='tight', figsize=(4.5,8), dpi=500)
-
-
-# fig = plt.figure()
-# ax = fig.add_subplot(1,1,1, projection='3d')
-# zs = annRev
-# ys = maxDebt
-# xs = maxComplex
-# ss = [20 + 1.3 * x for x in maxFund]
-# cs = power_action_mi
-# p1 = ax.scatter(xs, ys, zs, s=ss, c=cs, cmap='viridis', vmin=lims['mi'][0], vmax=lims['mi'][1], marker='v', alpha=0.4)
-# zs = [annRev[x] for x in power_mi_max]
-# ys = [maxDebt[x] for x in power_mi_max]
-# xs = [maxComplex[x] for x in power_mi_max]
-# ss = [20 + 1.3 * x for x in [maxFund[x] for x in power_mi_max]]
-# cs = [power_action_mi[x] for x in power_mi_max]
-# p1 = ax.scatter(xs[0], ys[0], zs[0], s=ss, c=cs, cmap='viridis', vmin=lims['mi'][0], vmax=lims['mi'][1], marker='v', alpha=1)
-# p1 = ax.text(xs[0], ys[0], zs[0], 'o', color='k', horizontalalignment='center', verticalalignment='center', size=36)
-# ax.set_xlim(lims3d['maxComplex'])
-# ax.set_ylim(lims3d['maxDebt'])
-# ax.set_zlim(lims3d['annRev'])
-# ax.set_xticks([0,0.25,0.5,0.75])
-# ax.set_yticks([10,20,30,40])
-# ax.set_zticks([9.5,10,10.5,11])
-# ax.view_init(elev=20, azim =-45)
-# ax.plot([0.01],[0.01],[11.09],marker='*',ms=25,c='k')
-# plt.savefig(dir_figs + 'mi_power.eps', bbox_inches='tight', figsize=(4.5,8), dpi=500)
-
-
-
-
+    results[start:end, 8] = action_withdrawal
+
+
+
+
+
+# samples = np.arange(ns)*1000
+# for m in range(len(policy_ranks)):
+#   name = 'm'+str(m)
+#   dict[name] = {}
+#   # get policy params
+#   dps_choice = dps.iloc[policy_ranks[m],:]
+#   dv_d, dv_c, dv_b, dv_w, dv_a = getDV(dps_choice)
+#   # get trajectories through state space
+#   dict[name]['maxDebt'] = dps_choice['maxDebt']
+#   dict[name]['fund_hedge'] = np.array([])
+#   dict[name]['fund_withdrawal'] = np.array([])
+#   dict[name]['debt_hedge'] = np.array([])
+#   dict[name]['debt_withdrawal'] = np.array([])
+#   dict[name]['power_hedge'] = np.array([])
+#   dict[name]['power_withdrawal'] = np.array([])
+#   dict[name]['cash_in'] = np.array([])
+#   dict[name]['action_hedge'] = np.array([])
+#   dict[name]['action_withdrawal'] = np.array([])
+#   for s in range(ns):
+#     fund_hedge, fund_withdrawal, debt_hedge, debt_withdrawal, power_hedge, power_withdrawal, cash_in, action_hedge, action_withdrawal, adj_rev = simulate(samp.revRetail.iloc[samples[s]:(samples[s]+ny+1)].values, samp.sswp.iloc[samples[s]:(samples[s]+ny+1)].values, samp.powIndex.iloc[samples[s]:(samples[s]+ny+1)].values)
+#     dict[name]['fund_hedge'] = np.append(dict[name]['fund_hedge'], fund_hedge)
+#     dict[name]['fund_withdrawal'] = np.append(dict[name]['fund_withdrawal'], fund_withdrawal)
+#     dict[name]['debt_hedge'] = np.append(dict[name]['debt_hedge'], debt_hedge)
+#     dict[name]['debt_withdrawal'] = np.append(dict[name]['debt_withdrawal'], debt_withdrawal)
+#     dict[name]['power_hedge'] = np.append(dict[name]['power_hedge'], power_hedge)
+#     dict[name]['power_withdrawal'] = np.append(dict[name]['power_withdrawal'], power_withdrawal)
+#     dict[name]['cash_in'] = np.append(dict[name]['cash_in'], cash_in)
+#     dict[name]['action_hedge'] = np.append(dict[name]['action_hedge'], action_hedge)
+#     dict[name]['action_withdrawal'] = np.append(dict[name]['action_withdrawal'], action_withdrawal)
+# df = pd.DataFrame({'fund_hedge':[], 'fund_withdrawal':[], 'debt_hedge':[], 'debt_withdrawal':[], 'power_hedge':[],
+#                    'power_withdrawal':[], 'cash_in':[], 'action_hedge':[], 'action_withdrawal':[], 'policy':[]})
+# for m in range(len(policy_ranks)):
+#   # plot state space & policy
+#   # ax1 = fig.add_subplot(1, 3, m + 1)
+#   name = 'm'+str(m)
+  df = df.append(pd.DataFrame({'fund_hedge':results[:, 0], 'fund_withdrawal':results[:, 1], 'debt_hedge':results[:, 2], 'debt_withdrawal':results[:, 3],
+                               'power_hedge':results[:, 4], 'power_withdrawal':results[:, 5], 'cash_in':results[:, 6], 'action_hedge':results[:, 7],
+                               'action_withdrawal':results[:, 8], 'policy':m}))
+df.to_csv(dir_data + 'policy_simulation/mi_examples_simulation.csv', index=False)
 
 

@@ -89,7 +89,6 @@ def plot_metrics(dir_figs, metrics, nrbfs, nseed, fe_grid):
   plt.savefig(dir_figs + 'compareRbfs_hv.jpg', bbox_inches='tight', dpi=500)
 
   fig = plt.figure()
-  # col = ['red', 'yellow', 'cyan']
   # ax = fig.add_subplot(321)
   for c, d in enumerate(nrbfs):
   # for c, d in enumerate((1,2,4)):
@@ -101,6 +100,58 @@ def plot_metrics(dir_figs, metrics, nrbfs, nseed, fe_grid):
   plt.xlim([100,150])
   plt.ylim([0.95,0.992])
   plt.savefig(dir_figs + 'compareRbfs_hv_zoom.jpg', bbox_inches='tight', dpi=500)
+
+  # fig = plt.figure()
+  # # ax = fig.add_subplot(321)
+  # # nrbfs = [12,2]
+  # for c, d in enumerate(nrbfs):
+  #   for s in range(nseed):
+  #     hv = metrics[str(d) + 'rbf'][s]['EpsilonIndicator'].values
+  #     hv = np.insert(hv, 0, 0)
+  #     if s < nseed-1:
+  #       plt.plot(fe_grid/1000, hv, c=col[c], alpha=0.7)
+  #     else:
+  #       if c==0:
+  #         l0, =  plt.plot(fe_grid/1000, hv, c=col[c], alpha=0.7)
+  #       elif c==1:
+  #         l1, =  plt.plot(fe_grid/1000, hv, c=col[c], alpha=0.7)
+  #       elif c==2:
+  #         l2, =  plt.plot(fe_grid/1000, hv, c=col[c], alpha=0.7)
+  #       elif c==3:
+  #         l3, =  plt.plot(fe_grid/1000, hv, c=col[c], alpha=0.7)
+  #       elif c==4:
+  #         l4, =  plt.plot(fe_grid/1000, hv, c=col[c], alpha=0.7)
+  #       elif c==5:
+  #         l5, =  plt.plot(fe_grid/1000, hv, c=col[c], alpha=0.7)
+  # plt.legend([l0, l1, l2, l3, l4, l5], ['1','2','3','4','8','12'])
+  # # plt.ylim([0,1])
+  # plt.savefig(dir_figs + 'compareRbfs_ei.jpg', bbox_inches='tight', dpi=500)
+
+  # fig = plt.figure()
+  # # ax = fig.add_subplot(321)
+  # for c, d in enumerate(nrbfs):
+  #   for s in range(nseed):
+  #     hv = metrics[str(d) + 'rbf'][s]['GenerationalDistance'].values
+  #     hv = np.insert(hv, 0, 0)
+  #     if s < nseed-1:
+  #       plt.plot(fe_grid/1000, hv, c=col[c], alpha=0.7)
+  #     else:
+  #       if c==0:
+  #         l0, =  plt.plot(fe_grid/1000, hv, c=col[c], alpha=0.7)
+  #       elif c==1:
+  #         l1, =  plt.plot(fe_grid/1000, hv, c=col[c], alpha=0.7)
+  #       elif c==2:
+  #         l2, =  plt.plot(fe_grid/1000, hv, c=col[c], alpha=0.7)
+  #       elif c==3:
+  #         l3, =  plt.plot(fe_grid/1000, hv, c=col[c], alpha=0.7)
+  #       elif c==4:
+  #         l4, =  plt.plot(fe_grid/1000, hv, c=col[c], alpha=0.7)
+  #       elif c==5:
+  #         l5, =  plt.plot(fe_grid/1000, hv, c=col[c], alpha=0.7)
+  # plt.legend([l0, l1, l2, l3, l4, l5], ['1','2','3','4','8','12'])
+  # # plt.ylim([0,1])
+  # plt.savefig(dir_figs + 'compareRbfs_gd.jpg', bbox_inches='tight', dpi=500)
+
   return
 
 
@@ -388,4 +439,9 @@ def plot_subproblems(df_dps, lims3d, dir_moea_output, dir_figs):
     ax.view_init(elev=20, azim =-45)
     ax.plot([0.01],[0.01],[11.09],marker='*',ms=25,c='k')
     plt.savefig(dir_figs + 'compareObjFormulations_' + k + '.eps', bbox_inches='tight', figsize=(4.5,8), dpi=500)
+
+  return
+
+
+
 

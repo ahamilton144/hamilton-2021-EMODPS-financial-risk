@@ -198,6 +198,19 @@ def snow_contract_payout(dir_generated_inputs, sweWtSynth, contractType = 'put',
 
 
 
+##########################################################################
+######### snow index contract net payouts for historical period ###########
+############## Returns dataframe with net payout #########################################
+##########################################################################
+
+def snow_contract_payout_hist(sweWtHist, sweWtSynth, payoutCfdSim, capQuantile = 0.95):
+  capX = sweWtSynth.quantile(capQuantile)
+  capY = np.min(payoutCfdSim)
+  payoutCfdHist = capY + capX - sweWtHist
+  payoutCfdHist[payoutCfdHist < capY] = capY
+  return payoutCfdHist
+
+
 
 ##########################################################################
 ######### plot snow contract  (fig 4) ###########
@@ -297,7 +310,7 @@ def power_price_index(powSynth, genSynth, revSim, hp_GWh):
   # np.corrcoef(psep[:-1], netpay[1:])
   # st.spearmanr(psep[:-1], netpay[1:])
 
-  return E_pwyr
+  return E_pwyr, pwyr
 
 
 
