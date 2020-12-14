@@ -14,7 +14,7 @@ from scipy import stats as st
 from scipy.optimize import minimize
 
 
-sbn.set_style('white')
+sbn.set_style('ticks')
 sbn.set_context('paper', font_scale=1.55)
 
 cmap = cm.get_cmap('viridis')

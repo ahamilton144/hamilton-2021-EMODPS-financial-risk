@@ -20,7 +20,7 @@ from datetime import datetime
 import sys
 import itertools
 
-sbn.set_style('white')
+sbn.set_style('ticks')
 sbn.set_context('paper', font_scale=1.55)
 
 cmap = cm.get_cmap('viridis')

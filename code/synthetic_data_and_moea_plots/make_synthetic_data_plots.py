@@ -17,7 +17,7 @@ import functions_clean_data
 import functions_synthetic_data
 import functions_revenues_contracts
 
-sbn.set_style('white')
+sbn.set_style('ticks')
 sbn.set_context('paper', font_scale=1.55)
 
 eps = 1e-13
@@ -149,10 +149,12 @@ historical_data.to_csv(dir_generated_inputs + 'historical_data.csv', sep=' ')
 # ### get wet, dry, avg example 20-yr periods for plotting
 ny = 20
 m20AvgSwe = revSimWyr.rolling(ny).mean()
+# m10MinM10AvgSwe =
 # minM20AvgSwe = np.where(m20AvgSwe == m20AvgSwe.min())[0][0]
 # maxM20AvgSwe = np.where(m20AvgSwe == m20AvgSwe.max())[0][0]
-minM20AvgSwe = np.where(np.abs(m20AvgSwe - np.nanquantile(m20AvgSwe, 0.001)) == np.abs(m20AvgSwe - np.nanquantile(m20AvgSwe, 0.001)).min())[0][0]
-maxM20AvgSwe = np.where(np.abs(m20AvgSwe - np.nanquantile(m20AvgSwe, 0.999)) == np.abs(m20AvgSwe - np.nanquantile(m20AvgSwe, 0.999)).min())[0][0]
+print(np.sort(m20AvgSwe.dropna()))
+minM20AvgSwe = np.where(m20AvgSwe == np.sort(m20AvgSwe.dropna())[9])[0][0]
+maxM20AvgSwe = np.where(m20AvgSwe == np.sort(m20AvgSwe.dropna())[-10])[0][0]
 avgM20AvgSwe = np.where(np.abs(m20AvgSwe - m20AvgSwe.mean()) == np.abs(m20AvgSwe - m20AvgSwe.mean()).min())[0][0]
 
 example_data = pd.DataFrame({'sweIndex_wet': sweWtSynth[(maxM20AvgSwe - ny):(maxM20AvgSwe + 1)].values,
