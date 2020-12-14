@@ -17,7 +17,7 @@ import functions_clean_data
 import functions_synthetic_data
 import functions_revenues_contracts
 
-sbn.set_style('white')
+sbn.set_style('ticks')
 sbn.set_context('paper', font_scale=1.55)
 
 eps = 1e-13
@@ -57,7 +57,6 @@ sweSynth = functions_synthetic_data.synthetic_swe(dir_generated_inputs, swe, red
 print('Generating synthetic hydropower generation..., ', datetime.now() - startTime)
 genSynth = functions_synthetic_data.synthetic_generation(dir_generated_inputs, dir_figs, gen, sweSynth, redo = False, save = True)
 
-
 # monthly power price
 print('Generating synthetic power prices..., ', datetime.now() - startTime)
 importlib.reload(functions_synthetic_data)
@@ -81,8 +80,11 @@ yrSim = np.full((1, nYr * 12), 0)
 for i in range(1, nYr):
   yrSim[0, (12 * i):(12 * (i + 1))] = i
 revSimWyr = revSim.groupby(yrSim[0, :(nYr * 12)]).sum()
+genSynthWyr = genSynth.gen.groupby(yrSim[0, :(nYr * 12)]).sum()
 revHistWyr = revHist.groupby('wyear').sum()
 genHistWyr = gen.groupby(yrSim[0, :len(powHistSample)]).sum()
+powHistWyr = powHistSample.groupby(yrSim[0, :len(powHistSample)]).mean()
+
 
 ## regression for swe index
 lmRevSWE = sm.ols(formula='rev ~ sweFeb + sweApr', data=pd.DataFrame(
@@ -93,6 +95,8 @@ lmRevSWE = lmRevSWE.fit()
 
 sweWtParams = [lmRevSWE.params[1]/(lmRevSWE.params[1]+lmRevSWE.params[2]), lmRevSWE.params[2]/(lmRevSWE.params[1]+lmRevSWE.params[2])]
 sweWtSynth = (sweWtParams[0] * sweSynth.danFeb + sweWtParams[1] * sweSynth.danApr)
+sweWtHist = (sweWtParams[0] * swe.danFeb + sweWtParams[1] * swe.danApr)
+
 
 
 ### fixed cost parameters
@@ -107,7 +111,7 @@ print('Generating simulated CFD net payouts..., ', datetime.now() - startTime)
 payoutCfdSim = functions_revenues_contracts.snow_contract_payout(dir_generated_inputs, sweWtSynth, contractType = 'cfd',
                                                                lambdaRisk = 0.25, strikeQuantile = 0.5,
                                                                capQuantile = 0.95, redo = False, save = True)
-
+payoutCfdHist = functions_revenues_contracts.snow_contract_payout_hist(sweWtHist, sweWtSynth, payoutCfdSim)
 
 # ### plot CFD structure
 # importlib.reload(functions_revenues_contracts)
@@ -117,7 +121,7 @@ payoutCfdSim = functions_revenues_contracts.snow_contract_payout(dir_generated_i
 
 ### get power price index 
 print('Generating power price index..., ', datetime.now() - startTime)
-powerIndex = functions_revenues_contracts.power_price_index(powSynth, genSynth, revSim, hp_GWh)
+powerIndex, powGenWt = functions_revenues_contracts.power_price_index(powSynth, genSynth, revSim, hp_GWh)
 
 # print(revSimWyr.shape, payoutCfdSim.shape, powerIndex.shape)
 # print(np.min(powerIndex[~np.isnan(powerIndex)]))
@@ -125,10 +129,11 @@ powerIndex = functions_revenues_contracts.power_price_index(powSynth, genSynth, 
 
 # ### get historical swe, gen, power price, revenue, net revenue. Period of record for hydropower = WY 1988-2016
 print('Saving synthetic data..., ', datetime.now() - startTime)
-historical_data = pd.DataFrame({'sweFeb': swe.loc[revHistWyr.index,:].danFeb, 'sweApr': swe.loc[revHistWyr.index,:].danApr})
+historical_data = pd.DataFrame({'sweIndex': sweWtHist.loc[revHistWyr.index]})
+historical_data['cfd'] = payoutCfdHist.loc[revHistWyr.index].values
 historical_data['gen'] = genHistWyr.tot.values/1000
-# powHistWyr.index = revHistWyr.index
-# historical_data['pow'] = powHistWyr
+powHistWyr.index = revHistWyr.index
+historical_data['pow'] = powHistWyr
 historical_data['rev'] = revHistWyr.rev
 historical_data.index = np.arange(1988, 2017)
 
@@ -140,8 +145,42 @@ historical_data = historical_data.join(powerIndexHist, how='right')
 ## save historical data for simulation of policies
 historical_data.to_csv(dir_generated_inputs + 'historical_data.csv', sep=' ')
 
+
+# ### get wet, dry, avg example 20-yr periods for plotting
+ny = 20
+m20AvgSwe = revSimWyr.rolling(ny).mean()
+# m10MinM10AvgSwe =
+# minM20AvgSwe = np.where(m20AvgSwe == m20AvgSwe.min())[0][0]
+# maxM20AvgSwe = np.where(m20AvgSwe == m20AvgSwe.max())[0][0]
+print(np.sort(m20AvgSwe.dropna()))
+minM20AvgSwe = np.where(m20AvgSwe == np.sort(m20AvgSwe.dropna())[9])[0][0]
+maxM20AvgSwe = np.where(m20AvgSwe == np.sort(m20AvgSwe.dropna())[-10])[0][0]
+avgM20AvgSwe = np.where(np.abs(m20AvgSwe - m20AvgSwe.mean()) == np.abs(m20AvgSwe - m20AvgSwe.mean()).min())[0][0]
+
+example_data = pd.DataFrame({'sweIndex_wet': sweWtSynth[(maxM20AvgSwe - ny):(maxM20AvgSwe + 1)].values,
+                             'sweIndex_avg': sweWtSynth[(avgM20AvgSwe - ny):(avgM20AvgSwe + 1)].values,
+                             'sweIndex_dry': sweWtSynth[(minM20AvgSwe - ny):(minM20AvgSwe + 1)].values,
+                             'cfd_wet': payoutCfdSim[(maxM20AvgSwe - ny):(maxM20AvgSwe + 1)].values,
+                             'cfd_avg': payoutCfdSim[(avgM20AvgSwe - ny):(avgM20AvgSwe + 1)].values,
+                             'cfd_dry': payoutCfdSim[(minM20AvgSwe - ny):(minM20AvgSwe + 1)].values,
+                             'gen_wet': genSynthWyr[(maxM20AvgSwe - ny):(maxM20AvgSwe + 1)].values/1000,
+                             'gen_avg': genSynthWyr[(avgM20AvgSwe - ny):(avgM20AvgSwe + 1)].values/1000,
+                             'gen_dry': genSynthWyr[(minM20AvgSwe - ny):(minM20AvgSwe + 1)].values/1000,
+                             'powWt_wet': powGenWt[(maxM20AvgSwe - ny):(maxM20AvgSwe + 1)].values,
+                             'powWt_avg': powGenWt[(avgM20AvgSwe - ny):(avgM20AvgSwe + 1)].values,
+                             'powWt_dry': powGenWt[(minM20AvgSwe - ny):(minM20AvgSwe + 1)].values,
+                             'powIndex_wet': powerIndex[(maxM20AvgSwe - ny):(maxM20AvgSwe + 1)],
+                             'powIndex_avg': powerIndex[(avgM20AvgSwe - ny):(avgM20AvgSwe + 1)],
+                             'powIndex_dry': powerIndex[(minM20AvgSwe - ny):(minM20AvgSwe + 1)],
+                             'rev_wet': revSimWyr[(maxM20AvgSwe - ny):(maxM20AvgSwe + 1)].values,
+                             'rev_avg': revSimWyr[(avgM20AvgSwe - ny):(avgM20AvgSwe + 1)].values,
+                             'rev_dry': revSimWyr[(minM20AvgSwe - ny):(minM20AvgSwe + 1)].values})
+
+## save historical data for simulation of policies
+example_data.to_csv(dir_generated_inputs + 'example_data.csv', sep=' ')
+
 # ### save data to use as inputs to moea for the current study
-functions_revenues_contracts.save_synthetic_data_moea(dir_generated_inputs, revSimWyr, payoutCfdSim, powerIndex)
+# functions_revenues_contracts.save_synthetic_data_moea(dir_generated_inputs, revSimWyr, payoutCfdSim, powerIndex)
 
 print('Finished, ', datetime.now() - startTime)
 

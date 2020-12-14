@@ -16,8 +16,8 @@ from matplotlib import ticker, cm, colors
 import copy
 # import itertools
 
-sns.set_style('white')
-# sns.set_context('paper', font_scale=3)
+sns.set_style('ticks')
+sns.set_context('paper', font_scale=1.55)
 
 eps = 1e-10
 
@@ -61,46 +61,178 @@ def get_metrics(metricfile, hvfile):
 ### outputs plot, no return. ####
 # ##########################################################################
 def plot_metrics(dir_figs, metrics, nrbfs, nseed, fe_grid):
-  ### plot nfe vs hv for num rbfs
-  fig = plt.figure()
-  col = ['red', 'orange', 'yellow', 'green', 'cyan', 'blue']
-  # ax = fig.add_subplot(321)
+  ### plot moea convergence metrics for different number RBFs
+  fig = plt.figure(figsize=(6,8))
+  gs1 = fig.add_gridspec(nrows=3, ncols=1, left=0, right=1, wspace=0.1, hspace=0.1)
+
+  ### hypervolume
+  ax = fig.add_subplot(gs1[0,0])
+  ax.annotate('a)', xy=(0.01, 0.89), xycoords='axes fraction')
+  # col = ['#d73027', '#fc8d59', '#fee090', '#e0f3f8', '#91bfdb', '#4575b4']
+  col = ['0.8', '#d73027', '0.65', '0.5','0.35',  '0.2']
+  # cmap_vir = cm.get_cmap('viridis')
+  # col = [cmap_vir(0.1),cmap_vir(0.25),cmap_vir(0.4),cmap_vir(0.55),cmap_vir(0.7),cmap_vir(0.85)]
+
   for c, d in enumerate(nrbfs):
     for s in range(nseed):
       hv = metrics[str(d) + 'rbf'][s]['Hypervolume'].values
       hv = np.insert(hv, 0, 0)
       if s < nseed-1:
-        plt.plot(fe_grid/1000, hv, c=col[c], alpha=0.7)
+        ax.plot(fe_grid/1000, hv, c=col[c], alpha=1, zorder=9 - abs(d - 2))
       else:
         if c==0:
-          l0, =  plt.plot(fe_grid/1000, hv, c=col[c], alpha=0.7)
+          l0, =  ax.plot(fe_grid/1000, hv, c=col[c], alpha=1, zorder=9 - abs(d - 2))
         elif c==1:
-          l1, =  plt.plot(fe_grid/1000, hv, c=col[c], alpha=0.7)
+          l1, =  ax.plot(fe_grid/1000, hv, c=col[c], alpha=1, zorder=9 - abs(d - 2))
         elif c==2:
-          l2, =  plt.plot(fe_grid/1000, hv, c=col[c], alpha=0.7)
+          l2, =  ax.plot(fe_grid/1000, hv, c=col[c], alpha=1, zorder=9 - abs(d - 2))
         elif c==3:
-          l3, =  plt.plot(fe_grid/1000, hv, c=col[c], alpha=0.7)
+          l3, =  ax.plot(fe_grid/1000, hv, c=col[c], alpha=1, zorder=9 - abs(d - 2))
         elif c==4:
-          l4, =  plt.plot(fe_grid/1000, hv, c=col[c], alpha=0.7)
+          l4, =  ax.plot(fe_grid/1000, hv, c=col[c], alpha=1, zorder=9 - abs(d - 2))
         elif c==5:
-          l5, =  plt.plot(fe_grid/1000, hv, c=col[c], alpha=0.7)
-  plt.legend([l0, l1, l2, l3, l4, l5], ['1','2','3','4','8','12'])
-  plt.ylim([0,1])
-  plt.savefig(dir_figs + 'compareRbfs_hv.jpg', bbox_inches='tight', dpi=500)
+          l5, =  ax.plot(fe_grid/1000, hv, c=col[c], alpha=1, zorder=9 - abs(d - 2))
+  # plt.legend([l0, l1, l2, l3, l4, l5], ['1','2','3','4','8','12'])
+  ax.set_ylim([0.8,1])
+  ax.set_xticklabels([])
+  # ax.set_xlabel('Function Evaluations')
+  ax.set_ylabel('Hypervolume\n' + r'$\rightarrow$')
+  # plt.savefig(dir_figs + 'compareRbfs_hv.eps', bbox_inches='tight', dpi=500)
 
-  fig = plt.figure()
-  # col = ['red', 'yellow', 'cyan']
-  # ax = fig.add_subplot(321)
+  # ### zoomed in version
+  # ax = fig.add_subplot(gs1[0,1])
+  # ax.annotate('b)', xy=(0.01, 0.89), xycoords='axes fraction')
+  # for c, d in enumerate(nrbfs):
+  # # for c, d in enumerate((1,2,4)):
+  #   for s in range(nseed):
+  #     hv = metrics[str(d) + 'rbf'][s]['Hypervolume'].values
+  #     hv = np.insert(hv, 0, 0)
+  #     ax.plot(fe_grid/1000, hv, c=col[c], alpha=0.5)
+  # # plt.legend([l0, l1, l2, l3, l4, l5], ['1','2','3','4','8','12'])
+  # ax.set_xlim([100,150])
+  # ax.set_ylim([0.95,0.992])
+  # ax.set_xlabel('Function Evaluations')
+  # ax.set_ylabel('Hypervolume')
+  # # plt.savefig(dir_figs + 'compareRbfs_hv_zoom.eps', bbox_inches='tight', dpi=500)
+
+  ### Additive Epsilon Indicator
+  ax = fig.add_subplot(gs1[1,0])
+  ax.annotate('b)', xy=(0.01, 0.89), xycoords='axes fraction')
   for c, d in enumerate(nrbfs):
-  # for c, d in enumerate((1,2,4)):
     for s in range(nseed):
-      hv = metrics[str(d) + 'rbf'][s]['Hypervolume'].values
+      hv = metrics[str(d) + 'rbf'][s]['EpsilonIndicator'].values
       hv = np.insert(hv, 0, 0)
-      plt.plot(fe_grid/1000, hv, c=col[c], alpha=0.7)
-  plt.legend([l0, l1, l2, l3, l4, l5], ['1','2','3','4','8','12'])
-  plt.xlim([100,150])
-  plt.ylim([0.95,0.992])
-  plt.savefig(dir_figs + 'compareRbfs_hv_zoom.jpg', bbox_inches='tight', dpi=500)
+      ax.plot(fe_grid/1000, hv, c=col[c], alpha=1, zorder=9 - abs(d - 2))
+  # plt.legend([l0, l1, l2, l3, l4, l5], ['1','2','3','4','8','12'])
+  ax.set_ylim([0,0.3])
+  ax.set_xticklabels([])
+  # ax.set_xlabel('Function Evaluations')
+  ax.set_ylabel('Epsilon\nIndicator\n' + r'$\leftarrow$')
+  # plt.savefig(dir_figs + 'compareRbfs_hv.eps', bbox_inches='tight', dpi=500)
+
+  # ### zoomed in version
+  # ax = fig.add_subplot(gs1[1,1])
+  # ax.annotate('d)', xy=(0.01, 0.89), xycoords='axes fraction')
+  # for c, d in enumerate(nrbfs):
+  # # for c, d in enumerate((1,2,4)):
+  #   for s in range(nseed):
+  #     hv = metrics[str(d) + 'rbf'][s]['EpsilonIndicator'].values
+  #     hv = np.insert(hv, 0, 0)
+  #     ax.plot(fe_grid/1000, hv, c=col[c], alpha=0.5)
+  # # plt.legend([l0, l1, l2, l3, l4, l5], ['1','2','3','4','8','12'])
+  # ax.set_xlim([100,150])
+  # ax.set_ylim([0.05,0.12])
+  # ax.set_xlabel('Function Evaluations')
+  # ax.set_ylabel('Epsilon Indicator')
+
+  ### Generational Distance
+  ax = fig.add_subplot(gs1[2,0])
+  ax.annotate('c)', xy=(0.01, 0.89), xycoords='axes fraction')
+  for c, d in enumerate(nrbfs):
+    for s in range(nseed):
+      hv = metrics[str(d) + 'rbf'][s]['GenerationalDistance'].values
+      hv = np.insert(hv, 0, 0)
+      ax.plot(fe_grid/1000, hv, c=col[c], alpha=1, zorder=9 - abs(d - 2))
+  # plt.legend([l0, l1, l2, l3, l4, l5], ['1','2','3','4','8','12'])
+  ax.set_ylim([0,0.007])
+  ax.set_xlabel('Function Evaluations')
+  ax.set_ylabel('Generational\nDistance\n' + r'$\leftarrow$')
+  # plt.savefig(dir_figs + 'compareRbfs_hv.eps', bbox_inches='tight', dpi=500)
+
+  # ### zoomed in version
+  # ax = fig.add_subplot(gs1[2,1])
+  # ax.annotate('f)', xy=(0.01, 0.89), xycoords='axes fraction')
+  # for c, d in enumerate(nrbfs):
+  # # for c, d in enumerate((1,2,4)):
+  #   for s in range(nseed):
+  #     hv = metrics[str(d) + 'rbf'][s]['GenerationalDistance'].values
+  #     hv = np.insert(hv, 0, 0)
+  #     ax.plot(fe_grid/1000, hv, c=col[c], alpha=0.5)
+  # # plt.legend([l0, l1, l2, l3, l4, l5], ['1','2','3','4','8','12'])
+  # ax.set_xlim([100,150])
+  # # ax.set_ylim([0.95,0.992])
+  # ax.set_xlabel('Function Evaluations')
+  # ax.set_ylabel('Generational Distance')
+
+
+  ax.legend([l0, l1, l2, l3, l4, l5], ['1','2','3','4','8','12'], title='Number of RBFs', ncol=6, bbox_to_anchor=(1.02,-0.35), title_fontsize=14)
+  plt.savefig(dir_figs + 'compareRbfs.jpg', bbox_inches='tight', dpi=500)
+
+
+
+
+
+  # fig = plt.figure()
+  # # ax = fig.add_subplot(321)
+  # # nrbfs = [12,2]
+  # for c, d in enumerate(nrbfs):
+  #   for s in range(nseed):
+  #     hv = metrics[str(d) + 'rbf'][s]['EpsilonIndicator'].values
+  #     hv = np.insert(hv, 0, 0)
+  #     if s < nseed-1:
+  #       plt.plot(fe_grid/1000, hv, c=col[c], alpha=0.7)
+  #     else:
+  #       if c==0:
+  #         l0, =  plt.plot(fe_grid/1000, hv, c=col[c], alpha=0.7)
+  #       elif c==1:
+  #         l1, =  plt.plot(fe_grid/1000, hv, c=col[c], alpha=0.7)
+  #       elif c==2:
+  #         l2, =  plt.plot(fe_grid/1000, hv, c=col[c], alpha=0.7)
+  #       elif c==3:
+  #         l3, =  plt.plot(fe_grid/1000, hv, c=col[c], alpha=0.7)
+  #       elif c==4:
+  #         l4, =  plt.plot(fe_grid/1000, hv, c=col[c], alpha=0.7)
+  #       elif c==5:
+  #         l5, =  plt.plot(fe_grid/1000, hv, c=col[c], alpha=0.7)
+  # plt.legend([l0, l1, l2, l3, l4, l5], ['1','2','3','4','8','12'])
+  # # plt.ylim([0,1])
+  # plt.savefig(dir_figs + 'compareRbfs_ei.jpg', bbox_inches='tight', dpi=500)
+
+  # fig = plt.figure()
+  # # ax = fig.add_subplot(321)
+  # for c, d in enumerate(nrbfs):
+  #   for s in range(nseed):
+  #     hv = metrics[str(d) + 'rbf'][s]['GenerationalDistance'].values
+  #     hv = np.insert(hv, 0, 0)
+  #     if s < nseed-1:
+  #       plt.plot(fe_grid/1000, hv, c=col[c], alpha=0.7)
+  #     else:
+  #       if c==0:
+  #         l0, =  plt.plot(fe_grid/1000, hv, c=col[c], alpha=0.7)
+  #       elif c==1:
+  #         l1, =  plt.plot(fe_grid/1000, hv, c=col[c], alpha=0.7)
+  #       elif c==2:
+  #         l2, =  plt.plot(fe_grid/1000, hv, c=col[c], alpha=0.7)
+  #       elif c==3:
+  #         l3, =  plt.plot(fe_grid/1000, hv, c=col[c], alpha=0.7)
+  #       elif c==4:
+  #         l4, =  plt.plot(fe_grid/1000, hv, c=col[c], alpha=0.7)
+  #       elif c==5:
+  #         l5, =  plt.plot(fe_grid/1000, hv, c=col[c], alpha=0.7)
+  # plt.legend([l0, l1, l2, l3, l4, l5], ['1','2','3','4','8','12'])
+  # # plt.ylim([0,1])
+  # plt.savefig(dir_figs + 'compareRbfs_gd.jpg', bbox_inches='tight', dpi=500)
+
   return
 
 
@@ -388,4 +520,9 @@ def plot_subproblems(df_dps, lims3d, dir_moea_output, dir_figs):
     ax.view_init(elev=20, azim =-45)
     ax.plot([0.01],[0.01],[11.09],marker='*',ms=25,c='k')
     plt.savefig(dir_figs + 'compareObjFormulations_' + k + '.eps', bbox_inches='tight', figsize=(4.5,8), dpi=500)
+
+  return
+
+
+
 
