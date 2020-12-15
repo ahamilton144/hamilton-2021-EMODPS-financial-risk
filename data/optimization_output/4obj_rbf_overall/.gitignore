@@ -6,6 +6,7 @@
 !*.hypervolume
 !*.resultfile
 !*.reference
+!*.linenum
 !*.sh
 !*.cpp
 !makefile
