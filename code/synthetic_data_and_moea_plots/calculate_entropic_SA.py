@@ -21,7 +21,7 @@ startTime = datetime.now()
 
 eps = 1e-10
 ny = 20
-ns = 50000
+ns = 500
 nbins_entropy = 50
 
 
@@ -73,7 +73,7 @@ def getSet(file, nobj, has_dv = True, has_constraint = True, sort = True):
 if objective_formulation == 2:
   dps = getSet(dir_data + 'optimization_output/2obj_2rbf/DPS_2obj_2rbf_borg_retest.resultfile', 4, sort=False)[0]
 elif objective_formulation == 4:
-  dps = getSet(dir_data + 'optimization_output/2obj_2rbf/DPS_2obj_2rbf_borg_retest.resultfile', 4, sort=False)[0]
+  dps = getSet(dir_data + 'optimization_output/4obj_2rbf_moreSeeds/DPS_4obj_2rbf_moreSeeds_borg_retest.resultfile', 4, sort=False)[0]
 nsolns = dps.shape[0]
 
 ##################################################################
@@ -529,10 +529,10 @@ for m in policy_ranks:
   print(name + ' entropy finished', datetime.now() - startTime)
   sys.stdout.flush()
 
-  if optimization_formulation == 2:
-    pd.to_pickle(mi_dict, dir_data + 'policy_simulation/' + str(m) + '_2obj.pkl')
-  elif optimization_formulation == 4:
-    pd.to_pickle(mi_dict, dir_data + 'policy_simulation/' + str(m) + '.pkl')
+  if objective_formulation == 2:
+    pd.to_pickle(mi_dict, dir_data + 'policy_simulation/2obj/' + str(m) + '.pkl')
+  elif objective_formulation == 4:
+    pd.to_pickle(mi_dict, dir_data + 'policy_simulation/4obj/' + str(m) + '.pkl')
 
 #  reread = pd.read_pickle(dir_data + 'policy_simulation/' + str(m) + '.pkl')
 #  print(reread)
