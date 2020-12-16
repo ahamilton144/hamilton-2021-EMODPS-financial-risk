@@ -317,7 +317,7 @@ def policyWithdrawal(f_fund_balance, f_debt, f_power_price_index, f_cash_in, use
 
 
 ### vis results from MI analysis(after running calculate_entropic_SA.py & consolidate_SA_output.py)
-dat = pd.read_csv(dir_data + 'policy_simulation/mi_combined.csv', index_col=0).sort_index()
+dat = pd.read_csv(dir_data + 'policy_simulation/4obj/mi_combined.csv', index_col=0).sort_index()
 
 
 ### view information of policies
@@ -416,11 +416,17 @@ plot_MI(dat, 'cash_withdrawal_mi', cash_withdrawal_mi_max, 'mi_cash_withdrawal')
 
 ### table 2 output
 tab2 = pd.read_csv('../../figures/table2.csv', index_col=0)
+dat_2obj = pd.read_csv(dir_data + 'policy_simulation/2obj/mi_combined.csv', index_col=0).sort_index()
 
 tab2['fund_hedge_mi'] = np.nan
 tab2['debt_hedge_mi'] = np.nan
 tab2['power_hedge_mi'] = np.nan
 
+for i in range(dat_2obj.shape[0]):
+  if (abs(dat_2obj.annRev[i] - tab2.annRev[1]) < 1e-6) and (abs(dat_2obj.maxDebt[i] - tab2.maxDebt[1]) < 1e-6) and (abs(dat_2obj.maxComplex[i] - tab2.maxComplex[1]) < 1e-6) and (abs(dat_2obj.maxFund[i] - tab2.maxFund[1]) < 1e-6):
+    tab2['fund_hedge_mi'][1] = dat_2obj.fund_hedge_mi[i]
+    tab2['debt_hedge_mi'][1] = dat_2obj.debt_hedge_mi[i]
+    tab2['power_hedge_mi'][1] = dat_2obj.power_hedge_mi[i]
 for i in range(dat.shape[0]):
   for j in range(2, 4):
     if (abs(dat.annRev[i] - tab2.annRev[j]) < 1e-6) and (abs(dat.maxDebt[i] - tab2.maxDebt[j]) < 1e-6) and (abs(dat.maxComplex[i] - tab2.maxComplex[j]) < 1e-6) and (abs(dat.maxFund[i] - tab2.maxFund[j]) < 1e-6):
@@ -434,6 +440,7 @@ tab2.reset_index(inplace=True, drop=True)
 tab2.formulation.iloc[-3:] = '4obj_dynamic_MI'
 
 print(tab2)
+
 
 
 
@@ -477,6 +484,6 @@ for m in policy_ranks:
   df = df.append(pd.DataFrame({'fund_hedge':results[:, 0], 'fund_withdrawal':results[:, 1], 'debt_hedge':results[:, 2], 'debt_withdrawal':results[:, 3],
                                'power_hedge':results[:, 4], 'power_withdrawal':results[:, 5], 'cash_in':results[:, 6], 'action_hedge':results[:, 7],
                                'action_withdrawal':results[:, 8], 'policy':m}))
-df.to_csv(dir_data + 'policy_simulation/mi_examples_simulation.csv', index=False)
+df.to_csv(dir_data + 'policy_simulation/4obj/mi_examples_simulation.csv', index=False)
 
 
