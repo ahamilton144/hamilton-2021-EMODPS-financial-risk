@@ -242,7 +242,7 @@ def plot_metrics(dir_figs, metrics, nrbfs, nseed, fe_grid):
 
 
 #fn for cleaning set data
-def get_set(file, nobj, ncon, has_dv = True, has_constraint = True, sort = True):
+def get_set(file, nobj, ncon, has_dv = True, has_constraint = True, sort = False):
   # read data
   df = pd.read_csv(file, sep=' ', header=None).dropna(axis=1)
   if (has_dv == True):

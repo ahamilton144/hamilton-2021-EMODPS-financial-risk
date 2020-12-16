@@ -405,22 +405,29 @@ def plot_MI(dat, mi_name, example_pol, name):
   plt.savefig(dir_figs + name + '.eps', bbox_inches='tight', figsize=(4.5,8), dpi=500)
 
 
-plot_MI(dat, 'fund_hedge_mi', fund_hedge_mi_max, 'mi_fund_hedge')
-plot_MI(dat, 'debt_hedge_mi', debt_hedge_mi_max, 'mi_debt_hedge')
-plot_MI(dat, 'power_hedge_mi', power_hedge_mi_max, 'mi_power_hedge')
-plot_MI(dat, 'fund_withdrawal_mi', fund_withdrawal_mi_max, 'mi_fund_withdrawal')
-plot_MI(dat, 'debt_withdrawal_mi', debt_withdrawal_mi_max, 'mi_debt_withdrawal')
-plot_MI(dat, 'power_withdrawal_mi', power_withdrawal_mi_max, 'mi_power_withdrawal')
-plot_MI(dat, 'cash_withdrawal_mi', cash_withdrawal_mi_max, 'mi_cash_withdrawal')
+# plot_MI(dat, 'fund_hedge_mi', fund_hedge_mi_max, 'mi_fund_hedge')
+# plot_MI(dat, 'debt_hedge_mi', debt_hedge_mi_max, 'mi_debt_hedge')
+# plot_MI(dat, 'power_hedge_mi', power_hedge_mi_max, 'mi_power_hedge')
+# plot_MI(dat, 'fund_withdrawal_mi', fund_withdrawal_mi_max, 'mi_fund_withdrawal')
+# plot_MI(dat, 'debt_withdrawal_mi', debt_withdrawal_mi_max, 'mi_debt_withdrawal')
+# plot_MI(dat, 'power_withdrawal_mi', power_withdrawal_mi_max, 'mi_power_withdrawal')
+# plot_MI(dat, 'cash_withdrawal_mi', cash_withdrawal_mi_max, 'mi_cash_withdrawal')
 
 
+### table 2 output
+tab2 = pd.read_csv('../../figures/table2.csv', index_col=0)
 
+tab2['fund_hedge_mi'] = np.nan
+tab2['debt_hedge_mi'] = np.nan
+tab2['power_hedge_mi'] = np.nan
 
+print(dat)
 
+for i in range(dat.shape[0]):
+  if (abs(dat.annRev[i] - tab2.annRev[2]) < 1e-6) and (abs(dat.maxDebt[i] - tab2.maxDebt[2]) < 1e-6) and (abs(dat.maxComplex[i] - tab2.maxComplex[2]) < 1e-6) and (abs(dat.maxFund[i] - tab2.maxFund[2]) < 1e-6):
+    tab2['fund_hedge_mi'][2] = dat.fund_hedge_mi[i]
 
-
-
-
+print(tab2)
 
 # ### get dataframe of simulation results, output for parallel coords in R
 # policy_ranks = [fund_hedge_mi_max[0], debt_hedge_mi_max[0], power_hedge_mi_max[0]]

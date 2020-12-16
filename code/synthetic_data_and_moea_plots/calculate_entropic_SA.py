@@ -2,8 +2,9 @@
 #### get policy line numbers from file args
 ##################################################################
 import sys
-policy_start = int(sys.argv[1])
-policy_end = int(sys.argv[2])
+objective_formulation = int(sys.argv[1])  ### this should be 2, to run SA on 2-obj problem output, or 4, to run on 4-obj output
+policy_start = int(sys.argv[2])
+policy_end = int(sys.argv[3])
 policy_ranks = range(policy_start, policy_end)
 
 
@@ -69,8 +70,10 @@ def getSet(file, nobj, has_dv = True, has_constraint = True, sort = True):
       df = df.sort_values(by=list(df.columns[-5:-1])).reset_index(drop=True)
   return df, ndv
 
-
-dps = getSet(dir_data + 'optimization_output/4obj_2rbf_moreSeeds/DPS_4obj_2rbf_moreSeeds_borg_retest.resultfile', 4, sort=False)[0]
+if objective_formulation == 2:
+  dps = getSet(dir_data + 'optimization_output/2obj_2rbf/DPS_2obj_2rbf_borg_retest.resultfile', 4, sort=False)[0]
+elif objective_formulation == 4:
+  dps = getSet(dir_data + 'optimization_output/2obj_2rbf/DPS_2obj_2rbf_borg_retest.resultfile', 4, sort=False)[0]
 nsolns = dps.shape[0]
 
 ##################################################################
@@ -525,7 +528,11 @@ for m in policy_ranks:
 
   print(name + ' entropy finished', datetime.now() - startTime)
   sys.stdout.flush()
-  pd.to_pickle(mi_dict, dir_data + 'policy_simulation/' + str(m) + '.pkl')
+
+  if optimization_formulation == 2:
+    pd.to_pickle(mi_dict, dir_data + 'policy_simulation/' + str(m) + '_2obj.pkl')
+  elif optimization_formulation == 4:
+    pd.to_pickle(mi_dict, dir_data + 'policy_simulation/' + str(m) + '.pkl')
 
 #  reread = pd.read_pickle(dir_data + 'policy_simulation/' + str(m) + '.pkl')
 #  print(reread)

@@ -89,7 +89,6 @@ ref_2dv_2obj_retest, ndv_2dv_2obj_retest = functions_moea_output_plots.get_set(d
 ref_dps_4obj_retest, ndv_dps_4obj_retest = functions_moea_output_plots.get_set(dir_moea_output + '4obj_2rbf_moreSeeds/DPS_4obj_2rbf_moreSeeds_borg_retest.resultfile', nobj, ncon)
 ref_2dv_4obj_retest, ndv_dps_4obj_retest = functions_moea_output_plots.get_set(dir_moea_output + '4obj_2dv/DPS_4obj_2dv_borg_retest.resultfile', nobj, ncon)
 
-
 # ### get best compromise point using topsis method
 dfs = [ref_dps_2obj_retest, ref_2dv_2obj_retest, ref_dps_4obj_retest, ref_2dv_4obj_retest]
 #use log for reserve fund?
@@ -124,30 +123,32 @@ lims3d = {'annRev':[9.4,11.13],'maxDebt':[0.,36.],'maxComplex':[0.,1.]}
 
 
 
-## Comparison of 2dv vs full dps, 2 objective version
-fig = plt.figure()
-ax = fig.add_subplot(111)
+# ## Comparison of 2dv vs full dps, 2 objective version
+# fig = plt.figure()
+# ax = fig.add_subplot(111)
+
 min_dist = [np.where(ref_2dv_2obj_retest.relCloseness_2obj == ref_2dv_2obj_retest.relCloseness_2obj.max())[0][0],
             np.where(ref_dps_2obj_retest.relCloseness_2obj == ref_dps_2obj_retest.relCloseness_2obj.max())[0][0]]
 x_min_dist = [ref_2dv_2obj_retest.maxDebt.iloc[min_dist[0]], ref_dps_2obj_retest.maxDebt.iloc[min_dist[1]]]
 y_min_dist = [ref_2dv_2obj_retest.annRev.iloc[min_dist[0]], ref_dps_2obj_retest.annRev.iloc[min_dist[1]]]
-ys = ref_2dv_2obj_retest.annRev
-xs = ref_2dv_2obj_retest.maxDebt
-p1 = ax.scatter(xs,ys, c=col_reds[2], marker='^', alpha=1, s=60)
-p1 = ax.scatter(x_min_dist[0], y_min_dist[0], c=col_reds[2], edgecolors='k', lw=1.5, marker='^', alpha=1, s=60)
-ys = ref_dps_2obj_retest.annRev
-xs = ref_dps_2obj_retest.maxDebt
-p1 = ax.scatter(xs, ys, c=col_blues[2], marker='v', alpha=1, s=60)
-p1 = ax.scatter(x_min_dist[1], y_min_dist[1], c=col_blues[2], edgecolors='k', lw=1.5, marker='v', alpha=1, s=60)
-plt.xticks([0,10,20,30])
-plt.yticks([9.5,10,10.5,11])
-plt.tick_params(length=3)
-plt.plot([0],[mean_net_revenue],marker='*',ms=15,c='k', zorder=2)
-ax.axhline(mean_net_revenue, color='0.5', ls=':', zorder=1)
-ax.axvline(0, color='0.5', ls=':', zorder=1)
-plt.xlim(lims2d['maxDebt'])
-plt.ylim(lims2d['annRev'])
-plt.savefig(dir_figs + 'compare2dvDps_2objForm_2objView.eps', bbox_inches='tight', dpi=500)
+
+# ys = ref_2dv_2obj_retest.annRev
+# xs = ref_2dv_2obj_retest.maxDebt
+# p1 = ax.scatter(xs,ys, c=col_reds[2], marker='^', alpha=1, s=60)
+# p1 = ax.scatter(x_min_dist[0], y_min_dist[0], c=col_reds[2], edgecolors='k', lw=1.5, marker='^', alpha=1, s=60)
+# ys = ref_dps_2obj_retest.annRev
+# xs = ref_dps_2obj_retest.maxDebt
+# p1 = ax.scatter(xs, ys, c=col_blues[2], marker='v', alpha=1, s=60)
+# p1 = ax.scatter(x_min_dist[1], y_min_dist[1], c=col_blues[2], edgecolors='k', lw=1.5, marker='v', alpha=1, s=60)
+# plt.xticks([0,10,20,30])
+# plt.yticks([9.5,10,10.5,11])
+# plt.tick_params(length=3)
+# plt.plot([0],[mean_net_revenue],marker='*',ms=15,c='k', zorder=2)
+# ax.axhline(mean_net_revenue, color='0.5', ls=':', zorder=1)
+# ax.axvline(0, color='0.5', ls=':', zorder=1)
+# plt.xlim(lims2d['maxDebt'])
+# plt.ylim(lims2d['annRev'])
+# plt.savefig(dir_figs + 'compare2dvDps_2objForm_2objView.eps', bbox_inches='tight', dpi=500)
 
 
 ### output for Table 2
@@ -240,12 +241,20 @@ tab2 = tab2.append(pd.DataFrame({'formulation': '2obj_dynamic', 'annRev': subset
 
 
 ### get subproblem pareto fronts
-subproblems = ['1234','123','124','134','234','12','13','14','23','24','34']
+subproblems = ['123','124','134','234','12','13','14','23','24','34']
 paretos = {}
+paretos['1234'] = ref_dps_4obj_retest.copy()
 for s in subproblems:
-  paretos[s] = pd.read_csv(dir_moea_output + '4obj_2rbf_moreSeeds/DPS_4obj_2rbf_' + s + '_pareto.reference', sep=' ', names=['annRev','maxDebt','maxComplex','maxFund'],index_col=0)
-  paretos[s].index -= 1
-  paretos[s]['annRev'] *= -1
+    ### get line numbers that are non-dominated in each subproblem
+    linenums = np.loadtxt(dir_moea_output + '4obj_2rbf_moreSeeds/DPS_4obj_2rbf_' + s + '.linefile', skiprows=1)
+    try:
+        linenums = [int(l) - 1 for l in linenums]
+    except:
+        linenums = [int(linenums) - 1]
+    paretos[s] = ref_dps_4obj_retest.iloc[linenums, :]
+#   paretos[s] = pd.read_csv(dir_moea_output + '4obj_2rbf_moreSeeds/DPS_4obj_2rbf_' + s + '_pareto.reference', sep=' ', names=['annRev','maxDebt','maxComplex','maxFund'],index_col=0)
+#   paretos[s].index -= 1
+#   paretos[s]['annRev'] *= -1
 
 subproblems_with_conflicts = ['1234','123','124','234','12','23','24']
 pareto_cols = {}
@@ -287,22 +296,56 @@ for n,k in enumerate(subproblems_with_conflicts):
   d['L2_negative'] = np.sqrt(d['L2_negative'] )
   ### calculate relative closeness of positive ideal solutions (Eqn 2.7 in Roszkowska 2011)
   d['relCloseness'] = d['L2_negative'] / (d['L2_negative'] + d['L2_positive'])
-#   for o in pareto_cols[k]:
-#     range_objs[k][o] = [d[o].min(), d[o].max()]
-#     d[o + 'Norm'] = (d[o] - range_objs[k][o][0]) / (range_objs[k][o][1] - range_objs[k][o][0])
-#   if ('annRev' in pareto_cols[k]):
-#     d['annRevNorm'] = 1 - d['annRevNorm']
-#   squares = 0
-#   if ('annRev' in pareto_cols[k]):
-#     squares += d['annRevNorm'] **2
-#   if ('maxDebt' in pareto_cols[k]):
-#     squares += d['maxDebtNorm'] **2
-#   if ('maxComplex' in pareto_cols[k]):
-#     squares += d['maxComplexNorm'] **2
-#   if ('maxFund' in pareto_cols[k]):
-#     squares += d['maxFundNorm'] **2
-#   d['totalDistance'] = np.sqrt(squares)
 
+
+
+
+
+
+### plot 2obj pareto fronts from 2obj and 4obj formualtions
+fig = plt.figure()
+ax = fig.add_subplot(111)
+ys = paretos['12'].annRev
+xs = paretos['12'].maxDebt
+p1 = ax.scatter(xs,ys, c=col_blues[2], marker='^', alpha=1, s=60)
+ys = ref_dps_2obj_retest.annRev
+xs = ref_dps_2obj_retest.maxDebt
+p1 = ax.scatter(xs, ys, c=col_reds[2], marker='v', alpha=1, s=60)
+plt.xticks([0,10,20,30])
+plt.yticks([9.5,10,10.5,11])
+plt.tick_params(length=3)
+plt.plot([0],[mean_net_revenue],marker='*',ms=15,c='k', zorder=2)
+ax.axhline(mean_net_revenue, color='0.5', ls=':', zorder=1)
+ax.axvline(0, color='0.5', ls=':', zorder=1)
+plt.xlim(lims2d['maxDebt'])
+plt.ylim(lims2d['annRev'])
+plt.savefig(dir_figs + 'compareObjFormulations_2objProj.eps', bbox_inches='tight', dpi=500)
+
+
+
+
+### plot 4obj pareto fronts from 2obj and 4obj formualtions
+fig = plt.figure()
+ax = fig.add_subplot(1,1,1, projection='3d')
+zs = ref_dps_2obj_retest.annRev
+ys = ref_dps_2obj_retest.maxDebt
+xs = ref_dps_2obj_retest.maxComplex
+ss = 20 + 1.3*ref_dps_2obj_retest.maxFund
+p1 = ax.scatter(xs, ys, zs, s=ss, marker='v', alpha=0.6, c=col_reds[2])
+zs = paretos['12'].annRev
+ys = paretos['12'].maxDebt
+xs = paretos['12'].maxComplex
+ss = 20 + 1.3*paretos['12'].maxFund
+p1 = ax.scatter(xs, ys, zs, s=ss, marker='^',alpha=0.6, c=col_blues[2])
+ax.set_yticks([12, 24, 36])
+ax.set_zticks([9.5,10,10.5,11])
+ax.set_xticks([0,0.25,0.5,0.75,1])
+ax.view_init(elev=20, azim =-45)
+ax.plot([0.01],[0.01],[mean_net_revenue+0.05],marker='*',ms=15,c='k')
+ax.set_xlim(lims3d['maxComplex'])
+ax.set_ylim(lims3d['maxDebt'])
+ax.set_zlim(lims3d['annRev'])
+plt.savefig(dir_figs + 'compareObjFormulations_4objProj.eps', bbox_inches='tight', dpi=500)
 
 
 
@@ -312,8 +355,6 @@ fig = plt.figure()
 baseline = paretos['1234'].copy()
 ax = fig.add_subplot(1,1,1, projection='3d')
 subprob = paretos['12'].copy()
-print(subprob)
-print(ref_dps_2obj_retest.iloc[:,-15:-10])
 baseline = baseline.drop(subprob.index, errors='ignore')
 ind = subprob.index[np.where(subprob.relCloseness == subprob.relCloseness.max())[0][0]]
 
@@ -333,60 +374,60 @@ tab2 = tab2.append(pd.DataFrame({'formulation': '4obj_dynamic_2objNonDom', 'annR
 # xs = subprob.maxComplex.drop(ind)
 # ss = 20 + 1.3*subprob.maxFund.drop(ind)
 # p1 = ax.scatter(xs, ys, zs, s=ss, marker='v', alpha=1, c=[col_blues[2]])
-# # zs = subprob.annRev
-# # ys = subprob.maxDebt
-# # xs = subprob.maxComplex
-# # ss = 20 + 1.3 * subprob.maxFund
-# # p1 = ax.scatter(xs, ys, zs, s=ss, marker='v', alpha=1, c=[col_blues[2]])
-# subprob = paretos['23'].copy()
-# baseline = baseline.drop(subprob.index, errors='ignore')
-# zs = subprob.annRev
-# ys = subprob.maxDebt
-# xs = subprob.maxComplex
-# ss = 20 + 1.3 * subprob.maxFund
-# p1 = ax.scatter(xs, ys, zs, s=ss, marker='<', alpha=1, c=[col_reds[2]])
-# subprob = paretos['24'].copy()
-# baseline = baseline.drop(subprob.index, errors='ignore')
-# zs = subprob.annRev
-# ys = subprob.maxDebt
-# xs = subprob.maxComplex
-# ss = 20 + 1.3 * subprob.maxFund
-# p1 = ax.scatter(xs, ys, zs, s=ss, marker='>', alpha=1, c=[col_purples[2]])
-# subprob = paretos['13'].copy()
-# baseline = baseline.drop(subprob.index, errors='ignore')
-# zs = subprob.annRev
-# ys = subprob.maxDebt
-# xs = subprob.maxComplex
-# ss = 20 + 1.3 * subprob.maxFund
-# p1 = ax.scatter(xs, ys, zs, s=ss, marker='^', alpha=1, c='0.4')
-# subprob = paretos['14'].copy()
-# baseline = baseline.drop(subprob.index, errors='ignore')
-# zs = subprob.annRev
-# ys = subprob.maxDebt
-# xs = subprob.maxComplex
-# ss = 20 + 1.3 * subprob.maxFund
-# p1 = ax.scatter(xs, ys, zs, s=ss, marker='^', alpha=1, c='0.4')
-# subprob = paretos['34'].copy()
-# baseline = baseline.drop(subprob.index, errors='ignore')
-# zs = subprob.annRev
-# ys = subprob.maxDebt
-# xs = subprob.maxComplex
-# ss = 20 + 1.3 * subprob.maxFund
-# p1 = ax.scatter(xs, ys, zs, s=ss, marker='^', alpha=1, c='0.4')
-# zs = baseline.annRev
-# ys = baseline.maxDebt
-# xs = baseline.maxComplex
-# ss = 20 + 1.3*baseline.maxFund
-# p1 = ax.scatter(xs, ys, zs, s=ss, marker='^', alpha=1, c='0.8')
-# ax.set_xticks([0,0.25,0.5,0.75])
-# ax.set_yticks([12, 24, 36])
-# ax.set_zticks([9.5,10,10.5,11])
-# ax.view_init(elev=20, azim =-45)
-# ax.plot([0.01],[0.01],[mean_net_revenue+0.05],marker='*',ms=15,c='k')
-# ax.set_xlim(lims3d['maxComplex'])
-# ax.set_ylim(lims3d['maxDebt'])
-# ax.set_zlim(lims3d['annRev'])
-# plt.savefig(dir_figs + 'compareObjFormulations_2objSub.eps', bbox_inches='tight', figsize=(4.5,8), dpi=500)
+zs = subprob.annRev
+ys = subprob.maxDebt
+xs = subprob.maxComplex
+ss = 20 + 1.3 * subprob.maxFund
+p1 = ax.scatter(xs, ys, zs, s=ss, marker='v', alpha=1, c=[col_blues[2]])
+subprob = paretos['23'].copy()
+baseline = baseline.drop(subprob.index, errors='ignore')
+zs = subprob.annRev
+ys = subprob.maxDebt
+xs = subprob.maxComplex
+ss = 20 + 1.3 * subprob.maxFund
+p1 = ax.scatter(xs, ys, zs, s=ss, marker='<', alpha=1, c=[col_reds[2]])
+subprob = paretos['24'].copy()
+baseline = baseline.drop(subprob.index, errors='ignore')
+zs = subprob.annRev
+ys = subprob.maxDebt
+xs = subprob.maxComplex
+ss = 20 + 1.3 * subprob.maxFund
+p1 = ax.scatter(xs, ys, zs, s=ss, marker='>', alpha=1, c=[col_purples[2]])
+subprob = paretos['13'].copy()
+baseline = baseline.drop(subprob.index, errors='ignore')
+zs = subprob.annRev
+ys = subprob.maxDebt
+xs = subprob.maxComplex
+ss = 20 + 1.3 * subprob.maxFund
+p1 = ax.scatter(xs, ys, zs, s=ss, marker='^', alpha=1, c='0.4')
+subprob = paretos['14'].copy()
+baseline = baseline.drop(subprob.index, errors='ignore')
+zs = subprob.annRev
+ys = subprob.maxDebt
+xs = subprob.maxComplex
+ss = 20 + 1.3 * subprob.maxFund
+p1 = ax.scatter(xs, ys, zs, s=ss, marker='^', alpha=1, c='0.4')
+subprob = paretos['34'].copy()
+baseline = baseline.drop(subprob.index, errors='ignore')
+zs = subprob.annRev
+ys = subprob.maxDebt
+xs = subprob.maxComplex
+ss = 20 + 1.3 * subprob.maxFund
+p1 = ax.scatter(xs, ys, zs, s=ss, marker='^', alpha=1, c='0.4')
+zs = baseline.annRev
+ys = baseline.maxDebt
+xs = baseline.maxComplex
+ss = 20 + 1.3*baseline.maxFund
+p1 = ax.scatter(xs, ys, zs, s=ss, marker='^', alpha=1, c='0.8')
+ax.set_xticks([0,0.25,0.5,0.75])
+ax.set_yticks([12, 24, 36])
+ax.set_zticks([9.5,10,10.5,11])
+ax.view_init(elev=20, azim =-45)
+ax.plot([0.01],[0.01],[mean_net_revenue+0.05],marker='*',ms=15,c='k')
+ax.set_xlim(lims3d['maxComplex'])
+ax.set_ylim(lims3d['maxDebt'])
+ax.set_zlim(lims3d['annRev'])
+plt.savefig(dir_figs + 'compareObjFormulations_2objSub.eps', bbox_inches='tight', figsize=(4.5,8), dpi=500)
 
 
 # for k in ['123','124','234']:
@@ -413,7 +454,7 @@ tab2 = tab2.append(pd.DataFrame({'formulation': '4obj_dynamic_2objNonDom', 'annR
 #   ax.set_xlim(lims3d['maxComplex'])
 #   ax.set_ylim(lims3d['maxDebt'])
 #   ax.set_zlim(lims3d['annRev'])
-#   plt.savefig(dir_figs + 'compareObjFormulations_' + k + '.jpg', bbox_inches='tight', figsize=(4.5,8), dpi=500)
+#   plt.savefig(dir_figs + 'compareObjFormulations_' + k + '.eps', bbox_inches='tight', figsize=(4.5,8), dpi=500)
 
 
 
@@ -422,60 +463,60 @@ tab2 = tab2.append(pd.DataFrame({'formulation': '4obj_dynamic_2objNonDom', 'annR
 
 
 
-# ### plot policies meeting brushing constraints
-k = '1234_constraint'
-paretos[k] = paretos['1234'].copy().iloc[:,0:4]
-pareto_cols[k] = pareto_cols['1234']
-min_annRev = mean_net_revenue * 0.975
-max_maxDebt = mean_net_revenue * 1.5
-max_maxFund = mean_net_revenue * 1.5
-brush_annRev = paretos[k].annRev >= min_annRev
-brush_maxDebt = paretos[k].maxDebt <= max_maxDebt
-brush_maxFund = paretos[k].maxFund <= max_maxFund
-paretos[k] = paretos[k].loc[(brush_annRev & brush_maxDebt & brush_maxFund), :]
+# # ### plot policies meeting brushing constraints
+# k = '1234_constraint'
+# paretos[k] = paretos['1234'].copy()#.iloc[:,0:4]
+# pareto_cols[k] = pareto_cols['1234']
+# min_annRev = mean_net_revenue * 0.975
+# max_maxDebt = mean_net_revenue * 1.5
+# max_maxFund = mean_net_revenue * 1.5
+# brush_annRev = paretos[k].annRev >= min_annRev
+# brush_maxDebt = paretos[k].maxDebt <= max_maxDebt
+# brush_maxFund = paretos[k].maxFund <= max_maxFund
+# paretos[k] = paretos[k].loc[(brush_annRev & brush_maxDebt & brush_maxFund), :]
 
-d = paretos[k]
-range_objs[k] = {}
-### normalize objective values (Eqn 2.1** in Roszkowska 2011)
-for o in pareto_cols[k]:
-  range_objs[k][o] = [d[o].min(), d[o].max()]
-  d[o + 'Norm'] = (d[o] - range_objs[k][o][0]) / (range_objs[k][o][1] - range_objs[k][o][0])
-if ('annRev' in pareto_cols[k]):
-  d['annRevNorm'] = 1 - d['annRevNorm']
-### calculate L2 distance from positive (0,0,0,0) & negative (1,1,1,1) ideal solutions (Eqn 2.5/2.6 in Roszkowska 2011)
-d['L2_positive'] = 0
-d['L2_negative'] = 0
-if ('annRev' in pareto_cols[k]):
-  d['L2_positive']  += d['annRevNorm'] ** 2
-  d['L2_negative']  += (1 - d['annRevNorm']) ** 2
-if ('maxDebt' in pareto_cols[k]):
-  d['L2_positive']  += d['maxDebtNorm'] ** 2
-  d['L2_negative']  += (1 - d['maxDebtNorm']) ** 2
-if ('maxComplex' in pareto_cols[k]):
-  d['L2_positive']  += d['maxComplexNorm'] ** 2
-  d['L2_negative']  += (1 - d['maxComplexNorm']) ** 2
-if ('maxFund' in pareto_cols[k]):
-  d['L2_positive']  += d['maxFundNorm'] ** 2
-  d['L2_negative']  += (1 - d['maxFundNorm']) ** 2
-d['L2_positive'] = np.sqrt(d['L2_positive'] )
-d['L2_negative'] = np.sqrt(d['L2_negative'] )
-### calculate relative closeness of positive ideal solutions (Eqn 2.7 in Roszkowska 2011)
-d['relCloseness'] = d['L2_negative'] / (d['L2_negative'] + d['L2_positive'])
+# d = paretos[k]
+# range_objs[k] = {}
+# ### normalize objective values (Eqn 2.1** in Roszkowska 2011)
+# for o in pareto_cols[k]:
+#   range_objs[k][o] = [d[o].min(), d[o].max()]
+#   d[o + 'Norm'] = (d[o] - range_objs[k][o][0]) / (range_objs[k][o][1] - range_objs[k][o][0])
+# if ('annRev' in pareto_cols[k]):
+#   d['annRevNorm'] = 1 - d['annRevNorm']
+# ### calculate L2 distance from positive (0,0,0,0) & negative (1,1,1,1) ideal solutions (Eqn 2.5/2.6 in Roszkowska 2011)
+# d['L2_positive'] = 0
+# d['L2_negative'] = 0
+# if ('annRev' in pareto_cols[k]):
+#   d['L2_positive']  += d['annRevNorm'] ** 2
+#   d['L2_negative']  += (1 - d['annRevNorm']) ** 2
+# if ('maxDebt' in pareto_cols[k]):
+#   d['L2_positive']  += d['maxDebtNorm'] ** 2
+#   d['L2_negative']  += (1 - d['maxDebtNorm']) ** 2
+# if ('maxComplex' in pareto_cols[k]):
+#   d['L2_positive']  += d['maxComplexNorm'] ** 2
+#   d['L2_negative']  += (1 - d['maxComplexNorm']) ** 2
+# if ('maxFund' in pareto_cols[k]):
+#   d['L2_positive']  += d['maxFundNorm'] ** 2
+#   d['L2_negative']  += (1 - d['maxFundNorm']) ** 2
+# d['L2_positive'] = np.sqrt(d['L2_positive'] )
+# d['L2_negative'] = np.sqrt(d['L2_negative'] )
+# ### calculate relative closeness of positive ideal solutions (Eqn 2.7 in Roszkowska 2011)
+# d['relCloseness'] = d['L2_negative'] / (d['L2_negative'] + d['L2_positive'])
 
 
-fig = plt.figure()
-baseline = paretos['1234'].copy()
-ax = fig.add_subplot(1, 1, 1, projection='3d')
-subprob = paretos[k].copy()
-baseline = baseline.drop(subprob.index, errors='ignore')
-ind = subprob.index[np.where(subprob.relCloseness == subprob.relCloseness.max())[0][0]]
+# fig = plt.figure()
+# baseline = paretos['1234'].copy()
+# ax = fig.add_subplot(1, 1, 1, projection='3d')
+# subprob = paretos[k].copy()
+# baseline = baseline.drop(subprob.index, errors='ignore')
+# ind = subprob.index[np.where(subprob.relCloseness == subprob.relCloseness.max())[0][0]]
 
-### output for Table 2
-columns = [['annRev', 'maxDebt', 'maxComplex', 'maxFund']]
-subset = subprob.loc[ind]
-tab2 = tab2.append(pd.DataFrame({'formulation': '4obj_dynamic_constraints', 'annRev': subset['annRev'], 'maxDebt': subset['maxDebt'], 
-                                 'maxComplex': subset['maxComplex'], 'maxFund': subset['maxFund']}, index=[3]))
-tab2.to_csv('../../figures/table2.csv')
+# ### output for Table 2
+# columns = [['annRev', 'maxDebt', 'maxComplex', 'maxFund']]
+# subset = subprob.loc[ind]
+# tab2 = tab2.append(pd.DataFrame({'formulation': '4obj_dynamic_constraints', 'annRev': subset['annRev'], 'maxDebt': subset['maxDebt'], 
+#                                  'maxComplex': subset['maxComplex'], 'maxFund': subset['maxFund']}, index=[3]))
+# tab2.to_csv('../../figures/table2.csv')
 
 # zs = subprob.annRev.loc[ind]
 # ys = subprob.maxDebt.loc[ind]
