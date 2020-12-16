@@ -2,7 +2,12 @@ import os
 import numpy as np
 import pandas as pd
 
-dir_data = '../../data/policy_simulation/'
+nobj=2 #4
+
+if nobj==2:
+	dir_data = '../../data/policy_simulation/2obj/'
+else:
+	dir_data = '../../data/policy_simulation/4obj/'
 
 files = os.listdir(dir_data)
 
