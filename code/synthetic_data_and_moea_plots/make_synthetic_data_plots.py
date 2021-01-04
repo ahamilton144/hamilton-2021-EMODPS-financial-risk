@@ -26,7 +26,7 @@ startTime = datetime.now()
 dir_downloaded_inputs = './../../data/downloaded_inputs/'
 dir_generated_inputs = './../../data/generated_inputs/'
 dir_figs = './../../figures/'
-
+fig_format = 'jpg'
 
 
 ### Get and clean data
@@ -51,16 +51,16 @@ hp_GWh, hp_dolPerKwh, hp_dolM = functions_clean_data.get_historical_SFPUC_sales(
 # # SWE, Feb 1 & Apr 1
 print('Generating synthetic swe..., ', datetime.now() - startTime)
 importlib.reload(functions_synthetic_data)
-sweSynth = functions_synthetic_data.synthetic_swe(dir_generated_inputs, swe, redo = False, save = True)
+sweSynth = functions_synthetic_data.synthetic_swe(dir_generated_inputs, swe, redo = True, save = False)
 
 # monthly generation, dependent on swe. Will also create fig S2, showing fitted models (gen as fn of swe) for each month.
 print('Generating synthetic hydropower generation..., ', datetime.now() - startTime)
-genSynth = functions_synthetic_data.synthetic_generation(dir_generated_inputs, dir_figs, gen, sweSynth, redo = False, save = True)
+genSynth = functions_synthetic_data.synthetic_generation(dir_generated_inputs, dir_figs, gen, sweSynth, redo = True, save = False)
 
 # monthly power price
 print('Generating synthetic power prices..., ', datetime.now() - startTime)
 importlib.reload(functions_synthetic_data)
-powSynth = functions_synthetic_data.synthetic_power(dir_generated_inputs, power, redo = False, save = True)
+powSynth = functions_synthetic_data.synthetic_power(dir_generated_inputs, power, redo = True, save = False)
 
 
 
@@ -110,13 +110,13 @@ print('Generating simulated CFD net payouts..., ', datetime.now() - startTime)
 
 payoutCfdSim = functions_revenues_contracts.snow_contract_payout(dir_generated_inputs, sweWtSynth, contractType = 'cfd',
                                                                lambdaRisk = 0.25, strikeQuantile = 0.5,
-                                                               capQuantile = 0.95, redo = False, save = True)
+                                                               capQuantile = 0.95, redo = True, save = False)
 payoutCfdHist = functions_revenues_contracts.snow_contract_payout_hist(sweWtHist, sweWtSynth, payoutCfdSim)
 
 # ### plot CFD structure
 # importlib.reload(functions_revenues_contracts)
-# print('Plotting CFD structure..., ', datetime.now() - startTime)
-# functions_revenues_contracts.plot_contract(dir_figs, sweWtSynth, payoutCfdSim, lambda_shifts=[])
+print('Plotting CFD structure..., ', datetime.now() - startTime)
+functions_revenues_contracts.plot_contract(dir_figs, sweWtSynth, payoutCfdSim, lambda_shifts=[], fig_format)
 
 
 ### get power price index 
@@ -149,9 +149,6 @@ historical_data.to_csv(dir_generated_inputs + 'historical_data.csv', sep=' ')
 # ### get wet, dry, avg example 20-yr periods for plotting
 ny = 20
 m20AvgSwe = revSimWyr.rolling(ny).mean()
-# m10MinM10AvgSwe =
-# minM20AvgSwe = np.where(m20AvgSwe == m20AvgSwe.min())[0][0]
-# maxM20AvgSwe = np.where(m20AvgSwe == m20AvgSwe.max())[0][0]
 print(np.sort(m20AvgSwe.dropna()))
 minM20AvgSwe = np.where(m20AvgSwe == np.sort(m20AvgSwe.dropna())[9])[0][0]
 maxM20AvgSwe = np.where(m20AvgSwe == np.sort(m20AvgSwe.dropna())[-10])[0][0]
@@ -180,7 +177,7 @@ example_data = pd.DataFrame({'sweIndex_wet': sweWtSynth[(maxM20AvgSwe - ny):(max
 example_data.to_csv(dir_generated_inputs + 'example_data.csv', sep=' ')
 
 # ### save data to use as inputs to moea for the current study
-# functions_revenues_contracts.save_synthetic_data_moea(dir_generated_inputs, revSimWyr, payoutCfdSim, powerIndex)
+functions_revenues_contracts.save_synthetic_data_moea(dir_generated_inputs, revSimWyr, payoutCfdSim, powerIndex)
 
 print('Finished, ', datetime.now() - startTime)
 
