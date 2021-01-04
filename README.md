@@ -50,7 +50,8 @@ Licensed under the GNU General Public License v3.0. This is a fork of [hamilton-
 * Run `make_synthetic_data_plots.py`, from `code/synthetic_data_and_moea_plots/` directory, either in an IDE or in a bash shell.
   * This takes about 2.5 minutes on my laptop.
   * Outputs
-    * `data/generated_inputs/synthetic_data.txt` - Synthetic time series of hydropower revenue, and CFD contract payouts, and power price index. Needed for MOO.
+    * `data/generated_inputs/synthetic_data.txt` - Synthetic time series of hydropower revenue, and CFD net payout, and power price index. Needed for MOO.
+    * `data/generated_inputs/example_data.txt` - 3x20 year samples from synthetic record, one very wet, one average, one very dry. Each sample reports SWE index, CFD net payout, hydropower generation, weighted average power price, power price index, and hydropower revenue, at an annual time scale.
     * Figure of hedging contract structure (Figure S2 from Supporting Information), in `figures` directory
 
 
