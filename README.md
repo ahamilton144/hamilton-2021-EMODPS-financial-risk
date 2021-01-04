@@ -1,5 +1,7 @@
 # hamilton-2020-EMODPS-financial-risk
 
+ ***Note: repo still a work in progress***
+
 This repository contains all code and data (included data for figures) for the following paper:
 
 Hamilton, A.L., Characklis, G.W., &amp; Reed, P.M. (2020). From stream flows to cash flows: Leveraging Evolutionary Multi-Objective Direct Policy Search to manage hydrologic financial risks (in preparation).
