@@ -49,14 +49,13 @@ Licensed under the GNU General Public License v3.0. This is a fork of [hamilton-
 
 ## Generate synthetic data
 * Run `make_synthetic_data_plots.py`, from `code/synthetic_data_and_moea_plots/` directory, either in an IDE or in a bash shell.
-  * This takes about 2.5 minutes on my laptop.
   * Outputs
     * `data/generated_inputs/synthetic_data.txt` - Synthetic time series of hydropower revenue, and CFD net payout, and power price index. Needed for MOO.
     * `data/generated_inputs/example_data.txt` - 3x20 year samples from synthetic record, one very wet, one average, one very dry. Each sample reports SWE index, CFD net payout, hydropower generation, weighted average power price, power price index, and hydropower revenue, at an annual time scale.
     * Figure of hedging contract structure (Figure S2 from Supporting Information), in `figures` directory
 
 
-## Run the multi-objective optimization 
+## Run the multi-objective optimization (MOO)
 * Note: If you don't want to repeat the MOO, you can skip to the next section and analyze my MOO output stored in `data/optimization_output`
 * Transfer new files from `data/generated_inputs/` to cluster
 * Navigate to `code/optimization/cluster_run` and run the following commands in order. You will need to wait for each set of runs to finish before proceeding to the next step. All outputs from these steps are stored in `data/optimization_output`.
@@ -69,20 +68,25 @@ Licensed under the GNU General Public License v3.0. This is a fork of [hamilton-
   * `sh run_refSets_subproblem.sh` - Get subsets of 4-objective dynamic reference set, non-dominated with respect to alternative lower-dimensional problems
 
 
-## Run the entropic sensitivity analysis
+## Run the entropic sensitivity analysis (ESA)
+* Note: If you don't want to repeat the ESA, you can skip to the next section and analyze my ESA output stored in `data/policy_simulation`
+* Transfer new files from `data/generated_inputs/` to cluster
+* Navigate to `code/synthetic_data_and_moea_plots` (still on the cluster) and run the following commands in order. You will need to wait for each set of runs to finish before proceeding to the next step. All outputs from these steps are stored in `data/policy_simulation`.
+  * `sh run_SA_cube.sh` - This script will run ESA for each policy in the 4-objective dynamic and 2-objective dynamic solution sets, and store the result as a separate file for each.
+  * `python consolidate_SA_output.py` - Consolidate the ESA output from all policies into a single csv file.
 
 
 ## Create figures from MOO and ESA output data
-<!-- * Transfer important MOO outputs to appropriate directories on laptop for plotting (skip this step if performing the all analysis on a single machine)
-  * `data/optimization_output/baseline/param150_borg.hypervolume`
-  * `data/optimization_output/baseline/param150_borg_retest.resultfile`
-  * `data/optimization_output/baseline/metrics/param150_seedS1_seedB*.metrics`, for * in 1-50
-  * `data/optimization_output/sensitivity/param@_borg.hypervolume`, for @ in 0-149
-  * `data/optimization_output/sensitivity/param@_borg_retest.resultfile`, for @ in 0-149
-  * `data/optimization_output/sensitivity/metrics/param@_seedS1_seedB*.metrics`, for @ in 0-149, * in 1-10
-* Create plots related to MOO results
-  * Run `code/synthetic_data_and_moea_plots/make_moea_output_plots.py`, from project directory
-  * This takes about 3 minutes on my laptop
-  * Outputs
-    * Figures 7-11 from main text and S4-S9 from Supporting Information, in `figures` directory
--->
+* Transfer important MOO & ESA outputs to appropriate directories on laptop for plotting (skip this step if performing the all analysis on a single machine)
+  * `data/optimization_output/4obj_rbf_overall/DPS_4obj_rbf_overall_borg.hypervolume`
+  * `data/optimization_output/4obj_*rbf/metrics/DPS_param150_seedS1_seedB@.metrics`, for * in (1, 2, 3, 4, 8, 12), @ in 1-10
+  * `data/optimization_output/*obj_2dv/DPS_*obj_2dv_borg_retest.resultfile`, for * in (2, 4)
+  * `data/optimization_output/2obj_2rbf/DPS_2obj_2rbf_borg_retest.resultfile`
+  * `data/optimization_output/4obj_2rbf_moreSeeds/DPS_4obj_2rbf_moreSeeds_borg_retest.resultfile`
+  * `data/optimization_output/4obj_2rbf_moreSeeds/DPS_4obj_2rbf_*.linefile`, for * in (12, 13, 14, 23, 24, 34, 123, 124, 134, 234)
+  * `data/policy_simulation/*obj/mi_combined.csv`, for * in (2, 4)
+* Create plots/tables related to MOO results. 
+  * Navigate to `code/synthetic_data_and_moea_plots` and run the following commands in order. All figures/tables will be saved to `figures` directory.
+  * `python make_moea_output_plots.py` - Creates Figures 3-7 in main text and Figures S3-S4 in the Supporting Information. For convenience, the output format is "jpg", but this can be changed with the "fig_format" variable in the script. For the paper, I used "eps" format and combined/cleaned up figures in Adobe Illustrator.
+  * `python make_mutual_info_plots.py` - Creates Table 2 and Figure 8 in main text and Figure S5 in the Supporting Information. For convenience, the output format is "jpg", but this can be changed with the "fig_format" variable in the script. For the paper, I used "eps" format and combined/cleaned up figures in Adobe Illustrator. 
+  * Run `policy_parallel_coord.R` in R. Creates Figure 9 in main text and Figure S6 in the Supporting Information. Defaults to "eps" format.
