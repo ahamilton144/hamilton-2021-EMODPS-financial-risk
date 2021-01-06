@@ -216,7 +216,7 @@ def snow_contract_payout_hist(sweWtHist, sweWtSynth, payoutCfdSim, capQuantile =
 ######### plot snow contract  (fig 4) ###########
 ############## Returns figure #########################################
 ##########################################################################
-def plot_contract(dir_figs, sweWtSynth, payoutCfdSim, lambda_shifts, fig_format):
+def plot_contract(dir_figs, sweWtSynth, payoutCfdSim, fig_format, lambda_shifts):
 
   strike = sweWtSynth.quantile(0.5)
   prob = 1 / sweWtSynth.shape[0]
