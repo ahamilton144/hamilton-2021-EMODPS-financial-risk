@@ -7,6 +7,10 @@ dir=$3
 formulation=${nobj}obj_rbf_overall
 ref_fil=${dir}/DPS_${formulation}_borg.reference
 
+# find overall reference file including all seeds from all rbf trials
+sh find_refSets_combined.sh $nobj $formulation
+
+# find performance of each seed relative to reference file
 for nrbf in 1 2 3 4 8 12
 do
 	formulation_rbf=${nobj}obj_${nrbf}rbf
