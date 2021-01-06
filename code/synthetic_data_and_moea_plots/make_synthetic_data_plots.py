@@ -116,7 +116,7 @@ payoutCfdHist = functions_revenues_contracts.snow_contract_payout_hist(sweWtHist
 # ### plot CFD structure
 # importlib.reload(functions_revenues_contracts)
 print('Plotting CFD structure..., ', datetime.now() - startTime)
-functions_revenues_contracts.plot_contract(dir_figs, sweWtSynth, payoutCfdSim, lambda_shifts=[], fig_format)
+functions_revenues_contracts.plot_contract(dir_figs, sweWtSynth, payoutCfdSim, fig_format, lambda_shifts=[])
 
 
 ### get power price index 
@@ -127,23 +127,23 @@ powerIndex, powGenWt = functions_revenues_contracts.power_price_index(powSynth, 
 # print(np.min(powerIndex[~np.isnan(powerIndex)]))
 
 
-# ### get historical swe, gen, power price, revenue, net revenue. Period of record for hydropower = WY 1988-2016
-print('Saving synthetic data..., ', datetime.now() - startTime)
-historical_data = pd.DataFrame({'sweIndex': sweWtHist.loc[revHistWyr.index]})
-historical_data['cfd'] = payoutCfdHist.loc[revHistWyr.index].values
-historical_data['gen'] = genHistWyr.tot.values/1000
-powHistWyr.index = revHistWyr.index
-historical_data['pow'] = powHistWyr
-historical_data['rev'] = revHistWyr.rev
-historical_data.index = np.arange(1988, 2017)
+# # ### get historical swe, gen, power price, revenue, net revenue. Period of record for hydropower = WY 1988-2016
+# print('Saving synthetic data..., ', datetime.now() - startTime)
+# historical_data = pd.DataFrame({'sweIndex': sweWtHist.loc[revHistWyr.index]})
+# historical_data['cfd'] = payoutCfdHist.loc[revHistWyr.index].values
+# historical_data['gen'] = genHistWyr.tot.values/1000
+# powHistWyr.index = revHistWyr.index
+# historical_data['pow'] = powHistWyr
+# historical_data['rev'] = revHistWyr.rev
+# historical_data.index = np.arange(1988, 2017)
 
-### get power price index for sample for historical rerun (starts 1 year before revHistWyr, so can be used for prediction)
-powerIndexHist = powerIndex[powHistSampleStart - 1: powHistSampleStart + revHistWyr.shape[0]]
-powerIndexHist = pd.DataFrame({'powIndex': powerIndexHist}, index=np.arange(1987, 2017))
-historical_data = historical_data.join(powerIndexHist, how='right')
+# ### get power price index for sample for historical rerun (starts 1 year before revHistWyr, so can be used for prediction)
+# powerIndexHist = powerIndex[powHistSampleStart - 1: powHistSampleStart + revHistWyr.shape[0]]
+# powerIndexHist = pd.DataFrame({'powIndex': powerIndexHist}, index=np.arange(1987, 2017))
+# historical_data = historical_data.join(powerIndexHist, how='right')
 
-## save historical data for simulation of policies
-historical_data.to_csv(dir_generated_inputs + 'historical_data.csv', sep=' ')
+# ## save historical data for simulation of policies
+# historical_data.to_csv(dir_generated_inputs + 'historical_data.csv', sep=' ')
 
 
 # ### get wet, dry, avg example 20-yr periods for plotting
