@@ -46,6 +46,7 @@ Licensed under the GNU General Public License v3.0. This is a fork of [hamilton-
   * Download `pareto.py` from [Github](https://github.com/matthewjwoodruff/pareto.py) 
     * Move to `code/misc`
 
+
 ## Generate synthetic data
 * Run `make_synthetic_data_plots.py`, from `code/synthetic_data_and_moea_plots/` directory, either in an IDE or in a bash shell.
   * This takes about 2.5 minutes on my laptop.
@@ -55,38 +56,21 @@ Licensed under the GNU General Public License v3.0. This is a fork of [hamilton-
     * Figure of hedging contract structure (Figure S2 from Supporting Information), in `figures` directory
 
 
-
 ## Run the multi-objective optimization 
-<!-- * Note: If you don't want to repeat the MOO, you can skip to the next section and analyze my MOO output stored in `data/optimization_output`
-* Transfer new files from `data/generated_inputs/` to cluster (skip this step if performing all analysis on same machine)
-* Create baseline, sensitivity, & retest versions. Compile each C++ using MPI. All steps executed from directory `code/optimization`
-  * `sh remake.sh`
-  * Note: you may need to alter compiler, library/module locations, etc., in `remake.sh` and `makefile` based on your machine.
-* Run MOO for baseline & sensitivity analysis, from `code/optimization/` directory, in bash shell.
-  * `sbatch run_baseline_borgms.sh` - This will launch 50 instances of the MOO, each with a different seed given to Borg MOEA.
-  * `sbatch run_sensitivity_borgms.sh` - This will launch 1500 instances of the MOO; 150 sets of parameters for the sensitivity analysis, with 10 Borg seeds each.
-  * Note: May want to change the number of nodes (`--nodes`), number of processors per node (`--ntasks-per-node`), and wall time (`-t`) to match your resources. The default is 1 node of 16 processors for the baseline set (on THECUBE, this ran for ~1 real minute, or 16 user minutes, per seed, or ~50 real minutes total), and 5 nodes of 16 processors each for the sensitivity analysis (which ran for a total of ~5.1 real hours total, or ~411 user hours).
-  * Outputs
-    * `data/optimization_output/baseline/sets/param150_seedS1_seedB*.set`, for values of * in 1-50
-    * `data/optimization_output/baseline/runtime/param150_seedS1_seedB*.runtime`, for values of * in 1-50
-    * `data/optimization_output/sensitivity/sets/param@_seedS1_seedB*.set`, for values of * in 1-10, @ in 1-150
-    * `data/optimization_output/sensitivity/runtime/param@_seedS1_seedB*.runtime`, for values of * in 1-10, @ in 1-150
-* Run postprocessing script
-  * `sh postprocess_output.sh`, from directory `code/optimization`
-  * Outputs
-    * `data/optimization_output/baseline/param150_borg.resultfile` - Reference set for baseline with 5 columns: 2 decision variables (max reserve size, cfd slope), 2 objectives (expected annualized cash flow, 95th percentile max fund), 1 constraint
-    * `data/optimization_output/baseline/param150_borg.reference` - Same as resultfile, but only 2 objective columns
-    * `data/optimization_output/baseline/param150_borg.hypervolume` - Hypervolume of reference set
-    * `data/optimization_output/baseline/param150_borg_retest.resultfile` - Results from rerunning reference set on a new stochastic sample of 50,000 simulations. Adds 3 columns to end of resultfile - objectives & constraint values on rerun.
-    * `data/optimization_output/baseline/metrics/param150_seedS1_seedB*.metrics`. - Indicators of performance throughout Borg MOEA run, for seed number * in 1-50. 50 rows give performance at function evaluations (200, 400, ..., 10000).
-    * `data/optimization_output/sensitivity/param@_borg.resultfile` - Reference set for sensitivity analysis parameter set @ (0-149)
-    * `data/optimization_output/sensitivity/param@_borg.reference` 
-    * `data/optimization_output/sensitivity/param@_borg.hypervolume` 
-    * `data/optimization_output/sensitivity/param@_borg_retest.resultfile`
-    * `data/optimization_output/sensitivity/metrics/param@_seedS1_seedB*.metrics`. - Indicators of performance throughout Borg MOEA run, for seed number * in 1-10, for sensitivity analysis parameter set @ in 0-149. Note some will be missing, indicating (@,*) combinations for which fewer than two feasible solutions are found, and thus some performance indicators are undefined. We find that 1310 out of 1500 total (@,\*) combinations have feasible metrics files.
--->
+* Note: If you don't want to repeat the MOO, you can skip to the next section and analyze my MOO output stored in `data/optimization_output`
+* Transfer new files from `data/generated_inputs/` to cluster
+* Navigate to `code/optimization/cluster_run` and run the following commands in order. You will need to wait for each set of runs to finish before proceeding to the next step. All outputs from these steps are stored in `data/optimization_output`.
+  * `sh run_rbf_experiment.sh` - This will run an experiment to see how many radial basis functions (RBFs) should be used for this problem, using the 4-objective dynamic formulation. The script will create new directories for (1, 2, 3, 4, 8, 12) RBFs, change the relevant parameters, recompile, and dispatch the Borg MOEA using 10 random seeds each on the slurm scheduler.
+  * `sh run_rbf_postprocess.sh` - This will postprocess the RBF experiment to find reference sets and runtime metrics and re-evaluate on a new synthetic dataset. 
+  * ` sh run_more_seeds.sh` - Using the results from the RBF experiment (as analyzed in the "Create Figures" section below), we find that 2 RBFs is a good choice. This step will run 20 more random seeds with 2 RBFs.
+  * `sh run_more_seeds_postprocess.sh` - Combine the original 10 seeds into the new directory and postprocess.
+  * `sh run_formulation_experiment.sh` - Run 3 more formulations, for 30 seeds each. (1) 2-objective dynamic, (2) 2-objective static, (3) 4-objective static.
+  * `sh run_formulation_postprocess.sh` - Postprocess results from alternative formulations
+  * `sh run_refSets_subproblem.sh` - Get subsets of 4-objective dynamic reference set, non-dominated with respect to alternative lower-dimensional problems
+
 
 ## Run the entropic sensitivity analysis
+
 
 ## Create figures from MOO and ESA output data
 <!-- * Transfer important MOO outputs to appropriate directories on laptop for plotting (skip this step if performing the all analysis on a single machine)
