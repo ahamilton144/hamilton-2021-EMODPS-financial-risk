@@ -1,12 +1,10 @@
 # hamilton-2020-EMODPS-financial-risk
 
- ***Note: repo still a work in progress***
-
 This repository contains all code and data (included data for figures) for the following paper:
 
 Hamilton, A.L., Characklis, G.W., &amp; Reed, P.M. (2020). From stream flows to cash flows: Leveraging Evolutionary Multi-Objective Direct Policy Search to manage hydrologic financial risks (in preparation).
 
-Licensed under the GNU General Public License v3.0. This is a fork of [hamilton-2020-managing-financial-risk-tradeoffs-for-hydropower](https://github.com/ahamilton144/hamilton-2020-managing-financial-risk-tradeoffs-for-hydropower), the code and data repository for ["Managing financial risk tradeoffs for hydropower generation using snowpack-based index contracts" (2020)](https://agupubs.onlinelibrary.wiley.com/doi/abs/10.1029/2020WR027212), a previous publication by the same authors in *Water Resources Research*. The current repository and associated manuscript build off of the previous work by introducing a dynamic risk management formulation, Evolutionary Direct Policy Search (EMODPS). In building the EMODPS component of this code base, I borrowed and built upon sections of Julianne Quinn's [Lake Problem Direct Policy Search code](https://github.com/julianneq/Lake_Problem_DPS).
+Licensed under the GNU General Public License v3.0. This is a fork of [hamilton-2020-managing-financial-risk-tradeoffs-for-hydropower](https://github.com/ahamilton144/hamilton-2020-managing-financial-risk-tradeoffs-for-hydropower), the code and data repository for ["Managing financial risk tradeoffs for hydropower generation using snowpack-based index contracts" (2020)](https://agupubs.onlinelibrary.wiley.com/doi/abs/10.1029/2020WR027212), a previous publication by the same authors in *Water Resources Research*. The current repository and associated manuscript build off of the previous work by introducing a dynamic risk management formulation, Evolutionary Direct Policy Search (EMODPS), as well as an entropic sensitivity analysis and visualization. In building the EMODPS component of this code base, I borrowed and built upon sections of Julianne Quinn's [Lake Problem Direct Policy Search code](https://github.com/julianneq/Lake_Problem_DPS).
 
 ## Contents
 * `code/` - directory with all code used to replicate paper
