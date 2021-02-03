@@ -229,6 +229,7 @@ def plot_contract(dir_figs, sweWtSynth, payoutCfdSim, fig_format, lambda_shifts)
   ### plot regime as function of debt and uncertain params
   plt.figure()
   ax = plt.subplot2grid((3,1), (0, 0))
+  ax.annotate('a)', xy=(0.95, 0.8), xycoords='axes fraction')
   # ax.set_xlabel('SWE Index (inch)')
   ax.set_ylabel('Density')
   # ax.set_xticks(np.arange(0.85, 0.98, 0.04))
@@ -239,9 +240,10 @@ def plot_contract(dir_figs, sweWtSynth, payoutCfdSim, fig_format, lambda_shifts)
   ax.tick_params(axis='y', which='both', labelleft=False,labelright=False)
   # ax.xaxis.set_label_position('top')
 
-  sbn.kdeplot(sweWtSynth, ax=ax, c='k', lw=2)
+  sbn.kdeplot(sweWtSynth, ax=ax, color='k', lw=2)
 
   ax = plt.subplot2grid((3, 1), (1, 0), rowspan=2)
+  ax.annotate('b)', xy=(0.95, 0.9), xycoords='axes fraction')
   ax.set_xlabel('SWE Index (inch)')
   ax.set_ylabel('Net Payout ($M)')
   ax.set_xlim([0, 60])
@@ -250,6 +252,10 @@ def plot_contract(dir_figs, sweWtSynth, payoutCfdSim, fig_format, lambda_shifts)
   kinkY = np.min(payoutCfdSim)
   kinkX = np.min(sweWtSynth.loc[payoutCfdSim < kinkY + eps])
   line3, = ax.plot([0, kinkX, 60], [kinkX + kinkY, kinkY, kinkY], color=col[0], linewidth=2)
+  line4, = ax.plot([0, kinkX, 60], [kinkX + kinkY + lambda_shifts[0], kinkY + lambda_shifts[0], kinkY + lambda_shifts[0]], color=col[0], ls='--', linewidth=2)
+  line5, = ax.plot([0, kinkX, 60], [kinkX + kinkY + lambda_shifts[1], kinkY + lambda_shifts[1], kinkY + lambda_shifts[1]], color=col[0], ls=':', linewidth=2)
+  plt.legend([line4,line3,line5],['No loading', 'Baseline loading', 'High loading'], loc='lower left', 
+              bbox_to_anchor=(0.01, 0.02), ncol=1, borderaxespad=0.)
   plot_name = dir_figs + 'contract.' + fig_format
   plt.savefig(plot_name, dpi=500)
 

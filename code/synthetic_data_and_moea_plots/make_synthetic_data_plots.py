@@ -116,7 +116,7 @@ payoutCfdHist = functions_revenues_contracts.snow_contract_payout_hist(sweWtHist
 # ### plot CFD structure
 # importlib.reload(functions_revenues_contracts)
 print('Plotting CFD structure..., ', datetime.now() - startTime)
-functions_revenues_contracts.plot_contract(dir_figs, sweWtSynth, payoutCfdSim, fig_format, lambda_shifts=[])
+functions_revenues_contracts.plot_contract(dir_figs, sweWtSynth, payoutCfdSim, fig_format, lambda_shifts=[0.0, 0.5])
 
 
 ### get power price index 
@@ -149,7 +149,6 @@ powerIndex, powGenWt = functions_revenues_contracts.power_price_index(powSynth, 
 # ### get wet, dry, avg example 20-yr periods for plotting
 ny = 20
 m20AvgSwe = revSimWyr.rolling(ny).mean()
-print(np.sort(m20AvgSwe.dropna()))
 minM20AvgSwe = np.where(m20AvgSwe == np.sort(m20AvgSwe.dropna())[9])[0][0]
 maxM20AvgSwe = np.where(m20AvgSwe == np.sort(m20AvgSwe.dropna())[-10])[0][0]
 avgM20AvgSwe = np.where(np.abs(m20AvgSwe - m20AvgSwe.mean()) == np.abs(m20AvgSwe - m20AvgSwe.mean()).min())[0][0]
