@@ -31,10 +31,7 @@ Licensed under the GNU General Public License v3.0. This is a fork of [hamilton-
 
 ## Setup
 * Clone the model from this GitHub repository
-* Install Python dependencies in virtual environment. All synthetic data generation, data analysis, and figure production are set up to run on my Windows laptop, using a linux bash shell (WSL, Ubuntu 18.04 LTS), and Python 3.6.9. All Python dependencies can be installed with pip using the steps below. If using a different setup, you may have to make alterations to this workflow - If using a different package manager than pip (such as Anaconda), install all packages listed at the top of the Python files in `code/synthetic_data_and_moea_plots`.
-  * `python3 -m venv .venv` - This will create a virtual environment.
-  * `source .venv/bin/activate` - Activate virtual environment.
-  * `pip3 install -r requirements.txt`
+* Install Python dependencies in virtual environment. All synthetic data generation, data analysis, and figure production are set up to run on my Windows laptop, using a linux bash shell (WSL, Ubuntu 18.04 LTS), and Python 3.6.9. You will need to install all packages listed at the top of the Python files in `code/synthetic_data_and_moea_plots`.
 * The MOO and ESA are set up to run on [THECUBE](https://www.cac.cornell.edu/wiki/index.php?title=THECUBE_Cluster), a cluster housed at Cornell University. THECUBE uses the slurm scheduler. Submission scripts and makefiles may need to be altered to accomodate different setups.
 * Obtain additional software
   * Download the [Borg MOEA](http://borgmoea.org/) source code
@@ -52,7 +49,7 @@ Licensed under the GNU General Public License v3.0. This is a fork of [hamilton-
   * Outputs
     * `data/generated_inputs/synthetic_data.txt` - Synthetic time series of hydropower revenue, and CFD net payout, and power price index. Needed for MOO.
     * `data/generated_inputs/example_data.txt` - 3x20 year samples from synthetic record, one very wet, one average, one very dry. Each sample reports SWE index, CFD net payout, hydropower generation, weighted average power price, power price index, and hydropower revenue, at an annual time scale.
-    * Figure of hedging contract structure (Figure S2 from Supporting Information), in `figures` directory
+    * Figures of power price index correlation (Fig S2 from Supporting Information) and hedging contract structure (Figure S3 from Supporting Information), in `figures` directory
 
 
 ## Run the multi-objective optimization (MOO)
@@ -87,6 +84,6 @@ Licensed under the GNU General Public License v3.0. This is a fork of [hamilton-
   * `data/policy_simulation/*obj/mi_combined.csv`, for * in (2, 4)
 * Create plots/tables related to MOO results. 
   * Navigate to `code/synthetic_data_and_moea_plots` and run the following commands in order. All figures/tables will be saved to `figures` directory.
-  * `python make_moea_output_plots.py` - Creates Figures 3-7 in main text and Figures S3-S4 in the Supporting Information. For convenience, the output format is "jpg", but this can be changed with the "fig_format" variable in the script. For the paper, I used "eps" format and combined/cleaned up figures in Adobe Illustrator.
-  * `python make_mutual_info_plots.py` - Creates Table 2 and Figure 8 in main text and Figure S5 in the Supporting Information. For convenience, the output format is "jpg", but this can be changed with the "fig_format" variable in the script. For the paper, I used "eps" format and combined/cleaned up figures in Adobe Illustrator. 
-  * Run `policy_parallel_coord.R` in R. Creates Figure 9 in main text and Figure S6 in the Supporting Information. Defaults to "eps" format.
+  * `python make_moea_output_plots.py` - Creates Figures 4-8 in main text and Figures S4-S5 in the Supporting Information. For convenience, the output format is "jpg", but this can be changed with the "fig_format" variable in the script. For the paper, I used "eps" format and combined/cleaned up figures in Adobe Illustrator.
+  * `python make_mutual_info_plots.py` - Creates Table 2 and Figure 9 in main text and Figure S6 in the Supporting Information. For convenience, the output format is "jpg", but this can be changed with the "fig_format" variable in the script. For the paper, I used "eps" format and combined/cleaned up figures in Adobe Illustrator. 
+  * Run `policy_parallel_coord.R` in R. Creates Figure 10 in main text and Figure S7 in the Supporting Information. Defaults to "eps" format.
