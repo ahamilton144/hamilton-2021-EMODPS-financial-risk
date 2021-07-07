@@ -287,16 +287,8 @@ def power_price_index(powSynth, genSynth, revSim, hp_GWh):
   powSynth['powPriceWt'] = (np.array(powSynth.powPrice).reshape(
       [nYr, 12]) * np.array(genWeights).reshape([1, 12])).reshape(nYr * 12)
   pwyr = powSynth.powPriceWt.groupby(yrSim[0, :]).sum()
-
-  # plt.scatter(pwyr.iloc[:1000], revSim.groupby(yrSim[0, :]).sum().iloc[:1000])
-  # np.corrcoef(pwyr.iloc[:1000], revSim.groupby(yrSim[0, :]).sum().iloc[:1000])
-  # plt.scatter(pwyr.iloc[:1000], revSim.groupby(yrSim[0, :]).sum().iloc[:1000] + 0.83*snowCont.iloc[:1000])
-  # np.corrcoef(pwyr.iloc[:1000], revSim.groupby(yrSim[0, :]).sum().iloc[:1000] + 0.83*snowCont.iloc[:1000])
-
   psep = powSynth.powPrice[11::12].values
 
-  # plt.scatter(psep[:1000],pwyr[1:1001])
-  # np.corrcoef(psep[:-1],pwyr[1:])
 
   ### regress ln(pwyr_t) = a*ln(pwyr_{t-1}) + b*ln(psep_{t-1}) + c + eps, eps ~ N(0, sig2)
   ### then by moment generating function proof,
@@ -311,10 +303,14 @@ def power_price_index(powSynth, genSynth, revSim, hp_GWh):
   E_pwyr[1:] = (pwyr[:-1].values ** lmPswp.params[1]) * (psep[:-1] ** lmPswp.params[2]) * \
                 np.exp(lmPswp.params[0]) * np.exp(np.var(lmPswp.resid) / 2)
 
-  # plt.scatter(psep[:999], pwyr[1:1000])
-  # plt.scatter(st.rankdata(psep[:999]), st.rankdata(pwyr[1:1000]))
-  # np.corrcoef(psep[:-1], netpay[1:])
-  # st.spearmanr(psep[:-1], netpay[1:])
+  ### plot correlation
+  plt.figure()
+  plt.scatter(E_pwyr[1:2001], pwyr[1:2001], alpha=0.3)
+  plt.xlabel('Power price index\n($\MWh)')
+  plt.ylabel('Generation-weighted\npower price ($\MWh)')
+  plt.annotate(r'$\rho =$ ' + str(round(np.corrcoef(E_pwyr[1:], pwyr[1:])[0,1], 2)), xy=(0.05, 0.9), xycoords='axes fraction')
+  plt.savefig('../../figures/pow_index_corr.jpg', dpi=500, bbox_inches='tight')
+
 
   return E_pwyr, pwyr
 
